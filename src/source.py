@@ -46,7 +46,6 @@ class StringSource(Source):
         if self.index < len(self.text):
             char = self.text[self.index]
             self.position = self.position.getNextLine() if char == "\n" else self.position.getNextCharacter()
-            print(f"SOURCE - char: {char}, pos: {self.position}")
             self.index += 1
             return char
         return ""

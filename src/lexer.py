@@ -95,7 +95,6 @@ class Lexer:
 
     def _tryBuildIdentifierOrKeyword(self) -> Optional[Token]:
         startPosition = self.source.position.copy()
-        print(f"LEXER - char: {self.currentCharacter}, pos: {startPosition}")
         isValidIdentifier = True
 
         identifierString = self.currentCharacter
