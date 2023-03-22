@@ -35,6 +35,7 @@ class TestNumbers:
 
         assert len(lexer.allTokens) == 2
         assert lexer.allTokens[0] == IntValueToken(value=1, startPosition=Position(line=1, column=1), length=1)
+        assert lexer.allTokens[1] == Token(type=TokenType.T_MINUS, startPosition=Position(line=3, column=1), length=1)
 
 
 def testIdentifier():
