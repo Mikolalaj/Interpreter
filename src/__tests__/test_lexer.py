@@ -4,35 +4,37 @@ from src.tokens import FloatValueToken, IdentifierValueToken, IntValueToken, Tok
 from src.token_type import TokenType
 
 
-def testValidNumbers():
-    numbers = """
+class TestNumbers:
+    def testValidNumbers(self):
+        numbers = """
 23
 5  13.111
- 1.1
+1.1
 0 -1
+        """
+
+        lexer = Lexer(source=StringSource(numbers[1:-1]))
+
+        assert len(lexer.allTokens) == 7
+        assert lexer.allTokens[0] == IntValueToken(value=23, startPosition=Position(line=1, column=1), length=2)
+        assert lexer.allTokens[1] == IntValueToken(value=5, startPosition=Position(line=2, column=1), length=1)
+        assert lexer.allTokens[2] == FloatValueToken(value=13.111, startPosition=Position(line=2, column=4), length=6)
+        assert lexer.allTokens[3] == FloatValueToken(value=1.1, startPosition=Position(line=3, column=1), length=3)
+        assert lexer.allTokens[4] == IntValueToken(value=0, startPosition=Position(line=4, column=1), length=1)
+        assert lexer.allTokens[5] == Token(type=TokenType.T_MINUS, startPosition=Position(line=4, column=3), length=1)
+        assert lexer.allTokens[6] == IntValueToken(value=1, startPosition=Position(line=4, column=4), length=1)
+
+    def testNotValidNumbers(self):
+        numbers = """
+1 .3
+ 05
+-.2
     """
 
-    lexer = Lexer(source=StringSource(numbers[1:-1]))
+        lexer = Lexer(source=StringSource(numbers[1:-1]))
 
-    assert len(lexer.allTokens) == 7
-    assert lexer.allTokens[0] == IntValueToken(value=23, startPosition=Position(line=1, column=1), length=2)
-    assert lexer.allTokens[1] == IntValueToken(value=5, startPosition=Position(line=2, column=1), length=1)
-    assert lexer.allTokens[2] == FloatValueToken(value=13.111, startPosition=Position(line=2, column=4), length=6)
-    assert lexer.allTokens[3] == FloatValueToken(value=1.1, startPosition=Position(line=3, column=2), length=3)
-    assert lexer.allTokens[4] == IntValueToken(value=0, startPosition=Position(line=4, column=1), length=1)
-    assert lexer.allTokens[5] == Token(type=TokenType.T_MINUS, startPosition=Position(line=4, column=3), length=1)
-    assert lexer.allTokens[6] == IntValueToken(value=1, startPosition=Position(line=4, column=4), length=1)
-
-
-def testNotValidNumbers():
-    numbers = """
-1 .3 05
-"""
-
-    lexer = Lexer(source=StringSource(numbers[1:-1]))
-
-    assert len(lexer.allTokens) == 1
-    assert lexer.allTokens[0] == IntValueToken(value=1, startPosition=Position(line=1, column=1), length=1)
+        assert len(lexer.allTokens) == 2
+        assert lexer.allTokens[0] == IntValueToken(value=1, startPosition=Position(line=1, column=1), length=1)
 
 
 def testIdentifier():
