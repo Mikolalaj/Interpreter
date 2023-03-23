@@ -3,7 +3,7 @@ from typing import List, Optional
 from .errors import LexerError
 from .source import Source
 from .tokens import StringValueToken, Token, FloatValueToken, IntValueToken, IdentifierValueToken
-from .token_type import TokenType, getCompiledRegexTokens
+from .token_type import TokenType
 
 
 MAX_NUMBER = 2**31 - 1
@@ -13,7 +13,6 @@ MAX_STRING_LENGTH = 2**31 - 1
 class Lexer:
     def __init__(self, source: Source):
         self.source = source
-        self.regexTokens = getCompiledRegexTokens()
         self.tokenIterator = 0
         self.currentCharacter: str = self.source.readNextCharacter()
         self.allTokens = self._getAllTokens()
