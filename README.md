@@ -85,12 +85,12 @@ Cone b = (radius=3*PI, height=2)
 Deklaracje
 
 ```
-Cuboid a = Cuboid(width=4, length=2, height=5)
-Pyramid b = Pyramid(width=4, length=2, height=7)
-Cone c = Cone(radius=3, height=7)
-Cylinder d = Cylinder(radius=3, height=7)
-Sphere e = Sphere(radius=3)
-Tetrahedron f = Tetrahedron(edge=3)
+let a = Cuboid(width=4, length=2, height=5)
+let b = Pyramid(width=4, length=2, height=7)
+let c = Cone(radius=3, height=7)
+let d = Cylinder(radius=3, height=7)
+let e = Sphere(radius=3)
+let f = Tetrahedron(edge=3)
 ```
 
 Metody
