@@ -1,33 +1,39 @@
-### TKOM - Interpreter języka opisu brył
+# TKOM - Interpreter języka opisu brył
 
-# Treść zadania
+## Treść zadania
+
 Język do opisu brył i ich właściwości. Podstawowe bryły (prostopadłościan, ostrosłup, stożek, walec, kula itd.) są wbudowanymi typami języka. Każdy typ posiada wbudowane metody służące do wyznaczania charakterystycznych dla niego wielkości, np. pole podstawy, pole powierzchni bocznej, objętość, wysokość, średnica itp. Kolekcja brył tworzy scenę wyświetlaną na ekranie.
 
-Język dynamiczne i silne typowanie. // może zmienić na słabe?
+Język dynamicznie i silne typowanie.
 
 Czym jest program? Program może być zdefiniowany w pliku lub jako ciąg znaków. Program składa się z deklaracji zmiennych i funkcji oraz instrukcji sterujących.
 
 Minus nie jest częścią liczby
 
-# Przykładowe wyrażenia
+## Przykładowe wyrażenia
+
+#### Podstawowe
+
 Deklaracja zmiennej
+
 ```typescript
-int a = 5
-float b = 3.14
-string c = "Hello world!" # nie `` ani ''
-bool d = true
-bool e = false
-int[] f = [1, 2, 3, 4, 5]
+let a = 5 # integer
+let b = 3.14 # float
+let c = "Hello world!" # string
+let d = true # boolean
+let f = [1, 2, 3, 4, 5] # list
 ```
 
 Deklaracja funkcji
+
 ```typescript
-function add(a: int, b: int) -> int {
+function add(a, b) {
     return a + b
 }
 ```
 
 Instrukcja warunkowa
+
 ```typescript
 if (a > 0) {
     print("a is positive")
@@ -39,42 +45,58 @@ if (a > 0) {
 ```
 
 Pętla
+
 ```typescript
 while (a > 0) {
     print(a)
     a = a - 1
 }
 ```
+
 ```typescript
+a = -10
 while (true) {
-    print("infinite loop")
     if (a > 0) {
         break
     }
     if (a < -5) {
         continue
     }
-    print("close to zero")
+    print('close to zero')
 }
 ```
 
 Komentarze
+
 ```typescript
 # single line comment
-int a = 4 # comment after statement
-```
-
-Typy danych z zadania
-```
-cuboid cub = (4, 2, 5) # szerokość, długość, wysokość
-pyramid pyr = (4, 2, 7) # szerokość, długość, wysokość
-cone con = (3, 7) # promień podstawy, wysokość
-cylinder cyl = (3, 7) # promień podstawy, wysokość
-sphere sph = (3) # promień
+let a = 4 # comment after statement
 ```
 
 Stałe
+
 ```typescript
-float a = PI
-cone con = (3, 2*PI)
+let a = PI
+Cone b = (radius=3*PI, height=2)
+```
+
+#### Bryły geometryczne
+
+Deklaracje
+
+```
+Cuboid a = Cuboid(width=4, length=2, height=5)
+Pyramid b = Pyramid(width=4, length=2, height=7)
+Cone c = Cone(radius=3, height=7)
+Cylinder d = Cylinder(radius=3, height=7)
+Sphere e = Sphere(radius=3)
+Tetrahedron f = Tetrahedron(edge=3)
+```
+
+Metody
+
+```
+a.getBaseArea()
+a.getSurfaceArea()
+a.getVolume()
 ```
