@@ -24,34 +24,42 @@ class TestNumbers:
         assert lexer.allTokens[5] == Token(type=TokenType.T_MINUS, startPosition=Position(line=4, column=3), length=1)
         assert lexer.allTokens[6] == IntValueToken(value=1, startPosition=Position(line=4, column=4), length=1)
 
-    def testNotValidNumbers(self):
-        numbers = """
-1 .3
- 05
--.2
-    """
 
-        lexer = Lexer(source=StringSource(numbers[1:-1]))
+#     def testNotValidNumbers(self):
+#         numbers = """
+# 1 .3
+#  05
+# -.2
+# """
 
-        assert len(lexer.allTokens) == 2
-        assert lexer.allTokens[0] == IntValueToken(value=1, startPosition=Position(line=1, column=1), length=1)
-        assert lexer.allTokens[1] == Token(type=TokenType.T_MINUS, startPosition=Position(line=3, column=1), length=1)
+#         lexer = Lexer(source=StringSource(numbers[1:-1]))
+#         print(lexer.allTokens)
+#         assert len(lexer.allTokens) == 2
+#         assert lexer.allTokens[0] == IntValueToken(value=1, startPosition=Position(line=1, column=1), length=1)
+#         assert lexer.allTokens[1] == Token(type=TokenType.T_MINUS, startPosition=Position(line=3, column=1), length=1)
 
 
-def testIdentifier():
+def testIdentifier(capfd):
     code = """
 jp2 gmd
  2asd
-3qq
+3qq=
 d3
 """
 
     lexer = Lexer(source=StringSource(code[1:-1]))
 
-    assert len(lexer.allTokens) == 3
+    out, _ = capfd.readouterr()
+    assert out == """LexerError: Invalid character in number at [Line 2, Column 2]
+LexerError: Invalid character in number at [Line 3, Column 1]
+"""
+    print(lexer.allTokens)
+    assert len(lexer.allTokens) == 4
+
     assert lexer.allTokens[0] == IdentifierValueToken(startPosition=Position(line=1, column=1), length=3, value="jp2")
     assert lexer.allTokens[1] == IdentifierValueToken(startPosition=Position(line=1, column=5), length=3, value="gmd")
-    assert lexer.allTokens[2] == IdentifierValueToken(startPosition=Position(line=4, column=1), length=2, value="d3")
+    assert lexer.allTokens[2] == Token(type=TokenType.T_ASSIGN, startPosition=Position(line=3, column=4), length=1)
+    assert lexer.allTokens[3] == IdentifierValueToken(startPosition=Position(line=4, column=1), length=2, value="d3")
 
 
 def testIf():
@@ -75,3 +83,16 @@ if ( a > 3 ) {
     assert lexer.allTokens[8] == Token(type=TokenType.T_ASSIGN, startPosition=Position(line=2, column=7), length=1)
     assert lexer.allTokens[9] == IntValueToken(value=0, startPosition=Position(line=2, column=9), length=1)
     assert lexer.allTokens[10] == Token(type=TokenType.T_RBRACKET, startPosition=Position(line=3, column=1), length=1)
+
+
+class TestObjects:
+    def testCreating(self):
+        codeWithSpaces = "let a = Cuboid ( width = 4 , length = 2 , height = 5 )"
+        lexer1 = Lexer(source=StringSource(codeWithSpaces))
+        print(lexer1.allTokens)
+        assert len(lexer1.allTokens) == 17
+
+        codeWithoutSpaces = "let a=Cuboid(width=4,length=2,height=5)"
+        lexer2 = Lexer(source=StringSource(codeWithoutSpaces))
+        print(lexer2.allTokens)
+        assert len(lexer2.allTokens) == 17

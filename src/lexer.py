@@ -60,7 +60,7 @@ class Lexer:
             while True:
                 self._nextCharacter()
                 if not self._isWhitespace() and not self._isNewLine() and startsWithZero and self.currentCharacter != ".":
-                    self._skipToFirstWhitespace()
+                    # self._skipToFirstWhitespace()
                     raise LexerError("Integer number can't start with zero", startPosition)
                 else:
                     startsWithZero = False
@@ -81,9 +81,11 @@ class Lexer:
                     isDecimal = True
                 elif self._isWhitespace() or self._isNewLine():
                     break
-                else:
-                    self._skipToFirstWhitespace()
+                elif self._isLetter():
+                    self._skipIdentifierCharacters()
                     raise LexerError("Invalid character in number", startPosition)
+                else:
+                    break
 
             length = integerLength + fractionalLength + int(isDecimal)
             if isDecimal:
@@ -107,6 +109,8 @@ class Lexer:
 
         while not self.source.isEndOfSource() and not self._isWhitespace() and not self._isNewLine():
             isValidIdentifier = isValidIdentifier and self._isValidIdentifier(isFirstCharacter=False)
+            if not isValidIdentifier:
+                return IdentifierValueToken(startPosition, len(identifierString), identifierString)
             identifierString += self.currentCharacter
             self._nextCharacter()
 
@@ -179,6 +183,13 @@ class Lexer:
             if self._isNewLine() or self._isWhitespace():
                 break
             self._nextCharacter()
+
+    def _skipIdentifierCharacters(self) -> None:
+        while not self.source.isEndOfSource():
+            if self._isLetter() or self._idDigit() or self.currentCharacter == "_" or self.currentCharacter == "-":
+                self._nextCharacter()
+            else:
+                break
 
     def _nextCharacter(self) -> None:
         self.currentCharacter = self.source.readNextCharacter()

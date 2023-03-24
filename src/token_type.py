@@ -43,10 +43,10 @@ class TokenType(Enum):
     T_DIV = "/"
 
     # math order types
-    T_LESS_OR_EQ = "<="
     T_LESS = "<"
-    T_GREATER_OR_EQ = ">="
+    T_LESS_OR_EQ = "<="
     T_GREATER = ">"
+    T_GREATER_OR_EQ = ">="
     T_EQ = "=="
     T_NOT_EQ = "!="
 
@@ -58,7 +58,7 @@ class TokenType(Enum):
     # other
     T_IF = "if"
     T_ELSE = "else"
-    T_ELSEIF = "elseif"
+    T_ELSEIF = "elif"
     T_TRUE = "true"
     T_FALSE = "false"
     T_RETURN = "return"
@@ -66,7 +66,6 @@ class TokenType(Enum):
     T_CONTINUE = "continue"
     T_WHILE = "while"
     T_ASSIGN = "="
-    T_VOID = "void"
     T_FUNCTION = "function"
     T_EOT = "End Of Text"
     T_ARROW = "->"
