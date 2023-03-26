@@ -2,13 +2,102 @@
 
 ## Treść zadania
 
-Język do opisu brył i ich właściwości. Podstawowe bryły (prostopadłościan, ostrosłup, stożek, walec, kula itd.) są wbudowanymi typami języka. Każdy typ posiada wbudowane metody służące do wyznaczania charakterystycznych dla niego wielkości, np. pole podstawy, pole powierzchni bocznej, objętość, wysokość, średnica itp. Kolekcja brył tworzy scenę wyświetlaną na ekranie.
+>Język do opisu brył i ich właściwości. Podstawowe bryły (prostopadłościan, ostrosłup, stożek, walec, kula itd.) są wbudowanymi typami języka. Każdy typ posiada wbudowane metody służące do wyznaczania charakterystycznych dla niego wielkości, np. pole podstawy, pole powierzchni bocznej, objętość, wysokość, średnica itp. Kolekcja brył tworzy scenę wyświetlaną na ekranie.
 
-Język dynamicznie i silne typowanie.
+***Język dynamicznie i silne typowanie.***
+
+## Dokumentacja wstępna.
+- formalna  specyfikacja i składnia: realizowanego języka (jeśli chodzi np. o interpretery), wszystkich plików/strumieni wejściowych, danych konfiguracyjnychitp.
+- zwięzłą analizę wymagań funkcjonalnych i niefunkcjonalnych, obsługa błędów(jakiego rodzaju błędy będą wykrywane, tolerowane?, jak będzie wyglądał przykładowy komunikat o błędzie?).
+- sposób uruchomienia, wej./wyj.
+- zwięzły opis sposobu testowania–podane  przykłady testowanych konstrukcji językowych, przypadków złożonych, błędnych itp.
 
 Czym jest program? Program może być zdefiniowany w pliku lub jako ciąg znaków. Program składa się z deklaracji zmiennych i funkcji oraz instrukcji sterujących.
 
-Minus nie jest częścią liczby
+## Gramatyka
+
+```ebnf
+Program                     = Statement* ;
+
+Statement                   = 
+                            | VariableDeclaration
+                            | FunctionDefinition
+                            | IfStatement
+                            | WhileLoop
+                            | Expression
+                            | ObjectDeclaration
+                            | ObjectMethodCall
+                            | Comment ;
+
+Identifier                  = Letter (Letter | Digit)* ;
+
+Value                       = Boolean | Integer | Float | String | List ;
+
+Boolean                     = "true" | "false" ;
+
+Integer                     = DigitWithoutZero Digit* ;
+
+Float                       =
+                            | "0" "." Digit+
+                            | DigitWithoutZero Digit* "." Digit+ ;
+
+String                      = "\"" character* "\"" ;
+
+List                        = "[" value ("," value)* "]" ;
+
+VariableDeclaration         = "let" Identifier "=" Value ;
+
+Block                       = "{" Statement* "}"
+
+Condition                   = "(" Expression ")" ;
+
+FunctionDefinition          = "function" Identifier "(" Parameters ")" Block ;
+
+Parameters                  = (Identifier ("," Identifier)*)? ;
+
+FunctionCall                = Identifier Arguments ;
+
+Arguments                   = "(" (ObjectArgument ("," ObjectArgument)*)? ")" ;
+
+Argument                    = Identifier "=" Value ;
+
+IfStatement                 = "if" Condition Block ( "elif" Condition Block )* ( "else" Block )? ;
+
+WhileLoop                   = "while" Condition Block ;
+
+Expression                  = AdditiveExpression ;
+
+ComparisonExpression        = AdditiveExpression ( ( "<" | ">" | "<=" | ">=" | "==" | "!=" ) AdditiveExpression )? ;
+
+AdditiveExpression          = MultiplicativeExpression ( ( "+" | "-" ) MultiplicativeExpression )* ;
+
+MultiplicativeExpression    = PrimaryExpression ( ( "*" | "/" ) PrimaryExpression )* ;
+
+PrimaryExpression           = 
+                            | Identifier 
+                            | Value 
+                            | "(" Expression ")" ;
+
+ObjectDeclaration           = "let" Identifier "=" ObjectConstructor ;
+
+ObjectConstructor           = ObjectType "(" ObjectArguments ")" ;
+
+ObjectType                  = "Cuboid" | "Pyramid" | "Cone" | "Cylinder" | "Sphere" | "Tetrahedron" ;
+
+ObjectMethodCall            = Identifier "." FunctionCall ;
+
+Comment                     = "#" ( Character - "\n" )* ;
+
+Letter                      = ( "a".."z" | "A".."Z" ) ;
+
+Digit                       = "0".."9" ;
+
+Symbol                      = "+" | "-" | "*" | "/" | "(" | ")" | "[" | "]" | "=" | "." | "," | "\"" | "'" | ";" | ":" | "<" | ">" | "!" | "?" | "&" | "|" ;
+
+Whitespace                  = " " | "\t" | "\r" | "\n" ;
+
+Character                   = ( Letter | Digit | Symbol | Whitespace ) ;
+```
 
 ## Przykładowe wyrażenia
 
