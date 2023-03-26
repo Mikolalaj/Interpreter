@@ -6,13 +6,7 @@
 
 ***Język dynamicznie i silne typowanie.***
 
-## Dokumentacja wstępna.
-- formalna  specyfikacja i składnia: realizowanego języka (jeśli chodzi np. o interpretery), wszystkich plików/strumieni wejściowych, danych konfiguracyjnychitp.
-- zwięzłą analizę wymagań funkcjonalnych i niefunkcjonalnych, obsługa błędów(jakiego rodzaju błędy będą wykrywane, tolerowane?, jak będzie wyglądał przykładowy komunikat o błędzie?).
-- sposób uruchomienia, wej./wyj.
-- zwięzły opis sposobu testowania–podane  przykłady testowanych konstrukcji językowych, przypadków złożonych, błędnych itp.
-
-Czym jest program? Program może być zdefiniowany w pliku lub jako ciąg znaków. Program składa się z deklaracji zmiennych i funkcji oraz instrukcji sterujących.
+Program obsługuje dwa rodzaje źródeł danych wejściowych: pliki tekstowe i ciąg znaków.
 
 ## Gramatyka
 
@@ -189,3 +183,37 @@ a.getBaseArea()
 a.getSurfaceArea()
 a.getVolume()
 ```
+
+## Testowanie
+
+W zdecydowanie większości będą to testy jednostkowe wykonywane za pomocą biblioteki [unittest](https://docs.python.org/3/library/unittest.html). Testowane będą zarówno przypadki poprawne jak i te które powinny zwracać błędy. Przykład testu jednostkowego lexera:
+
+```python
+def testIdentifier(capfd):
+    code = """
+jp2
+ 2asd
+3qq=
+d3
+"""
+
+    lexer = Lexer(source=StringSource(code[1:-1]))
+
+    out, _ = capfd.readouterr()
+    assert out == """LexerError: Invalid character in number at [Line 2, Column 2]
+LexerError: Invalid character in number at [Line 3, Column 1]
+"""
+    print(lexer.allTokens)
+    assert len(lexer.allTokens) == 3
+
+    assert lexer.allTokens[0] == IdentifierValueToken(startPosition=Position(line=1, column=1), length=3, value="jp2")
+    assert lexer.allTokens[2] == Token(type=TokenType.T_ASSIGN, startPosition=Position(line=3, column=4), length=1)
+    assert lexer.allTokens[3] == IdentifierValueToken(startPosition=Position(line=4, column=1), length=2, value="d3")
+```
+
+## Błędy
+
+Program będzie obsługiwał następujące błędy z każdego modułu, tj. analizatora leksykalnego, składniowego i interpretera. Jeśli wystąpi błąd, to program nie będzie przerywał swojej pracy, tylko będzie próbował kontynuować. W przypadku wystąpienia błędu, program powinien wyświetlić informację o błędzie na standardowe wyjście.
+Przykładowy błąd:
+
+```LexerError: Invalid character in number at [Line 2, Column 2]```
