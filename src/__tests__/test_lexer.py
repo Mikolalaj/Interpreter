@@ -149,6 +149,27 @@ class TestIf:
         assert lexer.allTokens[22] == IntValueToken(value=1, startPosition=Position(line=4, column=9), length=1)
         assert lexer.allTokens[23] == Token(type=TokenType.T_RBRACKET, startPosition=Position(line=5, column=1), length=1)
 
+    def testIfElse(self):
+        code = """
+            if () {
+            } else () {
+            }
+        """
+
+        lexer = Lexer(source=StringSource(removeSpaces(code)))
+
+        assert len(lexer.allTokens) == 10
+        assert lexer.allTokens[0] == Token(type=TokenType.T_IF, startPosition=Position(line=1, column=1), length=2)
+        assert lexer.allTokens[1] == Token(type=TokenType.T_LPARENT, startPosition=Position(line=1, column=4), length=1)
+        assert lexer.allTokens[2] == Token(type=TokenType.T_RPARENT, startPosition=Position(line=1, column=5), length=1)
+        assert lexer.allTokens[3] == Token(type=TokenType.T_LBRACKET, startPosition=Position(line=1, column=7), length=1)
+        assert lexer.allTokens[4] == Token(type=TokenType.T_RBRACKET, startPosition=Position(line=2, column=1), length=1)
+        assert lexer.allTokens[5] == Token(type=TokenType.T_ELSE, startPosition=Position(line=2, column=3), length=4)
+        assert lexer.allTokens[6] == Token(type=TokenType.T_LPARENT, startPosition=Position(line=2, column=8), length=1)
+        assert lexer.allTokens[7] == Token(type=TokenType.T_RPARENT, startPosition=Position(line=2, column=9), length=1)
+        assert lexer.allTokens[8] == Token(type=TokenType.T_LBRACKET, startPosition=Position(line=2, column=11), length=1)
+        assert lexer.allTokens[9] == Token(type=TokenType.T_RBRACKET, startPosition=Position(line=3, column=1), length=1)
+
 
 class TestObjects:
     def testCreating(self):
