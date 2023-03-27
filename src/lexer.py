@@ -59,8 +59,8 @@ class Lexer:
             startsWithZero = True if number == 0 else False
             while True:
                 self._nextCharacter()
-                if not self._isWhitespace() and not self._isNewLine() and startsWithZero and self.currentCharacter != ".":
-                    # self._skipToFirstWhitespace()
+                # if not self._isWhitespace() and not self._isNewLine() and startsWithZero and self.currentCharacter != ".":
+                if self.currentCharacter.isdigit() and startsWithZero:
                     raise LexerError("Integer number can't start with zero", startPosition)
                 else:
                     startsWithZero = False

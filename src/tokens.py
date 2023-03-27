@@ -36,7 +36,10 @@ class Token:
         return f"<{self.type.toString()} {self.startPosition} +{self.length}>"
 
     def __eq__(self, other):
-        return True if self.type == other.type else False
+        if self.type == other.type and self.startPosition == other.startPosition and self.length == other.length:
+            return True
+        else:
+            return False
 
 
 class ValueToken(Token):
