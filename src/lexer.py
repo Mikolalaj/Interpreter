@@ -105,18 +105,19 @@ class Lexer:
 
         tokenType = self._getTokenType(identifierString)
         if tokenType is not None:
-            return Token(tokenType, startPosition, 1)
+            return Token(tokenType, startPosition)
 
         while not self.source.isEndOfSource() and not self._isWhitespace() and not self._isNewLine():
             isValidIdentifier = isValidIdentifier and self._isValidIdentifier(isFirstCharacter=False)
             if not isValidIdentifier:
                 return IdentifierValueToken(startPosition, len(identifierString), identifierString)
+                # TODO:  count length of identifier in the loop
             identifierString += self.currentCharacter
             self._nextCharacter()
 
             tokenType = self._getTokenType(identifierString)
             if tokenType is not None:
-                return Token(tokenType, startPosition, len(identifierString))
+                return Token(tokenType, startPosition)
 
         if isValidIdentifier:
             return IdentifierValueToken(startPosition, len(identifierString), identifierString)

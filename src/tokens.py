@@ -24,42 +24,36 @@ class Position:
 
 
 class Token:
-    def __init__(self, type: TokenType, startPosition: Position, length: int):
+    def __init__(self, type: TokenType, startPosition: Position):
         self.type = type
         self.startPosition = startPosition
-        self.length = length
 
     def __str__(self):
-        return f"<type '{self.type.toString()}' - Start {self.startPosition}, Len {self.length}>"
+        return f"<type '{self.type.toString()}' - Start {self.startPosition}>"
 
     def __repr__(self):
-        return f"<{self.type.toString()} {self.startPosition} +{self.length}>"
+        return f"<`{self.type.toString()}` {self.startPosition}>"
 
     def __eq__(self, other):
-        if self.type == other.type and self.startPosition == other.startPosition and self.length == other.length:
+        if self.type == other.type and self.startPosition == other.startPosition:
             return True
         else:
             return False
 
 
 class ValueToken(Token):
-    def __init__(self, type: TokenType, startPosition: Position, length: int, value: str | int | float | bool):
-        super().__init__(type, startPosition, length)
+    def __init__(self, type: TokenType, startPosition: Position, value: str | int | float | bool):
+        super().__init__(type, startPosition)
         self.value = value
 
     def __str__(self):
-        return f"<type '{self.type.toString()}' - Start {self.startPosition}, Len {self.length} - value: {self.value}>"
+        return f"<type '{self.type.toString()}' - Start {self.startPosition} - value: {self.value}>"
 
     def __repr__(self):
-        return f"<{self.type.toString()} {self.startPosition} +{self.length} - `{self.value}`>"
+        return f"<`{self.type.toString()}` {self.startPosition} - `{self.value}`>"
 
     def __eq__(self, valueToken: Self):
-        if (
-            self.type == valueToken.type
-            and self.value == valueToken.value
-            and self.startPosition == valueToken.startPosition
-            and self.length == valueToken.length
-        ):
+        if self.type == valueToken.type and self.value == valueToken.value and self.startPosition == valueToken.startPosition:
             return True
         else:
             return False
@@ -67,29 +61,29 @@ class ValueToken(Token):
 
 class StringValueToken(ValueToken):
     def __init__(self, startPosition: Position, length: int, value: str):
-        super().__init__(TokenType.VT_STRING, startPosition, length, value)
-        self.value = value
+        super().__init__(TokenType.VT_STRING, startPosition, value)
+        self.length = length
 
 
 class FloatValueToken(ValueToken):
     def __init__(self, startPosition: Position, length: int, value: float):
-        super().__init__(TokenType.VT_FLOAT, startPosition, length, value)
-        self.value = value
+        super().__init__(TokenType.VT_FLOAT, startPosition, value)
+        self.length = length
 
 
 class IntValueToken(ValueToken):
     def __init__(self, startPosition: Position, length: int, value: int):
-        super().__init__(TokenType.VT_INT, startPosition, length, value)
-        self.value = value
+        super().__init__(TokenType.VT_INT, startPosition, value)
+        self.length = length
 
 
 class BooleanValueToken(ValueToken):
-    def __init__(self, startPosition: Position, length: int, value: bool):
-        super().__init__(TokenType.VT_BOOLEAN, startPosition, length, value)
-        self.value = value
+    def __init__(self, startPosition: Position, value: bool):
+        super().__init__(TokenType.VT_BOOLEAN, startPosition, value)
+        self.length = 4 if value else 5
 
 
 class IdentifierValueToken(ValueToken):
     def __init__(self, startPosition: Position, length: int, value: str):
-        super().__init__(TokenType.VT_ID, startPosition, length, value)
-        self.value = value
+        super().__init__(TokenType.VT_ID, startPosition, value)
+        self.length = length
