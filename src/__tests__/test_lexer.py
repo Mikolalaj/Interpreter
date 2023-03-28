@@ -13,7 +13,6 @@ def getTokens(code: str, ifRemoveSpaces=True) -> list[Token]:
     if ifRemoveSpaces:
         code = removeSpaces(code)
     lexer = Lexer(source=StringSource(code))
-    print(lexer.allTokens)
     return lexer.allTokens
 
 
@@ -104,7 +103,7 @@ class TestIf:
     def testSingleIfNoSpaces(self):
         code = "if(a>3){a=0}"
 
-        tokens = getTokens(code)
+        tokens = getTokens(code, ifRemoveSpaces=False)
         assert len(tokens) == 11
         assert tokens[0] == Token(type=TokenType.T_IF, startPosition=Position(line=1, column=1))
         assert tokens[1] == Token(type=TokenType.T_LPARENT, startPosition=Position(line=1, column=3))
