@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import Callable, List, Optional
 
 from .errors import LexerError
 from .source import Source
@@ -175,27 +175,17 @@ class Lexer:
         return self.currentCharacter == "\n"
 
     def _skipWhitespace(self) -> None:
-        while not self.source.isEndOfSource():
-            if not self._isNewLine() and not self._isWhitespace():
-                break
-            self.currentCharacter = self.source.readNextCharacter()
-
-    def _skipToFirstWhitespace(self) -> None:
-        while not self.source.isEndOfSource():
-            if self._isNewLine() or self._isWhitespace():
-                break
-            self._nextCharacter()
+        self._skip(lambda: self._isWhitespace() or self._isNewLine())
 
     def _skipIdentifierCharacters(self) -> None:
-        while not self.source.isEndOfSource():
-            if self._isLetter() or self._idDigit() or self.currentCharacter == "_" or self.currentCharacter == "-":
-                self._nextCharacter()
-            else:
-                break
+        self._skip(lambda: self._isLetter() or self._idDigit() or self.currentCharacter == "_" or self.currentCharacter == "-")
 
     def _skipNumbers(self) -> None:
+        self._skip(lambda: self.currentCharacter.isdigit() or self.currentCharacter == ".")
+
+    def _skip(self, condition: Callable[[], bool]) -> None:
         while not self.source.isEndOfSource():
-            if self.currentCharacter.isdigit() or self.currentCharacter == ".":
+            if condition():
                 self._nextCharacter()
             else:
                 break
