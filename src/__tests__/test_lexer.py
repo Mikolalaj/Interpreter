@@ -74,6 +74,26 @@ class TestNumbers:
         assert tokens[10] == Token(type=TokenType.T_DIV, startPosition=Position(line=4, column=2))
         assert tokens[11] == IntValueToken(value=8, startPosition=Position(line=4, column=3), length=1)
 
+    def testNumberVariableInitialization(self):
+        code = """
+            let a = 1
+            a=2.3
+            c=0
+        """
+
+        tokens = getTokens(code)
+        assert len(tokens) == 10
+        assert tokens[0] == Token(type=TokenType.T_VARIABLE, startPosition=Position(line=1, column=1))
+        assert tokens[1] == IdentifierValueToken(startPosition=Position(line=1, column=5), length=1, value="a")
+        assert tokens[2] == Token(type=TokenType.T_ASSIGN, startPosition=Position(line=1, column=7))
+        assert tokens[3] == IntValueToken(value=1, startPosition=Position(line=1, column=9), length=1)
+        assert tokens[4] == IdentifierValueToken(startPosition=Position(line=2, column=1), length=1, value="a")
+        assert tokens[5] == Token(type=TokenType.T_ASSIGN, startPosition=Position(line=2, column=2))
+        assert tokens[6] == FloatValueToken(value=2.3, startPosition=Position(line=2, column=3), length=3)
+        assert tokens[7] == IdentifierValueToken(startPosition=Position(line=3, column=1), length=1, value="c")
+        assert tokens[8] == Token(type=TokenType.T_ASSIGN, startPosition=Position(line=3, column=2))
+        assert tokens[9] == IntValueToken(value=0, startPosition=Position(line=3, column=3), length=1)
+
 
 class TestIdentifier:
     def testIdentifier(self, capfd):
