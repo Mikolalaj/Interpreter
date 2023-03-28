@@ -51,6 +51,29 @@ class TestNumbers:
         assert tokens[4] == Token(type=TokenType.T_DOT, startPosition=Position(line=3, column=2))
         assert tokens[5] == IntValueToken(value=2, startPosition=Position(line=3, column=3), length=1)
 
+    def testArithmeticOperations(self):
+        code = """
+            1 + 2
+            3-4
+            5 * 6
+            7/8
+        """
+
+        tokens = getTokens(code)
+        assert len(tokens) == 12
+        assert tokens[0] == IntValueToken(value=1, startPosition=Position(line=1, column=1), length=1)
+        assert tokens[1] == Token(type=TokenType.T_PLUS, startPosition=Position(line=1, column=3))
+        assert tokens[2] == IntValueToken(value=2, startPosition=Position(line=1, column=5), length=1)
+        assert tokens[3] == IntValueToken(value=3, startPosition=Position(line=2, column=1), length=1)
+        assert tokens[4] == Token(type=TokenType.T_MINUS, startPosition=Position(line=2, column=2))
+        assert tokens[5] == IntValueToken(value=4, startPosition=Position(line=2, column=3), length=1)
+        assert tokens[6] == IntValueToken(value=5, startPosition=Position(line=3, column=1), length=1)
+        assert tokens[7] == Token(type=TokenType.T_MUL, startPosition=Position(line=3, column=3))
+        assert tokens[8] == IntValueToken(value=6, startPosition=Position(line=3, column=5), length=1)
+        assert tokens[9] == IntValueToken(value=7, startPosition=Position(line=4, column=1), length=1)
+        assert tokens[10] == Token(type=TokenType.T_DIV, startPosition=Position(line=4, column=2))
+        assert tokens[11] == IntValueToken(value=8, startPosition=Position(line=4, column=3), length=1)
+
 
 class TestIdentifier:
     def testIdentifier(self, capfd):
