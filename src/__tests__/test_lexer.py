@@ -29,19 +29,22 @@ class TestNumbers:
         assert lexer.allTokens[5] == Token(type=TokenType.T_MINUS, startPosition=Position(line=4, column=3))
         assert lexer.allTokens[6] == IntValueToken(value=1, startPosition=Position(line=4, column=4), length=1)
 
+    def testNotValidNumbers(self):
+        code = """
+            1 .3
+            05
+            -.2
+        """
 
-#     def testNotValidNumbers(self):
-#         numbers = """
-# 1 .3
-#  05
-# -.2
-# """
-
-#         lexer = Lexer(source=StringSource(numbers[1:-1]))
-#         print(lexer.allTokens)
-#         assert len(lexer.allTokens) == 2
-#         assert lexer.allTokens[0] == IntValueToken(value=1, startPosition=Position(line=1, column=1), length=1)
-#         assert lexer.allTokens[1] == Token(type=TokenType.T_MINUS, startPosition=Position(line=3, column=1), length=1)
+        lexer = Lexer(source=StringSource(removeSpaces(code)))
+        print(lexer.allTokens)
+        assert len(lexer.allTokens) == 6
+        assert lexer.allTokens[0] == IntValueToken(value=1, startPosition=Position(line=1, column=1), length=1)
+        assert lexer.allTokens[1] == Token(type=TokenType.T_DOT, startPosition=Position(line=1, column=3))
+        assert lexer.allTokens[2] == IntValueToken(value=3, startPosition=Position(line=1, column=4), length=1)
+        assert lexer.allTokens[3] == Token(type=TokenType.T_MINUS, startPosition=Position(line=3, column=1))
+        assert lexer.allTokens[4] == Token(type=TokenType.T_DOT, startPosition=Position(line=3, column=2))
+        assert lexer.allTokens[5] == IntValueToken(value=2, startPosition=Position(line=3, column=3), length=1)
 
 
 class TestIdentifier:
@@ -58,8 +61,8 @@ class TestIdentifier:
         out, _ = capfd.readouterr()
         assert (
             out
-            == """LexerError: Invalid character in number at [Line 2, Column 2]
-LexerError: Invalid character in number at [Line 3, Column 1]
+            == """LexerError: Invalid character `a` in number at [Line 2, Column 2]
+LexerError: Invalid character `q` in number at [Line 3, Column 1]
 """
         )
         print(lexer.allTokens)

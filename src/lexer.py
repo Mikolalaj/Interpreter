@@ -59,8 +59,8 @@ class Lexer:
             startsWithZero = True if number == 0 else False
             while True:
                 self._nextCharacter()
-                # if not self._isWhitespace() and not self._isNewLine() and startsWithZero and self.currentCharacter != ".":
                 if self.currentCharacter.isdigit() and startsWithZero:
+                    self._skipNumbers()
                     raise LexerError("Integer number can't start with zero", startPosition)
                 else:
                     startsWithZero = False
@@ -82,8 +82,9 @@ class Lexer:
                 elif self._isWhitespace() or self._isNewLine():
                     break
                 elif self._isLetter():
+                    invalidCharacter = self.currentCharacter
                     self._skipIdentifierCharacters()
-                    raise LexerError("Invalid character in number", startPosition)
+                    raise LexerError(f"Invalid character `{invalidCharacter}` in number", startPosition)
                 else:
                     break
 
@@ -188,6 +189,13 @@ class Lexer:
     def _skipIdentifierCharacters(self) -> None:
         while not self.source.isEndOfSource():
             if self._isLetter() or self._idDigit() or self.currentCharacter == "_" or self.currentCharacter == "-":
+                self._nextCharacter()
+            else:
+                break
+
+    def _skipNumbers(self) -> None:
+        while not self.source.isEndOfSource():
+            if self.currentCharacter.isdigit() or self.currentCharacter == ".":
                 self._nextCharacter()
             else:
                 break
