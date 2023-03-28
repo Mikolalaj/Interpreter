@@ -13,8 +13,7 @@ Program obsługuje dwa rodzaje źródeł danych wejściowych: pliki tekstowe i c
 ```ebnf
 Program                     = Statement* ;
 
-Statement                   = 
-                            | VariableDeclaration
+Statement                   = VariableDeclaration
                             | FunctionDefinition
                             | IfStatement
                             | WhileLoop
@@ -51,7 +50,7 @@ Parameters                  = (Identifier ("," Identifier)*)? ;
 
 FunctionCall                = Identifier Arguments ;
 
-Arguments                   = "(" (ObjectArgument ("," ObjectArgument)*)? ")" ;
+Arguments                   = "(" (Argument ("," Argument)*)? ")" ;
 
 Argument                    = Identifier "=" Value ;
 
@@ -59,7 +58,7 @@ IfStatement                 = "if" Condition Block ( "elif" Condition Block )* (
 
 WhileLoop                   = "while" Condition Block ;
 
-Expression                  = AdditiveExpression ;
+Expression                  = ComparisonExpression ;
 
 ComparisonExpression        = AdditiveExpression ( ( "<" | ">" | "<=" | ">=" | "==" | "!=" ) AdditiveExpression )? ;
 
@@ -74,7 +73,7 @@ PrimaryExpression           =
 
 ObjectDeclaration           = "let" Identifier "=" ObjectConstructor ;
 
-ObjectConstructor           = ObjectType "(" ObjectArguments ")" ;
+ObjectConstructor           = ObjectType "(" Arguments ")" ;
 
 ObjectType                  = "Cuboid" | "Pyramid" | "Cone" | "Cylinder" | "Sphere" | "Tetrahedron" ;
 
