@@ -148,6 +148,13 @@ while (true) {
 }
 ```
 
+```typescript
+let list = [1, 2, 3, 4, 5]
+foreach (number in list) {
+    print(number)
+}
+```
+
 Komentarze
 
 ```typescript
