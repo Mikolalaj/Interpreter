@@ -33,8 +33,6 @@ class TokenType(Enum):
     T_RBRACKET = "}"
     T_LPARENT = "("
     T_RPARENT = ")"
-    T_VERTICAL_BAR = "|"
-    T_AMPERSAND = "&"
 
     # math operations
     T_PLUS = "+"
@@ -65,6 +63,8 @@ class TokenType(Enum):
     T_BREAK = "break"
     T_CONTINUE = "continue"
     T_WHILE = "while"
+    T_FOREACH = "foreach"
+    T_IN = "in"
     T_ASSIGN = "="
     T_FUNCTION = "function"
     T_EOT = "End Of Text"
