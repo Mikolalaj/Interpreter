@@ -97,11 +97,9 @@ class Lexer:
 
     def _tryBuildIdentifierOrKeyword(self) -> Optional[Token]:
         startPosition = self.source.getPosition()
-        isValidIdentifier = True
 
         identifierString = self.currentCharacter
-        isValidIdentifier = self._isValidIdentifier(isFirstCharacter=True)
-
+        isFirstValidIdentifier = isValidIdentifier = self._isValidIdentifier(isFirstCharacter=True)
         self._nextCharacter()
 
         tokenType = self._getTokenType(identifierString)
@@ -118,7 +116,7 @@ class Lexer:
 
         while not self.source.isEndOfSource() and not self._isWhitespace() and not self._isNewLine():
             isValidIdentifier = isValidIdentifier and self._isValidIdentifier(isFirstCharacter=False)
-            if not isValidIdentifier:
+            if not isValidIdentifier and isFirstValidIdentifier:
                 return IdentifierValueToken(startPosition, len(identifierString), identifierString)
                 # TODO:  count length of identifier in the loop
             identifierString += self.currentCharacter
@@ -131,7 +129,7 @@ class Lexer:
         if isValidIdentifier:
             return IdentifierValueToken(startPosition, len(identifierString), identifierString)
         else:
-            raise LexerError(f"Invalid identifier ({identifierString})", self.source.position)
+            raise LexerError(f"Invalid identifier ({identifierString})", startPosition)
 
     def _tryBuildString(self) -> Optional[StringValueToken]:
         startPosition = self.source.position.copy()
