@@ -98,3 +98,13 @@ class TestIf:
         assert tokens[7] == Token(type=TokenType.T_RPARENT, startPosition=Position(line=2, column=9))
         assert tokens[8] == Token(type=TokenType.T_LBRACKET, startPosition=Position(line=2, column=11))
         assert tokens[9] == Token(type=TokenType.T_RBRACKET, startPosition=Position(line=3, column=1))
+
+    def testIfConditionsLes(self):
+        code = """
+            if ( a < b or a <= b ) {
+            }
+        """
+
+        tokens = getTokens(code)
+
+        assert len(tokens) == 12
