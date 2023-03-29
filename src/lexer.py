@@ -149,7 +149,7 @@ class Lexer:
         if isFirstCharacter:
             return self._isLetter() or self.currentCharacter == "_"
         else:
-            return self._isLetter() or self._idDigit() or self.currentCharacter == "_" or self.currentCharacter == "-"
+            return self._isLetter() or self._idDigit() or self.currentCharacter == "_"
 
     def _getTokenType(self, value: str) -> Optional[TokenType]:
         for tokenType in TokenType:
@@ -178,7 +178,7 @@ class Lexer:
         self._skip(lambda: self._isWhitespace() or self._isNewLine())
 
     def _skipIdentifierCharacters(self) -> None:
-        self._skip(lambda: self._isLetter() or self._idDigit() or self.currentCharacter == "_" or self.currentCharacter == "-")
+        self._skip(lambda: self._isLetter() or self._idDigit() or self.currentCharacter == "_")
 
     def _skipNumbers(self) -> None:
         self._skip(lambda: self.currentCharacter.isdigit() or self.currentCharacter == ".")
