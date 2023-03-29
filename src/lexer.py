@@ -96,7 +96,7 @@ class Lexer:
                 return IntValueToken(startPosition, length, number)
 
     def _tryBuildIdentifierOrKeyword(self) -> Optional[Token]:
-        startPosition = self.source.position.copy()
+        startPosition = self.source.getPosition()
         isValidIdentifier = True
 
         identifierString = self.currentCharacter
@@ -106,6 +106,14 @@ class Lexer:
 
         tokenType = self._getTokenType(identifierString)
         if tokenType is not None:
+            if self.currentCharacter == "=":
+                self._nextCharacter()
+                if tokenType == TokenType.T_LESS:
+                    return Token(TokenType.T_LESS_OR_EQ, startPosition)
+                elif tokenType == TokenType.T_GREATER:
+                    return Token(TokenType.T_GREATER_OR_EQ, startPosition)
+                elif tokenType == TokenType.T_ASSIGN:
+                    return Token(TokenType.T_EQ, startPosition)
             return Token(tokenType, startPosition)
 
         while not self.source.isEndOfSource() and not self._isWhitespace() and not self._isNewLine():

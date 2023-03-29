@@ -99,12 +99,58 @@ class TestIf:
         assert tokens[8] == Token(type=TokenType.T_LBRACKET, startPosition=Position(line=2, column=11))
         assert tokens[9] == Token(type=TokenType.T_RBRACKET, startPosition=Position(line=3, column=1))
 
-    def testIfConditionsLes(self):
+    def testIfConditionsLess(self):
         code = """
-            if ( a < b or a <= b ) {
-            }
+            if (a < b or a <= b)
         """
 
         tokens = getTokens(code)
+        print(tokens)
+        assert len(tokens) == 10
 
-        assert len(tokens) == 12
+        assert tokens[0] == Token(type=TokenType.T_IF, startPosition=Position(line=1, column=1))
+        assert tokens[1] == Token(type=TokenType.T_LPARENT, startPosition=Position(line=1, column=4))
+        assert tokens[2] == IdentifierValueToken(startPosition=Position(line=1, column=5), length=1, value="a")
+        assert tokens[3] == Token(type=TokenType.T_LESS, startPosition=Position(line=1, column=7))
+        assert tokens[4] == IdentifierValueToken(startPosition=Position(line=1, column=9), length=1, value="b")
+        assert tokens[5] == Token(type=TokenType.T_OR, startPosition=Position(line=1, column=11))
+        assert tokens[6] == IdentifierValueToken(startPosition=Position(line=1, column=14), length=1, value="a")
+        assert tokens[7] == Token(type=TokenType.T_LESS_OR_EQ, startPosition=Position(line=1, column=16))
+        assert tokens[8] == IdentifierValueToken(startPosition=Position(line=1, column=19), length=1, value="b")
+        assert tokens[9] == Token(type=TokenType.T_RPARENT, startPosition=Position(line=1, column=20))
+
+    def testIfConditionsGreater(self):
+        code = """
+            if (a > 2 and b >= 4)
+        """
+
+        tokens = getTokens(code)
+        print(tokens)
+        assert len(tokens) == 10
+
+        assert tokens[0] == Token(type=TokenType.T_IF, startPosition=Position(line=1, column=1))
+        assert tokens[1] == Token(type=TokenType.T_LPARENT, startPosition=Position(line=1, column=4))
+        assert tokens[2] == IdentifierValueToken(startPosition=Position(line=1, column=5), length=1, value="a")
+        assert tokens[3] == Token(type=TokenType.T_GREATER, startPosition=Position(line=1, column=7))
+        assert tokens[4] == IntValueToken(startPosition=Position(line=1, column=9), length=1, value=2)
+        assert tokens[5] == Token(type=TokenType.T_AND, startPosition=Position(line=1, column=11))
+        assert tokens[6] == IdentifierValueToken(startPosition=Position(line=1, column=15), length=1, value="b")
+        assert tokens[7] == Token(type=TokenType.T_GREATER_OR_EQ, startPosition=Position(line=1, column=17))
+        assert tokens[8] == IntValueToken(startPosition=Position(line=1, column=20), length=1, value=4)
+        assert tokens[9] == Token(type=TokenType.T_RPARENT, startPosition=Position(line=1, column=21))
+
+    def testIfConditionsEqual(self):
+        code = """
+            if (a == b)
+        """
+
+        tokens = getTokens(code)
+        print(tokens)
+        assert len(tokens) == 6
+
+        assert tokens[0] == Token(type=TokenType.T_IF, startPosition=Position(line=1, column=1))
+        assert tokens[1] == Token(type=TokenType.T_LPARENT, startPosition=Position(line=1, column=4))
+        assert tokens[2] == IdentifierValueToken(startPosition=Position(line=1, column=5), length=1, value="a")
+        assert tokens[3] == Token(type=TokenType.T_EQ, startPosition=Position(line=1, column=7))
+        assert tokens[4] == IdentifierValueToken(startPosition=Position(line=1, column=10), length=1, value="b")
+        assert tokens[5] == Token(type=TokenType.T_RPARENT, startPosition=Position(line=1, column=11))
