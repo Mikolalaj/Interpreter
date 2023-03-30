@@ -41,7 +41,7 @@ class TestObjects:
         assert tokens[7] == IdentifierValueToken(startPosition=Position(line=4, column=10), length=8, value="cylinder")
         assert tokens[8] == Token(startPosition=Position(line=5, column=1), type=TokenType.T_SPHERE)
         assert tokens[9] == IdentifierValueToken(startPosition=Position(line=5, column=8), length=6, value="sphere")
-        assert tokens[10] == Token(startPosition=Position(line=6, column=1), type=TokenType.T_TATRAHEDRON)
+        assert tokens[10] == Token(startPosition=Position(line=6, column=1), type=TokenType.T_TETRAHEDRON)
         assert tokens[11] == IdentifierValueToken(startPosition=Position(line=6, column=13), length=11, value="tetrahedron")
 
     def testObjectMethodCall(self):

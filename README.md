@@ -1,12 +1,169 @@
 # TKOM - Interpreter języka opisu brył
 
-## Treść zadania
+## Funkcjonalność
 
 >Język do opisu brył i ich właściwości. Podstawowe bryły (prostopadłościan, ostrosłup, stożek, walec, kula itd.) są wbudowanymi typami języka. Każdy typ posiada wbudowane metody służące do wyznaczania charakterystycznych dla niego wielkości, np. pole podstawy, pole powierzchni bocznej, objętość, wysokość, średnica itp. Kolekcja brył tworzy scenę wyświetlaną na ekranie.
 
 ***Język dynamicznie i silne typowanie.***
 
-Program obsługuje dwa rodzaje źródeł danych wejściowych: pliki tekstowe i ciąg znaków.
+Projekt realizowany w języku Python 3.11
+
+## Sposób uruchomienia
+Z pliku:
+`python main.py <ścieżka do pliku>`
+
+Z konsoli:
+`python main.py`
+
+## Przykładowe wyrażenia
+
+#### Podstawowe
+
+Deklaracja zmiennej
+
+```typescript
+let a = 5 # integer
+let b = 3.14 # float
+let c = "Hello world!" # string
+let d = true # boolean
+let f = [1, 2, 3, 4, 5] # list
+```
+
+Deklaracja funkcji
+
+```typescript
+function add(a, b) {
+    return a + b
+}
+```
+
+Instrukcja warunkowa
+
+```typescript
+if (a > 0) {
+    print("a is positive")
+} elif (a < 0) {
+    print("a is negative")
+} else {
+    print("a is zero")
+}
+```
+
+Pętla
+
+```typescript
+while (a > 0) {
+    print(a)
+    a = a - 1
+}
+```
+
+```typescript
+a = -10
+while (true) {
+    if (a > 0) {
+        break
+    }
+    if (a < -5) {
+        continue
+    }
+    print('close to zero')
+}
+```
+
+```typescript
+let list = [1, 2, 3, 4, 5]
+foreach (number in list) {
+    print(number)
+}
+```
+
+Komentarze
+
+```typescript
+# single line comment
+let a = 4 # comment after statement
+```
+
+Stałe - są zamieniane przez lexer na wartości liczbowe (float)
+
+```typescript
+let a = PI
+Cone b = (radius=3*PI, height=2)
+```
+
+#### Bryły geometryczne
+
+Deklaracje
+
+```
+let a = Cuboid(width=4, length=2, height=5)
+let b = Tetrahedron(edge=3)
+```
+
+Metody
+
+```
+a.getBaseArea()
+a.getSurfaceArea()
+a.getVolume()
+```
+
+## Tokeny lexera
+
+```
+StringValueToken
+FloatValueToken
+IntValueToken
+BooleanValueToken
+IdentifierValueToken
+Token - dla wszystkich innych keywordów
+```
+
+## Wbudowane funkcje
+
+```typescript
+print(value) # wypisuje wartość na ekran
+```
+
+## Wbudowane typy
+
+```typescript
+Cuboid(width, length, height)
+Pyramid(width, length, height)
+Cone(radius, height)
+Cylinder(radius, height)
+Tetrahedron(edge)
+
+Wszystkie typy mają metody:
+getSurfaceArea()
+getVolume()
+
+Wszystkie typy oprócz Cuboid mają metodę:
+getBaseArea()
+
+Wszystkie typt mają pola takie same jak argumenty konstruktora
+```
+
+## Zmienne
+Zmienne są mutowalne, można je nadpisywać. Zmienne muszą być zadeklarowane zanim zostaną użyte.
+Zasięg zmiennych jest lokalny, nie można się odwoływać do zmiennych z innych funkcji lub bloków.
+Zmienne mogą być typu `int`, `float`, `string`, `boolean`, `list` lub `object`.
+Lista może przechowywać wartości typu `int`, `float`, `string`, `boolean` lub `object`.
+
+
+## Funkcje i metody obiektów
+Funkcje i metody obiektów nie są mutowalne, więc nie można ich nadpisywać. Funkcje i metody obiektów muszą być zadeklarowane zanim zostaną użyte.
+Argumenty podawane przy wywołaniu funkcji lub metody obiektu mogą być podane w dowolnej kolejności ale muszą być nazwane.
+Argumenty przekazywane są do funkcji przez wartość.
+Funkcja może zwracać tylko jedną wartość, która może być typu `int`, `float`, `string`, `boolean`, `list` lub `object`.
+Podczas wywoływanie funkcji nie można zagnieżdżać wywołań funkcji, np. `a = add(1, add(2, 3))` jest niepoprawne.
+Nie jest też możliwe wywoływanie funkcji na innej funkcji, np. `a = firstFunction(1, 2).otherFunction(3)` jest niepoprawne.
+
+
+## Konwersja typów
+Konwersja typów jest możliwa tylko w przypadku konwersji typu `int` na `float`. W tym przypadku konwersja jest automatyczna, niejawna.
+
 
 ## Gramatyka
 
@@ -92,103 +249,6 @@ Whitespace                  = " " | "\t" | "\r" | "\n" ;
 Character                   = ( Letter | Digit | Symbol | Whitespace ) ;
 ```
 
-## Przykładowe wyrażenia
-
-#### Podstawowe
-
-Deklaracja zmiennej
-
-```typescript
-let a = 5 # integer
-let b = 3.14 # float
-let c = "Hello world!" # string
-let d = true # boolean
-let f = [1, 2, 3, 4, 5] # list
-```
-
-Deklaracja funkcji
-
-```typescript
-function add(a, b) {
-    return a + b
-}
-```
-
-Instrukcja warunkowa
-
-```typescript
-if (a > 0) {
-    print("a is positive")
-} elif (a < 0) {
-    print("a is negative")
-} else {
-    print("a is zero")
-}
-```
-
-Pętla
-
-```typescript
-while (a > 0) {
-    print(a)
-    a = a - 1
-}
-```
-
-```typescript
-a = -10
-while (true) {
-    if (a > 0) {
-        break
-    }
-    if (a < -5) {
-        continue
-    }
-    print('close to zero')
-}
-```
-
-```typescript
-let list = [1, 2, 3, 4, 5]
-foreach (number in list) {
-    print(number)
-}
-```
-
-Komentarze
-
-```typescript
-# single line comment
-let a = 4 # comment after statement
-```
-
-Stałe
-
-```typescript
-let a = PI
-Cone b = (radius=3*PI, height=2)
-```
-
-#### Bryły geometryczne
-
-Deklaracje
-
-```
-let a = Cuboid(width=4, length=2, height=5)
-let b = Pyramid(width=4, length=2, height=7)
-let c = Cone(radius=3, height=7)
-let d = Cylinder(radius=3, height=7)
-let e = Sphere(radius=3)
-let f = Tetrahedron(edge=3)
-```
-
-Metody
-
-```
-a.getBaseArea()
-a.getSurfaceArea()
-a.getVolume()
-```
 
 ## Testowanie
 
@@ -223,3 +283,5 @@ Program będzie obsługiwał następujące błędy z każdego modułu, tj. anali
 Przykładowy błąd:
 
 ```LexerError: Invalid character in number at [Line 2, Column 2]```
+```SyntaxError: Unterminated string literal at [Line 2, Column 2]```
+```InterpreterError: Variable 'a' is not defined at [Line 2, Column 2]```

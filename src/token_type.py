@@ -19,7 +19,7 @@ class TokenType(Enum):
     T_CONE = "Cone"
     T_CYLINDER = "Cylinder"
     T_SPHERE = "Sphere"
-    T_TATRAHEDRON = "Tetrahedron"
+    T_TETRAHEDRON = "Tetrahedron"
 
     # punctuation
     T_COMMA = ","
