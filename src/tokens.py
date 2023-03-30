@@ -42,18 +42,24 @@ class Token:
 
 
 class ValueToken(Token):
-    def __init__(self, type: TokenType, startPosition: Position, value: str | int | float | bool):
+    def __init__(self, type: TokenType, startPosition: Position, length: int, value: str | int | float | bool):
         super().__init__(type, startPosition)
+        self.length = length
         self.value = value
 
     def __str__(self):
         return f"<type '{self.type.toString()}' - Start {self.startPosition} - value: {self.value}>"
 
     def __repr__(self):
-        return f"<`{self.type.toString()}` {self.startPosition} - `{self.value}`>"
+        return f"<`{self.type.toString()}` {self.startPosition} +{self.length} - `{self.value}`>"
 
     def __eq__(self, valueToken: Self):
-        if self.type == valueToken.type and self.value == valueToken.value and self.startPosition == valueToken.startPosition:
+        if (
+            self.type == valueToken.type
+            and self.value == valueToken.value
+            and self.startPosition == valueToken.startPosition
+            and self.length == valueToken.length
+        ):
             return True
         else:
             return False
@@ -61,29 +67,24 @@ class ValueToken(Token):
 
 class StringValueToken(ValueToken):
     def __init__(self, startPosition: Position, length: int, value: str):
-        super().__init__(TokenType.VT_STRING, startPosition, value)
-        self.length = length
+        super().__init__(TokenType.VT_STRING, startPosition, length, value)
 
 
 class FloatValueToken(ValueToken):
     def __init__(self, startPosition: Position, length: int, value: float):
-        super().__init__(TokenType.VT_FLOAT, startPosition, value)
-        self.length = length
+        super().__init__(TokenType.VT_FLOAT, startPosition, length, value)
 
 
 class IntValueToken(ValueToken):
     def __init__(self, startPosition: Position, length: int, value: int):
-        super().__init__(TokenType.VT_INT, startPosition, value)
-        self.length = length
+        super().__init__(TokenType.VT_INT, startPosition, length, value)
 
 
 class BooleanValueToken(ValueToken):
     def __init__(self, startPosition: Position, value: bool):
-        super().__init__(TokenType.VT_BOOLEAN, startPosition, value)
-        self.length = 4 if value else 5
+        super().__init__(TokenType.VT_BOOLEAN, startPosition, 4 if value else 5, value)
 
 
 class IdentifierValueToken(ValueToken):
     def __init__(self, startPosition: Position, length: int, value: str):
-        super().__init__(TokenType.VT_ID, startPosition, value)
-        self.length = length
+        super().__init__(TokenType.VT_ID, startPosition, length, value)

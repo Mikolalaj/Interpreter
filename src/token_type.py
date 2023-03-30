@@ -10,7 +10,6 @@ class TokenType(Enum):
 
     """ TokenTypes with no value """
 
-    T_IGNORE = 0
     # data types
     T_VARIABLE = "let"
 
@@ -20,13 +19,11 @@ class TokenType(Enum):
     T_CONE = "Cone"
     T_CYLINDER = "Cylinder"
     T_SPHERE = "Sphere"
-    T_TATRAHEDRON = 'Tetrahedron'
+    T_TATRAHEDRON = "Tetrahedron"
 
     # punctuation
     T_COMMA = ","
     T_DOT = "."
-    T_COLON = ":"
-    T_SEMICOLON = ";"
     T_LSQBRACKET = "["
     T_RSQBRACKET = "]"
     T_LBRACKET = "{"
@@ -67,9 +64,6 @@ class TokenType(Enum):
     T_IN = "in"
     T_ASSIGN = "="
     T_FUNCTION = "function"
-    T_EOT = "End Of Text"
-    T_ARROW = "->"
-    T_COMMENT = "~"
 
     """ TokenTypes that must have a value """
 
