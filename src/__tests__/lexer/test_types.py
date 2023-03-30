@@ -1,4 +1,5 @@
-from src.tokens import IdentifierValueToken, Token, Position, IntValueToken, FloatValueToken, StringValueToken
+import math
+from src.tokens import BooleanValueToken, IdentifierValueToken, Token, Position, IntValueToken, FloatValueToken, StringValueToken
 from src.token_type import TokenType
 from .utils import getTokens
 
@@ -70,10 +71,10 @@ class TestTypes:
 
         assert tokens[0] == IdentifierValueToken(startPosition=Position(line=1, column=1), length=1, value="a")
         assert tokens[1] == Token(type=TokenType.T_ASSIGN, startPosition=Position(line=1, column=3))
-        assert tokens[2] == Token(type=TokenType.T_TRUE, startPosition=Position(line=1, column=5))
+        assert tokens[2] == BooleanValueToken(startPosition=Position(line=1, column=5), value=True)
         assert tokens[3] == IdentifierValueToken(startPosition=Position(line=2, column=1), length=1, value="b")
         assert tokens[4] == Token(type=TokenType.T_ASSIGN, startPosition=Position(line=2, column=3))
-        assert tokens[5] == Token(type=TokenType.T_FALSE, startPosition=Position(line=2, column=5))
+        assert tokens[5] == BooleanValueToken(startPosition=Position(line=2, column=5), value=False)
 
     def testStringTypes(self):
         code = """
@@ -91,3 +92,16 @@ class TestTypes:
         assert tokens[3] == IdentifierValueToken(startPosition=Position(line=2, column=1), length=1, value="b")
         assert tokens[4] == Token(type=TokenType.T_ASSIGN, startPosition=Position(line=2, column=3))
         assert tokens[5] == StringValueToken(startPosition=Position(line=2, column=5), length=13, value="hello world")
+
+    def testConstants(self):
+        code = """
+            a = PI
+        """
+
+        tokens = getTokens(code)
+
+        assert len(tokens) == 3
+
+        assert tokens[0] == IdentifierValueToken(startPosition=Position(line=1, column=1), length=1, value="a")
+        assert tokens[1] == Token(type=TokenType.T_ASSIGN, startPosition=Position(line=1, column=3))
+        assert tokens[2] == FloatValueToken(startPosition=Position(line=1, column=5), length=2, value=math.pi)

@@ -67,11 +67,14 @@ class TokenType(Enum):
 
     """ TokenTypes that must have a value """
 
-    # const values
-    VT_INT = "const int"
-    VT_FLOAT = "const float"
-    VT_STRING = "const string"
-    VT_BOOLEAN = "const bool"
+    # values
+    VT_INT = "value int"
+    VT_FLOAT = "value float"
+    VT_STRING = "value string"
+    VT_BOOLEAN = "value bool"
+
+    # constants
+    VT_PI = "PI"
 
     # variable names etc.
     VT_ID = "identifier"

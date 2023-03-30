@@ -1,4 +1,4 @@
-from src.tokens import IdentifierValueToken, Token, Position, IntValueToken
+from src.tokens import BooleanValueToken, IdentifierValueToken, Token, Position, IntValueToken
 from src.token_type import TokenType
 from .utils import getTokens
 
@@ -14,7 +14,7 @@ class TestLoops:
 
         assert tokens[0] == Token(type=TokenType.T_WHILE, startPosition=Position(line=1, column=1))
         assert tokens[1] == Token(type=TokenType.T_LPARENT, startPosition=Position(line=1, column=6))
-        assert tokens[2] == Token(type=TokenType.T_TRUE, startPosition=Position(line=1, column=7))
+        assert tokens[2] == BooleanValueToken(startPosition=Position(line=1, column=7), value=True)
         assert tokens[3] == Token(type=TokenType.T_RPARENT, startPosition=Position(line=1, column=11))
         assert tokens[4] == Token(type=TokenType.T_LBRACKET, startPosition=Position(line=1, column=13))
         assert tokens[5] == Token(type=TokenType.T_RBRACKET, startPosition=Position(line=1, column=15))

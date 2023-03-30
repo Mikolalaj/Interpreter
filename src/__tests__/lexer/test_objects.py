@@ -43,3 +43,20 @@ class TestObjects:
         assert tokens[9] == IdentifierValueToken(startPosition=Position(line=5, column=8), length=6, value="sphere")
         assert tokens[10] == Token(startPosition=Position(line=6, column=1), type=TokenType.T_TATRAHEDRON)
         assert tokens[11] == IdentifierValueToken(startPosition=Position(line=6, column=13), length=11, value="tetrahedron")
+
+    def testObjectMethodCall(self):
+        code = """
+            let a = cuboid.getProperty()
+        """
+
+        tokens = getTokens(code)
+        assert len(tokens) == 8
+
+        assert tokens[0] == Token(startPosition=Position(line=1, column=1), type=TokenType.T_VARIABLE)
+        assert tokens[1] == IdentifierValueToken(startPosition=Position(line=1, column=5), length=1, value="a")
+        assert tokens[2] == Token(startPosition=Position(line=1, column=7), type=TokenType.T_ASSIGN)
+        assert tokens[3] == IdentifierValueToken(startPosition=Position(line=1, column=9), length=6, value="cuboid")
+        assert tokens[4] == Token(startPosition=Position(line=1, column=15), type=TokenType.T_DOT)
+        assert tokens[5] == IdentifierValueToken(startPosition=Position(line=1, column=16), length=11, value="getProperty")
+        assert tokens[6] == Token(startPosition=Position(line=1, column=27), type=TokenType.T_LPARENT)
+        assert tokens[7] == Token(startPosition=Position(line=1, column=28), type=TokenType.T_RPARENT)
