@@ -3,7 +3,7 @@ from .token_type import TokenType
 
 
 class Position:
-    def __init__(self, line, column):
+    def __init__(self, line: int, column: int):
         self.line = line
         self.column = column
 

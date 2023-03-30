@@ -1,4 +1,4 @@
-from src.tokens import IdentifierValueToken, Token, Position, IntValueToken
+from src.tokens import IdentifierValueToken, StringValueToken, Token, Position, IntValueToken
 from src.token_type import TokenType
 from .utils import getTokens
 
@@ -46,3 +46,23 @@ class TestFunctions:
         assert tokens[10] == Token(startPosition=Position(line=2, column=14), type=TokenType.T_PLUS)
         assert tokens[11] == IdentifierValueToken(startPosition=Position(line=2, column=16), length=1, value="b")
         assert tokens[12] == Token(startPosition=Position(line=3, column=1), type=TokenType.T_RBRACKET)
+
+    def testFunctionCall(self):
+        code = """
+            add(2, 3)
+            print("test")
+        """
+
+        tokens = getTokens(code)
+        assert len(tokens) == 10
+
+        assert tokens[0] == IdentifierValueToken(startPosition=Position(line=1, column=1), length=3, value="add")
+        assert tokens[1] == Token(startPosition=Position(line=1, column=4), type=TokenType.T_LPARENT)
+        assert tokens[2] == IntValueToken(startPosition=Position(line=1, column=5), value=2, length=1)
+        assert tokens[3] == Token(startPosition=Position(line=1, column=6), type=TokenType.T_COMMA)
+        assert tokens[4] == IntValueToken(startPosition=Position(line=1, column=8), value=3, length=1)
+        assert tokens[5] == Token(startPosition=Position(line=1, column=9), type=TokenType.T_RPARENT)
+        assert tokens[6] == IdentifierValueToken(startPosition=Position(line=2, column=1), length=5, value="print")
+        assert tokens[7] == Token(startPosition=Position(line=2, column=6), type=TokenType.T_LPARENT)
+        assert tokens[8] == StringValueToken(startPosition=Position(line=2, column=7), length=6, value="test")
+        assert tokens[9] == Token(startPosition=Position(line=2, column=13), type=TokenType.T_RPARENT)
