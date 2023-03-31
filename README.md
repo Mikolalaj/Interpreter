@@ -1,7 +1,5 @@
 # TKOM - Interpreter języka opisu brył
 
-## Funkcjonalność
-
 >Język do opisu brył i ich właściwości. Podstawowe bryły (prostopadłościan, ostrosłup, stożek, walec, kula itd.) są wbudowanymi typami języka. Każdy typ posiada wbudowane metody służące do wyznaczania charakterystycznych dla niego wielkości, np. pole podstawy, pole powierzchni bocznej, objętość, wysokość, średnica itp. Kolekcja brył tworzy scenę wyświetlaną na ekranie.
 
 ***Język dynamicznie i silne typowanie.***
@@ -14,6 +12,7 @@ Z pliku:
 
 Z konsoli:
 `python main.py`
+Następnie należy wprowadzić kod do wykonania, linia po linii.
 
 ## Przykładowe wyrażenia
 
@@ -138,6 +137,7 @@ Tetrahedron(edge)
 Wszystkie typy mają metody:
 getSurfaceArea()
 getVolume()
+display() - wyświetla bryłę na ekranie
 
 Wszystkie typy oprócz Cuboid mają metodę:
 getBaseArea()
@@ -170,38 +170,57 @@ Konwersja typów jest możliwa tylko w przypadku konwersji typu `int` na `float`
 ```ebnf
 Program                     = Statement* ;
 
-Statement                   = VariableDeclaration
-                            | FunctionDefinition
-                            | IfStatement
+Statement                   = FunctionDefinition
+                            | FunctionStatement ;
+
+FunctionStatement           = VariableDeclaration
+                            | VariableAssignment
                             | WhileLoop
                             | Expression
                             | ObjectDeclaration
                             | ObjectMethodCall
                             | Comment ;
 
-Identifier                  = Letter (Letter | Digit)* ;
+Identifier                  = LetterOrUnderscore (LetterOrUnderscore | Digit)* ;
 
-Value                       = Boolean | Integer | Float | String | List ;
+Value                       = Boolean | Number | String | List ;
 
 Boolean                     = "true" | "false" ;
 
 Integer                     = DigitWithoutZero Digit* ;
 
-Float                       =
-                            | "0" "." Digit+
+Float                       = "0" "." Digit+
                             | DigitWithoutZero Digit* "." Digit+ ;
+
+Minus                       = "-" ;
+
+Number                      = (Minus)? (Integer | Float) ;
 
 String                      = "\"" character* "\"" ;
 
-List                        = "[" value ("," value)* "]" ;
+List                        = "[" ListValue ("," ListValue)* "]" ;
 
-VariableDeclaration         = "let" Identifier "=" Value ;
+ListValue                   = Number | String | Boolean | Identifier ;
+
+ListIndex                   = "[" Integer "]" ;
+
+ListGetValue                = List ListIndex ;
+
+VariableAssignment          = Identifier "=" (Value | FunctionCall | ObjectMethodCall | ObjectProperty | ListGetValue | Identifier) ;
+
+VariableDeclaration         = "let" VariableAssignment ;
 
 Block                       = "{" Statement* "}"
 
+WhileBlock                  = "{" (Statement | WhileLoopOperations)* "}"
+
+WhileLoopOperations         = "break" | "continue" ;
+
 Condition                   = "(" Expression ")" ;
 
-FunctionDefinition          = "function" Identifier "(" Parameters ")" Block ;
+FunctionBlock               = "{" FunctionStatement* "}" ;
+
+FunctionDefinition          = "function" Identifier "(" Parameters ")" FunctionBlock ;
 
 Parameters                  = (Identifier ("," Identifier)*)? ;
 
@@ -215,7 +234,11 @@ IfStatement                 = "if" Condition Block ( "elif" Condition Block )* (
 
 WhileLoop                   = "while" Condition Block ;
 
-Expression                  = ComparisonExpression ;
+Expression                  = LogicalOrExpression ;
+
+LogicalOrExpression         = LogicalAndExpression ( "or" LogicalAndExpression )* ;
+
+LogicalAndExpression        = ComparisonExpression ( "and" ComparisonExpression )* ;
 
 ComparisonExpression        = AdditiveExpression ( ( "<" | ">" | "<=" | ">=" | "==" | "!=" ) AdditiveExpression )? ;
 
@@ -223,10 +246,10 @@ AdditiveExpression          = MultiplicativeExpression ( ( "+" | "-" ) Multiplic
 
 MultiplicativeExpression    = PrimaryExpression ( ( "*" | "/" ) PrimaryExpression )* ;
 
-PrimaryExpression           = 
-                            | Identifier 
-                            | Value 
-                            | "(" Expression ")" ;
+PrimaryExpression           = Identifier
+                            | Boolean
+                            | "(" Expression ")"
+                            | "not" PrimaryExpression ;
 
 ObjectDeclaration           = "let" Identifier "=" ObjectConstructor ;
 
@@ -236,9 +259,15 @@ ObjectType                  = "Cuboid" | "Pyramid" | "Cone" | "Cylinder" | "Sphe
 
 ObjectMethodCall            = Identifier "." FunctionCall ;
 
+ObjectProperty              = Identifier "." Identifier ;
+
+ObjectPropertyAssignment    = ObjectProperty "=" Value ;
+
 Comment                     = "#" ( Character - "\n" )* ;
 
 Letter                      = ( "a".."z" | "A".."Z" ) ;
+
+LetterOrUnderscore          = Letter | "_" ;
 
 Digit                       = "0".."9" ;
 
