@@ -306,6 +306,44 @@ LexerError: Invalid character in number at [Line 3, Column 1]
     assert lexer.allTokens[3] == IdentifierValueToken(startPosition=Position(line=4, column=1), length=2, value="d3")
 ```
 
+Kolejny przykład testu jednostkowego parsera:
+
+```python
+def testForeach(self):
+        code = """
+            let arr = [1, 2, 3]
+            foreach(i in arr) {
+                print(i)
+            }
+        """
+
+        tokens = getTokens(code)
+        assert len(tokens) == 22
+
+        assert tokens[0] == Token(type=TokenType.T_VARIABLE, startPosition=Position(line=1, column=1))
+        assert tokens[1] == IdentifierValueToken(value="arr", length=3, startPosition=Position(line=1, column=5))
+        assert tokens[2] == Token(type=TokenType.T_ASSIGN, startPosition=Position(line=1, column=9))
+        assert tokens[3] == Token(type=TokenType.T_LSQBRACKET, startPosition=Position(line=1, column=11))
+        assert tokens[4] == IntValueToken(value=1, length=1, startPosition=Position(line=1, column=12))
+        assert tokens[5] == Token(type=TokenType.T_COMMA, startPosition=Position(line=1, column=13))
+        assert tokens[6] == IntValueToken(value=2, length=1, startPosition=Position(line=1, column=15))
+        assert tokens[7] == Token(type=TokenType.T_COMMA, startPosition=Position(line=1, column=16))
+        assert tokens[8] == IntValueToken(value=3, length=1, startPosition=Position(line=1, column=18))
+        assert tokens[9] == Token(type=TokenType.T_RSQBRACKET, startPosition=Position(line=1, column=19))
+        assert tokens[10] == Token(type=TokenType.T_FOREACH, startPosition=Position(line=2, column=1))
+        assert tokens[11] == Token(type=TokenType.T_LPARENT, startPosition=Position(line=2, column=8))
+        assert tokens[12] == IdentifierValueToken(value="i", length=1, startPosition=Position(line=2, column=9))
+        assert tokens[13] == Token(type=TokenType.T_IN, startPosition=Position(line=2, column=11))
+        assert tokens[14] == IdentifierValueToken(value="arr", length=3, startPosition=Position(line=2, column=14))
+        assert tokens[15] == Token(type=TokenType.T_RPARENT, startPosition=Position(line=2, column=17))
+        assert tokens[16] == Token(type=TokenType.T_LBRACKET, startPosition=Position(line=2, column=19))
+        assert tokens[17] == IdentifierValueToken(value="print", length=5, startPosition=Position(line=3, column=5))
+        assert tokens[18] == Token(type=TokenType.T_LPARENT, startPosition=Position(line=3, column=10))
+        assert tokens[19] == IdentifierValueToken(value="i", length=1, startPosition=Position(line=3, column=11))
+        assert tokens[20] == Token(type=TokenType.T_RPARENT, startPosition=Position(line=3, column=12))
+        assert tokens[21] == Token(type=TokenType.T_RBRACKET, startPosition=Position(line=4, column=1))
+```
+
 ## Błędy
 
 Program będzie obsługiwał następujące błędy z każdego modułu, tj. analizatora leksykalnego, składniowego i interpretera. Jeśli wystąpi błąd, to program nie będzie przerywał swojej pracy, tylko będzie próbował kontynuować. W przypadku wystąpienia błędu, program powinien wyświetlić informację o błędzie na standardowe wyjście.
