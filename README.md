@@ -179,7 +179,12 @@ FunctionStatement           = VariableDeclaration
                             | Expression
                             | ObjectDeclaration
                             | ObjectMethodCall
-                            | Comment ;
+                            | Comment
+                            | IfStatement
+                            | ForEachLoop
+                            | Whitespace
+                            | ReturnStatement
+                            | "\n";
 
 Identifier                  = LetterOrUnderscore (LetterOrUnderscore | Digit)* ;
 
@@ -196,64 +201,79 @@ Minus                       = "-" ;
 
 Number                      = (Minus)? (Integer | Float) ;
 
-String                      = "\"" character* "\"" ;
+String                      = "\"" Character* "\"" ;
 
-List                        = "[" ListValue ("," ListValue)* "]" ;
+List                        = LeftBracket ListValue (Comma ListValue)* RightBracket ;
 
 ListValue                   = Number | String | Boolean | Identifier ;
 
-ListIndex                   = "[" Integer "]" ;
+ListIndex                   = LeftBracket Integer RightBracket ;
 
 ListGetValue                = List ListIndex ;
 
-VariableAssignment          = Identifier "=" (Value | FunctionCall | ObjectMethodCall | ObjectProperty | ListGetValue | Identifier) ;
+VariableAssignment          = Identifier AssignSymbol (Value | FunctionCall | ObjectMethodCall | ObjectProperty | ListGetValue | Identifier) ;
 
-VariableDeclaration         = "let" VariableAssignment ;
+VariableDeclaration         = "let" Whitespace VariableAssignment ;
 
-Block                       = "{" Statement* "}"
+Block                       = LeftBrace Statement* RightBrace
 
-WhileBlock                  = "{" (Statement | WhileLoopOperations)* "}"
+WhileBlock                  = LeftBrace (Statement | WhileLoopOperations)* RightBrace
 
-WhileLoopOperations         = "break" | "continue" ;
+WhileLoopOperations         = Break | Continue ;
 
-Condition                   = "(" Expression ")" ;
+Condition                   = LeftParenthesis Expression RightParenthesis ;
 
-FunctionBlock               = "{" FunctionStatement* "}" ;
+(* Function *)
 
-FunctionDefinition          = "function" Identifier "(" Parameters ")" FunctionBlock ;
+FunctionBlock               = LeftBrace FunctionStatement* RightBrace ;
 
-Parameters                  = (Identifier ("," Identifier)*)? ;
+FunctionDefinition          = "function" Whitespace Identifier LeftParenthesis Parameters RightParenthesis FunctionBlock ;
+
+Parameters                  = (Identifier (Comma Identifier)*)? ;
 
 FunctionCall                = Identifier Arguments ;
 
-Arguments                   = "(" (Argument ("," Argument)*)? ")" ;
+Arguments                   = LeftParenthesis (Argument (Comma Argument)*)? RightParenthesis ;
 
-Argument                    = Identifier "=" Value ;
+Argument                    = Identifier AssignSymbol Value ;
+
+ReturnStatement             = Whitespace "return" Whitespace Expression ;
+
+(* If *)
 
 IfStatement                 = "if" Condition Block ( "elif" Condition Block )* ( "else" Block )? ;
 
+(* Loops *)
+
 WhileLoop                   = "while" Condition Block ;
+
+ForEachLoop                 = "foreach" Identifier "in" Identifier Block ;
+
+(* Operators *)
 
 Expression                  = LogicalOrExpression ;
 
-LogicalOrExpression         = LogicalAndExpression ( "or" LogicalAndExpression )* ;
+LogicalOrExpression         = LogicalAndExpression ( OrOperator LogicalAndExpression )* ;
 
-LogicalAndExpression        = ComparisonExpression ( "and" ComparisonExpression )* ;
+LogicalAndExpression        = ComparisonExpression ( AndOperator ComparisonExpression )* ;
 
-ComparisonExpression        = AdditiveExpression ( ( "<" | ">" | "<=" | ">=" | "==" | "!=" ) AdditiveExpression )? ;
+ComparisonExpression        = AdditiveExpression ( Whitespace ( "<" | ">" | "<=" | ">=" | "==" | "!=" ) Whitespace AdditiveExpression )? ;
 
-AdditiveExpression          = MultiplicativeExpression ( ( "+" | "-" ) MultiplicativeExpression )* ;
+AdditiveExpression          = MultiplicativeExpression ( Whitespace ( "+" | "-" ) Whitespace MultiplicativeExpression )* ;
 
-MultiplicativeExpression    = PrimaryExpression ( ( "*" | "/" ) PrimaryExpression )* ;
+MultiplicativeExpression    = PrimaryExpression ( Whitespace ( "*" | "/" ) Whitespace PrimaryExpression )* ;
 
 PrimaryExpression           = Identifier
                             | Boolean
-                            | "(" Expression ")"
-                            | "not" PrimaryExpression ;
+                            | Number
+                            | LeftParenthesis Expression RightParenthesis
+                            | NotOperator PrimaryExpression ;
 
-ObjectDeclaration           = "let" Identifier "=" ObjectConstructor ;
+(* Object *)
 
-ObjectConstructor           = ObjectType "(" Arguments ")" ;
+ObjectDeclaration           = "let" Identifier AssignSymbol ObjectConstructor ;
+
+ObjectConstructor           = ObjectType LeftParenthesis Arguments RightParenthesis ;
 
 ObjectType                  = "Cuboid" | "Pyramid" | "Cone" | "Cylinder" | "Sphere" | "Tetrahedron" ;
 
@@ -261,19 +281,51 @@ ObjectMethodCall            = Identifier "." FunctionCall ;
 
 ObjectProperty              = Identifier "." Identifier ;
 
-ObjectPropertyAssignment    = ObjectProperty "=" Value ;
+ObjectPropertyAssignment    = ObjectProperty AssignSymbol Value ;
 
-Comment                     = "#" ( Character - "\n" )* ;
+Comment                     = "#" ( Character )* ;
 
-Letter                      = ( "a".."z" | "A".."Z" ) ;
+Letter                      = #"[a-z]" | #"[A-Z]" ;
 
 LetterOrUnderscore          = Letter | "_" ;
 
-Digit                       = "0".."9" ;
+Digit                       = "0" | DigitWithoutZero ;
+
+DigitWithoutZero            = #"[1-9]" ;
+
+(* Logical operators *)
+
+OrOperator                  = Whitespace "or" Whitespace ;
+
+AndOperator                 = Whitespace "and" Whitespace ;
+
+NotOperator                 = Whitespace "not" Whitespace ;
+
+(* Symbols *)
 
 Symbol                      = "+" | "-" | "*" | "/" | "(" | ")" | "[" | "]" | "=" | "." | "," | "\"" | "'" | ";" | ":" | "<" | ">" | "!" | "?" | "&" | "|" ;
 
-Whitespace                  = " " | "\t" | "\r" | "\n" ;
+AssignSymbol                = Whitespace "=" Whitespace ;
+
+LeftParenthesis             = Whitespace "(" Whitespace ;
+
+RightParenthesis            = Whitespace ")" Whitespace ;
+
+LeftBracket                 = Whitespace "[" Whitespace ;
+
+RightBracket                = Whitespace "]" Whitespace ;
+
+LeftBrace                   = Whitespace "{" Whitespace ;
+
+RightBrace                  = Whitespace "}" Whitespace ;
+
+Comma                       = Whitespace "," Whitespace ;
+
+Break                       = Whitespace "break" Whitespace ;
+
+Continue                    = Whitespace "continue" Whitespace ;
+
+Whitespace                  = (" " | "\t" | "\r")* ;
 
 Character                   = ( Letter | Digit | Symbol | Whitespace ) ;
 ```
