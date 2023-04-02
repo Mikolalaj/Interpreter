@@ -133,17 +133,20 @@ Pyramid(width, length, height)
 Cone(radius, height)
 Cylinder(radius, height)
 Tetrahedron(edge)
+```
 
 Wszystkie typy mają metody:
+```typescript
 getSurfaceArea()
 getVolume()
 display() - wyświetla bryłę na ekranie
+```
 
 Wszystkie typy oprócz Cuboid mają metodę:
+```typescript
 getBaseArea()
-
-Wszystkie typt mają pola takie same jak argumenty konstruktora
 ```
+Wszystkie typt mają pola takie same jak argumenty konstruktora
 
 ## Zmienne
 Zmienne są mutowalne, można je nadpisywać. Zmienne muszą być zadeklarowane zanim zostaną użyte.
