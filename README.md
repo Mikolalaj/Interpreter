@@ -201,7 +201,7 @@ Minus                       = "-" ;
 
 Number                      = (Minus)? (Integer | Float) ;
 
-String                      = "\"" Character* "\"" ;
+String                      = "\"" AnyCharacters "\"" ;
 
 List                        = LeftBracket ListValue (Comma ListValue)* RightBracket ;
 
@@ -283,7 +283,7 @@ ObjectProperty              = Identifier "." Identifier ;
 
 ObjectPropertyAssignment    = ObjectProperty AssignSymbol Value ;
 
-Comment                     = "#" ( Character )* ;
+Comment                     = "#" AnyCharacters ;
 
 Letter                      = #"[a-z]" | #"[A-Z]" ;
 
@@ -302,8 +302,6 @@ AndOperator                 = Whitespace "and" Whitespace ;
 NotOperator                 = Whitespace "not" Whitespace ;
 
 (* Symbols *)
-
-Symbol                      = "+" | "-" | "*" | "/" | "(" | ")" | "[" | "]" | "=" | "." | "," | "\"" | "'" | ";" | ":" | "<" | ">" | "!" | "?" | "&" | "|" ;
 
 AssignSymbol                = Whitespace "=" Whitespace ;
 
@@ -327,7 +325,7 @@ Continue                    = Whitespace "continue" Whitespace ;
 
 Whitespace                  = (" " | "\t" | "\r")* ;
 
-Character                   = ( Letter | Digit | Symbol | Whitespace ) ;
+AnyCharacters               = #".*" ;
 ```
 
 
