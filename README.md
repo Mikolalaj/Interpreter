@@ -110,14 +110,13 @@ a.getVolume()
 
 ## Tokeny lexera
 
-```
-StringValueToken
-FloatValueToken
-IntValueToken
-BooleanValueToken
-IdentifierValueToken
-Token - dla wszystkich innych keywordów
-```
+- StringValueToken
+- FloatValueToken
+- IntValueToken
+- BooleanValueToken
+- IdentifierValueToken
+- Token - dla wszystkich innych keywordów
+
 
 ## Wbudowane funkcje
 
