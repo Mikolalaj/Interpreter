@@ -1,4 +1,3 @@
-from typing import Self
 from .token_type import TokenType
 
 
@@ -13,13 +12,13 @@ class Position:
     def __eq__(self, other):
         return True if self.line == other.line and self.column == other.column else False
 
-    def copy(self) -> Self:
+    def copy(self) -> "Position":
         return Position(self.line, self.column)
 
-    def getNextCharacter(self) -> Self:
+    def getNextCharacter(self) -> "Position":
         return Position(self.line, self.column + 1)
 
-    def getNextLine(self) -> Self:
+    def getNextLine(self) -> "Position":
         return Position(self.line + 1, 0)
 
 
@@ -53,7 +52,7 @@ class ValueToken(Token):
     def __repr__(self):
         return f"<`{self.type.toString()}` {self.startPosition} +{self.length} - `{self.value}`>"
 
-    def __eq__(self, valueToken: Self):
+    def __eq__(self, valueToken):
         if (
             self.type == valueToken.type
             and self.value == valueToken.value

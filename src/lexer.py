@@ -46,6 +46,7 @@ class Lexer:
             return None
         if token is not None:
             return token
+        return None
 
     def _tryBuildNumber(self) -> Optional[FloatValueToken | IntValueToken]:
         startPosition = self.source.getPosition()
@@ -95,6 +96,7 @@ class Lexer:
                 return FloatValueToken(startPosition, length, number)
             else:
                 return IntValueToken(startPosition, length, number)
+        return None
 
     def _tryBuildIdentifierOrKeyword(self) -> Optional[Token]:
         startPosition = self.source.getPosition()
@@ -170,6 +172,7 @@ class Lexer:
         for tokenType in TokenType:
             if tokenType.value == value:
                 return tokenType
+        return None
 
     def _isLowerCase(self) -> bool:
         return ord(self.currentCharacter) >= ord("a") and ord(self.currentCharacter) <= ord("z")
