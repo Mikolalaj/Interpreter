@@ -396,6 +396,13 @@ def testForeach(self):
         assert tokens[21] == Token(type=TokenType.T_RBRACKET, startPosition=Position(line=4, column=1))
 ```
 
+Oprócz testów jednostkowych używam też mypy do sprawdzania poprawności typów. Aby sprawdzić poprawność typów, należy wykonać polecenie:
+
+```bash
+mypy ./src/lexer.py
+```
+
+
 ## Błędy
 
 Program będzie obsługiwał następujące błędy z każdego modułu, tj. analizatora leksykalnego, składniowego i interpretera. Jeśli wystąpi błąd, to program nie będzie przerywał swojej pracy, tylko będzie próbował kontynuować. W przypadku wystąpienia błędu, program powinien wyświetlić informację o błędzie na standardowe wyjście.
