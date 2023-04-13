@@ -402,6 +402,12 @@ Oprócz testów jednostkowych używam też mypy do sprawdzania poprawności typ�
 mypy ./src/lexer.py
 ```
 
+Pokrycie testami jednostkowymi można sprawdzić za pomocą:
+
+```bash
+python -m pytest .\src\__tests__\ --cov=.\src\
+```
+
 
 ## Błędy
 
