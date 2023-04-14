@@ -133,7 +133,9 @@ class Lexer:
                     return BooleanValueToken(startPosition, True)
                 elif tokenType == TokenType.T_FALSE:
                     return BooleanValueToken(startPosition, False)
-                return Token(tokenType, startPosition)
+
+                if not self._isLetter() and not self.currentCharacter == "_":
+                    return Token(tokenType, startPosition)
 
         if isValidIdentifier:
             return IdentifierValueToken(startPosition, len(identifierString), identifierString)
