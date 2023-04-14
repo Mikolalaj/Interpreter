@@ -39,6 +39,8 @@ class Lexer:
 
     def _getNextToken(self) -> Optional[Token]:
         self._skipWhitespace()
+        if self.currentCharacter == '#':
+            self._skipLine()
         try:
             token = self._tryBuildString() or self._tryBuildNumber() or self._tryBuildIdentifierOrKeyword()
         except LexerError as e:
@@ -202,6 +204,9 @@ class Lexer:
 
     def _skipNumbers(self) -> None:
         self._skip(lambda: self.currentCharacter.isdigit() or self.currentCharacter == ".")
+
+    def _skipLine(self) -> None:
+        self._skip(lambda: not self._isNewLine())
 
     def _skip(self, condition: Callable[[], bool]) -> None:
         while not self.source.isEndOfSource():
