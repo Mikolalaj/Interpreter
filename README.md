@@ -247,9 +247,9 @@ IfStatement                 = "if" Condition Block ( "elif" Condition Block )* (
 
 (* Loops *)
 
-WhileLoop                   = "while" Condition Block ;
+WhileLoop                   = "while" Condition WhileBlock ;
 
-ForEachLoop                 = "foreach" Identifier "in" Identifier Block ;
+ForEachLoop                 = "foreach" Identifier "in" Identifier WhileBlock ;
 
 (* Operators *)
 
