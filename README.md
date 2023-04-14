@@ -10,9 +10,7 @@ Projekt realizowany w języku Python 3.11
 Z pliku:
 `python main.py <ścieżka do pliku>`
 
-Z konsoli:
-`python main.py`
-Następnie należy wprowadzić kod do wykonania, linia po linii.
+Oprócz pliku z kodem możliwe jest też podanie kodu w postaci stringa.
 
 ## Przykładowe wyrażenia
 
@@ -110,12 +108,67 @@ a.getVolume()
 
 ## Tokeny lexera
 
-- StringValueToken
-- FloatValueToken
-- IntValueToken
-- BooleanValueToken
-- IdentifierValueToken
-- Token - dla wszystkich innych keywordów
+ - T_VARIABLE = "let"
+
+Bryły geometryczne:
+ - T_CUBOID = "Cuboid"
+ - T_PYRAMID = "Pyramid"
+ - T_CONE = "Cone"
+ - T_CYLINDER = "Cylinder"
+ - T_SPHERE = "Sphere"
+ - T_TETRAHEDRON = "Tetrahedron"
+
+Punktuacja:
+ - T_COMMA = ","
+ - T_DOT = "."
+ - T_LSQBRACKET = "["
+ - T_RSQBRACKET = "]"
+ - T_LBRACKET = "{"
+ - T_RBRACKET = "}"
+ - T_LPARENT = "("
+ - T_RPARENT = ")"
+
+Operatory arytmetyczne:
+ - T_PLUS = "+"
+ - T_MINUS = "-"
+ - T_MUL = "*"
+ - T_DIV = "/"
+
+Operatory logiczne:
+ - T_LESS = "<"
+ - T_LESS_OR_EQ = "<="
+ - T_GREATER = ">"
+ - T_GREATER_OR_EQ = ">="
+ - T_EQ = "=="
+ - T_NOT_EQ = "!="
+ - T_OR = "or"
+ - T_AND = "and"
+ - T_NOT = "not"
+
+Słowa kluczowe:
+ - T_IF = "if"
+ - T_ELSE = "else"
+ - T_ELSEIF = "elif"
+ - T_TRUE = "true"
+ - T_FALSE = "false"
+ - T_RETURN = "return"
+ - T_BREAK = "break"
+ - T_CONTINUE = "continue"
+ - T_WHILE = "while"
+ - T_FOREACH = "foreach"
+ - T_IN = "in"
+ - T_ASSIGN = "="
+ - T_FUNCTION = "function"
+
+Typy danych i stałe:
+ - VT_INT = "value int"
+ - VT_FLOAT = "value float"
+ - VT_STRING = "value string"
+ - VT_BOOLEAN = "value bool"
+ - VT_PI = "PI"
+
+Nazwy zmiennych, funkcji:
+ - VT_ID = "identifier"
 
 
 ## Wbudowane funkcje
