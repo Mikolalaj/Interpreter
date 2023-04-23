@@ -237,7 +237,6 @@ FunctionStatement           = VariableDeclaration
                             | Comment
                             | IfStatement
                             | ForEachLoop
-                            | Whitespace
                             | ReturnStatement
                             | "\n";
 
@@ -268,7 +267,7 @@ ListGetValue                = List ListIndex ;
 
 VariableAssignment          = Identifier AssignSymbol (Value | FunctionCall | ObjectMethodCall | ObjectProperty | ListGetValue | Identifier) ;
 
-VariableDeclaration         = "let" Whitespace VariableAssignment ;
+VariableDeclaration         = "let" VariableAssignment ;
 
 Block                       = LeftBrace Statement* RightBrace
 
@@ -282,7 +281,7 @@ Condition                   = LeftParenthesis Expression RightParenthesis ;
 
 FunctionBlock               = LeftBrace FunctionStatement* RightBrace ;
 
-FunctionDefinition          = "function" Whitespace Identifier LeftParenthesis Parameters RightParenthesis FunctionBlock ;
+FunctionDefinition          = "function" Identifier LeftParenthesis Parameters RightParenthesis FunctionBlock ;
 
 Parameters                  = (Identifier (Comma Identifier)*)? ;
 
@@ -292,7 +291,7 @@ Arguments                   = LeftParenthesis (Argument (Comma Argument)*)? Righ
 
 Argument                    = Identifier AssignSymbol Value ;
 
-ReturnStatement             = Whitespace "return" Whitespace Expression ;
+ReturnStatement             = "return" Expression ;
 
 (* If *)
 
@@ -312,11 +311,11 @@ LogicalOrExpression         = LogicalAndExpression ( OrOperator LogicalAndExpres
 
 LogicalAndExpression        = ComparisonExpression ( AndOperator ComparisonExpression )* ;
 
-ComparisonExpression        = AdditiveExpression ( Whitespace ( "<" | ">" | "<=" | ">=" | "==" | "!=" ) Whitespace AdditiveExpression )? ;
+ComparisonExpression        = AdditiveExpression ( ( "<" | ">" | "<=" | ">=" | "==" | "!=" ) AdditiveExpression )? ;
 
-AdditiveExpression          = MultiplicativeExpression ( Whitespace ( "+" | "-" ) Whitespace MultiplicativeExpression )* ;
+AdditiveExpression          = MultiplicativeExpression ( ( "+" | "-" ) MultiplicativeExpression )* ;
 
-MultiplicativeExpression    = PrimaryExpression ( Whitespace ( "*" | "/" ) Whitespace PrimaryExpression )* ;
+MultiplicativeExpression    = PrimaryExpression ( ( "*" | "/" ) PrimaryExpression )* ;
 
 PrimaryExpression           = Identifier
                             | Boolean
@@ -350,33 +349,33 @@ DigitWithoutZero            = #"[1-9]" ;
 
 (* Logical operators *)
 
-OrOperator                  = Whitespace "or" Whitespace ;
+OrOperator                  = "or" ;
 
-AndOperator                 = Whitespace "and" Whitespace ;
+AndOperator                 = "and" ;
 
-NotOperator                 = Whitespace "not" Whitespace ;
+NotOperator                 = "not" ;
 
 (* Symbols *)
 
-AssignSymbol                = Whitespace "=" Whitespace ;
+AssignSymbol                = "=" ;
 
-LeftParenthesis             = Whitespace "(" Whitespace ;
+LeftParenthesis             = "(" ;
 
-RightParenthesis            = Whitespace ")" Whitespace ;
+RightParenthesis            = ")" ;
 
-LeftBracket                 = Whitespace "[" Whitespace ;
+LeftBracket                 = "[" ;
 
-RightBracket                = Whitespace "]" Whitespace ;
+RightBracket                = "]" ;
 
-LeftBrace                   = Whitespace "{" Whitespace ;
+LeftBrace                   = "{" ;
 
-RightBrace                  = Whitespace "}" Whitespace ;
+RightBrace                  = "}" ;
 
-Comma                       = Whitespace "," Whitespace ;
+Comma                       = "," ;
 
-Break                       = Whitespace "break" Whitespace ;
+Break                       = "break" ;
 
-Continue                    = Whitespace "continue" Whitespace ;
+Continue                    = "continue" ;
 
 Whitespace                  = (" " | "\t" | "\r")* ;
 
