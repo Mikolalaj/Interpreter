@@ -12,4 +12,4 @@ def getTokens(code: str, ifRemoveSpaces=True) -> list[Token]:
     if ifRemoveSpaces:
         code = removeSpaces(code)
     lexer = Lexer(source=StringSource(code))
-    return lexer.allTokens
+    return lexer._getAllTokens()

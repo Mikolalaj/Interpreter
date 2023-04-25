@@ -5,16 +5,28 @@ from .utils import getTokens
 
 
 class TestKeywords:
-    def testKeywordsAndIdentifiers(self):
+    def testKeywordsAndIdentifiers(self, capfd):
         code = """
             foreachtest
             foreach_test
             foreach test
             foreach.
+            foreach-
+            foreach? test
+            foreach?test test
+            foreach!test
         """
 
         tokens = getTokens(code)
-        assert len(tokens) == 6
+        out, _ = capfd.readouterr()
+        assert (
+            out
+            == """LexerError: Invalid character `?` at [Line 6, Column 8]
+LexerError: Invalid character `?` at [Line 7, Column 8]
+LexerError: Invalid identifier (!test) at [Line 8, Column 8]
+"""
+        )
+        assert len(tokens) == 14
 
         assert tokens[0] == IdentifierValueToken(value="foreachtest", length=11, startPosition=Position(line=1, column=1))
         assert tokens[1] == IdentifierValueToken(value="foreach_test", length=12, startPosition=Position(line=2, column=1))
@@ -22,6 +34,14 @@ class TestKeywords:
         assert tokens[3] == IdentifierValueToken(value="test", length=4, startPosition=Position(line=3, column=9))
         assert tokens[4] == Token(type=TokenType.T_FOREACH, startPosition=Position(line=4, column=1))
         assert tokens[5] == Token(type=TokenType.T_DOT, startPosition=Position(line=4, column=8))
+        assert tokens[6] == Token(type=TokenType.T_FOREACH, startPosition=Position(line=5, column=1))
+        assert tokens[7] == Token(type=TokenType.T_MINUS, startPosition=Position(line=5, column=8))
+        assert tokens[8] == Token(type=TokenType.T_FOREACH, startPosition=Position(line=6, column=1))
+        assert tokens[9] == IdentifierValueToken(value="test", length=4, startPosition=Position(line=6, column=10))
+        assert tokens[10] == Token(type=TokenType.T_FOREACH, startPosition=Position(line=7, column=1))
+        assert tokens[11] == IdentifierValueToken(value="test", length=4, startPosition=Position(line=7, column=9))
+        assert tokens[12] == IdentifierValueToken(value="test", length=4, startPosition=Position(line=7, column=14))
+        assert tokens[13] == Token(type=TokenType.T_FOREACH, startPosition=Position(line=8, column=1))
 
     def testAllTokens(self):
         code = """

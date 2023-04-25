@@ -20,16 +20,17 @@ class TestIdentifier:
             out
             == """LexerError: Invalid character `a` in number at [Line 2, Column 2]
 LexerError: Invalid character `q` in number at [Line 3, Column 1]
-LexerError: Invalid identifier (@d3) at [Line 4, Column 2]
+LexerError: Invalid character `@` at [Line 4, Column 2]
 """
         )
-        assert len(tokens) == 5
+        assert len(tokens) == 6
 
         assert tokens[0] == IdentifierValueToken(startPosition=Position(line=1, column=1), length=3, value="jp2")
         assert tokens[1] == IdentifierValueToken(startPosition=Position(line=1, column=5), length=3, value="gmd")
         assert tokens[2] == Token(type=TokenType.T_ASSIGN, startPosition=Position(line=3, column=4))
         assert tokens[3] == IdentifierValueToken(startPosition=Position(line=4, column=1), length=1, value="a")
-        assert tokens[4] == IdentifierValueToken(startPosition=Position(line=5, column=1), length=2, value="d3")
+        assert tokens[4] == IdentifierValueToken(startPosition=Position(line=4, column=3), length=2, value="d3")
+        assert tokens[5] == IdentifierValueToken(startPosition=Position(line=5, column=1), length=2, value="d3")
 
     def testIdentifierWithUnderscore(self):
         code = """

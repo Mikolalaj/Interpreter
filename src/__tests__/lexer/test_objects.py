@@ -9,14 +9,12 @@ class TestObjects:
     def testCreating(self):
         code = "let a = Cuboid ( width = 4 , length = 2 , height = 5 )"
         lexer = Lexer(source=StringSource(code))
-        print(lexer.allTokens)
-        assert len(lexer.allTokens) == 17
+        assert len(lexer._getAllTokens()) == 17
 
     def testCreatingNoSpaces(self):
         code = "let a=Cuboid(width=4,length=2,height=5)"
         lexer = Lexer(source=StringSource(code))
-        print(lexer.allTokens)
-        assert len(lexer.allTokens) == 17
+        assert len(lexer._getAllTokens()) == 17
 
     def testAllObjectTypes(self):
         code = """

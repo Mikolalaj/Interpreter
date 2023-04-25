@@ -16,7 +16,6 @@ class Lexer:
         self.source = source
         self.tokenIterator = 0
         self.currentCharacter: str = self.source.readNextCharacter()
-        self.allTokens = self._getAllTokens()
 
     def _getAllTokens(self) -> List[Token]:
         allTokens = []
@@ -28,7 +27,7 @@ class Lexer:
 
     def _getNextToken(self) -> Optional[Token]:
         self._skipWhitespace()
-        if self.currentCharacter == '#':
+        if self.currentCharacter == "#":
             self._skipLine()
         try:
             token = self._tryBuildString() or self._tryBuildNumber() or self._tryBuildIdentifierOrKeyword()
@@ -93,6 +92,11 @@ class Lexer:
         startPosition = self.source.getPosition()
 
         identifierString = self.currentCharacter
+
+        if identifierString in ["@", "$", "%", "^", "&", "`", "~", "?", "|"]:
+            self._nextCharacter()
+            raise LexerError(f"Invalid character `{identifierString}`", startPosition)
+
         isFirstValidIdentifier = isValidIdentifier = self._isValidIdentifier(isFirstCharacter=True)
         self._nextCharacter()
 
@@ -112,7 +116,6 @@ class Lexer:
             isValidIdentifier = isValidIdentifier and self._isValidIdentifier(isFirstCharacter=False)
             if not isValidIdentifier and isFirstValidIdentifier:
                 return IdentifierValueToken(startPosition, len(identifierString), identifierString)
-                # TODO:  count length of identifier in the loop
             identifierString += self.currentCharacter
             self._nextCharacter()
 
