@@ -1,4 +1,3 @@
-import math
 from typing import Callable, List, Optional
 
 from .errors import LexerError
@@ -121,9 +120,7 @@ class Lexer:
 
             tokenType = self._getTokenType(identifierString)
             if tokenType is not None:
-                if tokenType == TokenType.VT_PI:
-                    return FloatValueToken(startPosition, 2, math.pi)
-                elif tokenType == TokenType.T_TRUE:
+                if tokenType == TokenType.T_TRUE:
                     return BooleanValueToken(startPosition, True)
                 elif tokenType == TokenType.T_FALSE:
                     return BooleanValueToken(startPosition, False)

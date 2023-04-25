@@ -74,7 +74,7 @@ class TokenType(Enum):
     VT_BOOLEAN = "value bool"
 
     # constants
-    VT_PI = "PI"
+    T_PI = "PI"
 
     # variable names etc.
     VT_ID = auto()

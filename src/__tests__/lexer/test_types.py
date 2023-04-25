@@ -1,4 +1,3 @@
-import math
 from src.tokens import BooleanValueToken, IdentifierValueToken, Token, Position, IntValueToken, FloatValueToken, StringValueToken
 from src.token_type import TokenType
 from .utils import getTokens
@@ -104,7 +103,7 @@ class TestTypes:
 
         assert tokens[0] == IdentifierValueToken(startPosition=Position(line=1, column=1), length=1, value="a")
         assert tokens[1] == Token(type=TokenType.T_ASSIGN, startPosition=Position(line=1, column=3))
-        assert tokens[2] == FloatValueToken(startPosition=Position(line=1, column=5), length=2, value=math.pi)
+        assert tokens[2] == Token(type=TokenType.T_PI, startPosition=Position(line=1, column=5))
 
     def testListInt(self):
         code = """

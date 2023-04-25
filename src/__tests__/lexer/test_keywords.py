@@ -1,4 +1,3 @@
-import math
 from src.tokens import IdentifierValueToken, Token, Position, BooleanValueToken, IntValueToken, FloatValueToken, StringValueToken
 from src.token_type import TokenType
 from .utils import getTokens
@@ -140,5 +139,5 @@ LexerError: Invalid identifier (!test) at [Line 8, Column 8]
         assert tokens[41] == IntValueToken(startPosition=Position(line=42, column=1), value=5, length=1)
         assert tokens[42] == FloatValueToken(startPosition=Position(line=43, column=1), value=5.5, length=3)
         assert tokens[43] == StringValueToken(startPosition=Position(line=44, column=1), value="test", length=6)
-        assert tokens[44] == FloatValueToken(startPosition=Position(line=45, column=1), value=math.pi, length=2)
+        assert tokens[44] == Token(type=TokenType.T_PI, startPosition=Position(line=45, column=1))
         assert tokens[45] == IdentifierValueToken(startPosition=Position(line=46, column=1), value="identifier", length=10)
