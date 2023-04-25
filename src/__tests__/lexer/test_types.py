@@ -92,6 +92,23 @@ class TestTypes:
         assert tokens[4] == Token(type=TokenType.T_ASSIGN, startPosition=Position(line=2, column=3))
         assert tokens[5] == StringValueToken(startPosition=Position(line=2, column=5), length=13, value="hello world")
 
+    def testStringEscape(self):
+        code = """
+            "hello\\"world"
+            "hello\\nworld"
+            "hello\\tworld"
+            "hello\\\world"
+        """  # noqa: W605
+
+        tokens = getTokens(code)
+
+        assert len(tokens) == 4
+
+        assert tokens[0] == StringValueToken(startPosition=Position(line=1, column=1), length=13, value='hello"world')
+        assert tokens[1] == StringValueToken(startPosition=Position(line=2, column=1), length=13, value="hello\nworld")
+        assert tokens[2] == StringValueToken(startPosition=Position(line=3, column=1), length=13, value="hello\tworld")
+        assert tokens[3] == StringValueToken(startPosition=Position(line=4, column=1), length=13, value="hello\\world")
+
     def testConstants(self):
         code = """
             a = PI

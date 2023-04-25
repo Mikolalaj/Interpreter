@@ -144,15 +144,27 @@ class Lexer:
         self._nextCharacter()
 
         while not self.source.isEndOfSource() and self.currentCharacter != '"':
-            string += self.currentCharacter
+            if length-1 > MAX_STRING_LENGTH:
+                raise LexerError("String is too long", self.source.position)
+            if self.currentCharacter == "\\":
+                self._nextCharacter()
+                if self.currentCharacter == "n":
+                    string += "\n"
+                elif self.currentCharacter == "t":
+                    string += "\t"
+                elif self.currentCharacter == "\\":
+                    string += "\\"
+                elif self.currentCharacter == '"':
+                    string += '"'
+                else:
+                    raise LexerError(f"Invalid escape sequence `\\{self.currentCharacter}`", self.source.position)
+            else:
+                string += self.currentCharacter
             length += 1
             self._nextCharacter()
 
         self._nextCharacter()
 
-        if len(string) > MAX_STRING_LENGTH:
-            raise LexerError("String is too long", self.source.position)
-        print(string)
         return StringValueToken(startPosition, length, string)
 
     def _isValidIdentifier(self, isFirstCharacter: bool) -> bool:
