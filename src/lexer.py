@@ -18,17 +18,6 @@ class Lexer:
         self.currentCharacter: str = self.source.readNextCharacter()
         self.allTokens = self._getAllTokens()
 
-    def getNextToken(self, move_index=True):
-        if self.tokenIterator < len(self.allTokens):
-            token = self.allTokens[self.tokenIterator]
-            if move_index:
-                self.tokenIterator += 1
-            return token
-        return None
-
-    def doesNextTokenExists(self):
-        return True if self.tokenIterator < len(self.allTokens) else False
-
     def _getAllTokens(self) -> List[Token]:
         allTokens = []
         while not self.source.isEndOfSource():
