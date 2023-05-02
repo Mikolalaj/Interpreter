@@ -27,6 +27,9 @@ class Token:
         self.type = type
         self.startPosition = startPosition
 
+    def getValue(self):
+        raise Exception("Token has no value")
+
     def __str__(self):
         return f"<type '{self.type.toString()}' - Start {self.startPosition}>"
 
@@ -45,6 +48,9 @@ class ValueToken(Token):
         super().__init__(type, startPosition)
         self.length = length
         self.value = value
+
+    def getValue(self):
+        return self.value
 
     def __str__(self):
         return f"<type '{self.type.toString()}' - Start {self.startPosition} - value: {self.value}>"
