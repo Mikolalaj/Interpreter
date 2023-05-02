@@ -12,7 +12,7 @@ class TestIf:
         """
 
         tokens = getTokens(code)
-        assert len(tokens) == 11
+        assert len(tokens) == 12
         assert tokens[0] == Token(type=TokenType.T_IF, startPosition=Position(line=1, column=1))
         assert tokens[1] == Token(type=TokenType.T_LPARENT, startPosition=Position(line=1, column=4))
         assert tokens[2] == IdentifierValueToken(startPosition=Position(line=1, column=6), length=1, value="a")
@@ -24,12 +24,13 @@ class TestIf:
         assert tokens[8] == Token(type=TokenType.T_ASSIGN, startPosition=Position(line=2, column=7))
         assert tokens[9] == IntValueToken(value=0, startPosition=Position(line=2, column=9), length=1)
         assert tokens[10] == Token(type=TokenType.T_RBRACKET, startPosition=Position(line=3, column=1))
+        assert tokens[11] == Token(TokenType.VT_EOF, startPosition=Position(line=3, column=2))
 
     def testSingleIfNoSpaces(self):
         code = "if(a>3){a=0}"
 
         tokens = getTokens(code, ifRemoveSpaces=False)
-        assert len(tokens) == 11
+        assert len(tokens) == 12
         assert tokens[0] == Token(type=TokenType.T_IF, startPosition=Position(line=1, column=1))
         assert tokens[1] == Token(type=TokenType.T_LPARENT, startPosition=Position(line=1, column=3))
         assert tokens[2] == IdentifierValueToken(startPosition=Position(line=1, column=4), length=1, value="a")
@@ -41,6 +42,7 @@ class TestIf:
         assert tokens[8] == Token(type=TokenType.T_ASSIGN, startPosition=Position(line=1, column=10))
         assert tokens[9] == IntValueToken(value=0, startPosition=Position(line=1, column=11), length=1)
         assert tokens[10] == Token(type=TokenType.T_RBRACKET, startPosition=Position(line=1, column=12))
+        assert tokens[11] == Token(TokenType.VT_EOF, startPosition=Position(line=1, column=13))
 
     def testIfElif(self):
         code = """
@@ -52,7 +54,7 @@ class TestIf:
         """
 
         tokens = getTokens(code)
-        assert len(tokens) == 24
+        assert len(tokens) == 25
         assert tokens[0] == Token(type=TokenType.T_IF, startPosition=Position(line=1, column=1))
         assert tokens[1] == Token(type=TokenType.T_LPARENT, startPosition=Position(line=1, column=4))
         assert tokens[2] == IdentifierValueToken(startPosition=Position(line=1, column=6), length=1, value="a")
@@ -77,6 +79,7 @@ class TestIf:
         assert tokens[21] == Token(type=TokenType.T_ASSIGN, startPosition=Position(line=4, column=7))
         assert tokens[22] == IntValueToken(value=1, startPosition=Position(line=4, column=9), length=1)
         assert tokens[23] == Token(type=TokenType.T_RBRACKET, startPosition=Position(line=5, column=1))
+        assert tokens[24] == Token(TokenType.VT_EOF, startPosition=Position(line=5, column=2))
 
     def testIfElse(self):
         code = """
@@ -87,7 +90,7 @@ class TestIf:
 
         tokens = getTokens(code)
 
-        assert len(tokens) == 10
+        assert len(tokens) == 11
         assert tokens[0] == Token(type=TokenType.T_IF, startPosition=Position(line=1, column=1))
         assert tokens[1] == Token(type=TokenType.T_LPARENT, startPosition=Position(line=1, column=4))
         assert tokens[2] == Token(type=TokenType.T_RPARENT, startPosition=Position(line=1, column=5))
@@ -98,6 +101,7 @@ class TestIf:
         assert tokens[7] == Token(type=TokenType.T_RPARENT, startPosition=Position(line=2, column=9))
         assert tokens[8] == Token(type=TokenType.T_LBRACKET, startPosition=Position(line=2, column=11))
         assert tokens[9] == Token(type=TokenType.T_RBRACKET, startPosition=Position(line=3, column=1))
+        assert tokens[10] == Token(TokenType.VT_EOF, startPosition=Position(line=3, column=2))
 
     def testIfConditionsLess(self):
         code = """
@@ -106,7 +110,7 @@ class TestIf:
 
         tokens = getTokens(code)
         print(tokens)
-        assert len(tokens) == 10
+        assert len(tokens) == 11
 
         assert tokens[0] == Token(type=TokenType.T_IF, startPosition=Position(line=1, column=1))
         assert tokens[1] == Token(type=TokenType.T_LPARENT, startPosition=Position(line=1, column=4))
@@ -118,6 +122,7 @@ class TestIf:
         assert tokens[7] == Token(type=TokenType.T_LESS_OR_EQ, startPosition=Position(line=1, column=16))
         assert tokens[8] == IdentifierValueToken(startPosition=Position(line=1, column=19), length=1, value="b")
         assert tokens[9] == Token(type=TokenType.T_RPARENT, startPosition=Position(line=1, column=20))
+        assert tokens[10] == Token(TokenType.VT_EOF, startPosition=Position(line=1, column=21))
 
     def testIfConditionsGreater(self):
         code = """
@@ -126,7 +131,7 @@ class TestIf:
 
         tokens = getTokens(code)
         print(tokens)
-        assert len(tokens) == 10
+        assert len(tokens) == 11
 
         assert tokens[0] == Token(type=TokenType.T_IF, startPosition=Position(line=1, column=1))
         assert tokens[1] == Token(type=TokenType.T_LPARENT, startPosition=Position(line=1, column=4))
@@ -138,6 +143,7 @@ class TestIf:
         assert tokens[7] == Token(type=TokenType.T_GREATER_OR_EQ, startPosition=Position(line=1, column=17))
         assert tokens[8] == IntValueToken(startPosition=Position(line=1, column=20), length=1, value=4)
         assert tokens[9] == Token(type=TokenType.T_RPARENT, startPosition=Position(line=1, column=21))
+        assert tokens[10] == Token(TokenType.VT_EOF, startPosition=Position(line=1, column=22))
 
     def testIfConditionsEqual(self):
         code = """
@@ -146,7 +152,7 @@ class TestIf:
 
         tokens = getTokens(code)
         print(tokens)
-        assert len(tokens) == 6
+        assert len(tokens) == 7
 
         assert tokens[0] == Token(type=TokenType.T_IF, startPosition=Position(line=1, column=1))
         assert tokens[1] == Token(type=TokenType.T_LPARENT, startPosition=Position(line=1, column=4))
@@ -154,6 +160,7 @@ class TestIf:
         assert tokens[3] == Token(type=TokenType.T_EQ, startPosition=Position(line=1, column=7))
         assert tokens[4] == IdentifierValueToken(startPosition=Position(line=1, column=10), length=1, value="b")
         assert tokens[5] == Token(type=TokenType.T_RPARENT, startPosition=Position(line=1, column=11))
+        assert tokens[6] == Token(TokenType.VT_EOF, startPosition=Position(line=1, column=12))
 
     def testIfNot(self):
         code = """
@@ -162,13 +169,14 @@ class TestIf:
 
         tokens = getTokens(code)
         print(tokens)
-        assert len(tokens) == 5
+        assert len(tokens) == 6
 
         assert tokens[0] == Token(type=TokenType.T_IF, startPosition=Position(line=1, column=1))
         assert tokens[1] == Token(type=TokenType.T_LPARENT, startPosition=Position(line=1, column=4))
         assert tokens[2] == Token(type=TokenType.T_NOT, startPosition=Position(line=1, column=5))
         assert tokens[3] == IdentifierValueToken(startPosition=Position(line=1, column=9), length=1, value="a")
         assert tokens[4] == Token(type=TokenType.T_RPARENT, startPosition=Position(line=1, column=10))
+        assert tokens[5] == Token(TokenType.VT_EOF, startPosition=Position(line=1, column=11))
 
     def testIfNotEqual(self):
         code = """
@@ -177,7 +185,7 @@ class TestIf:
 
         tokens = getTokens(code)
         print(tokens)
-        assert len(tokens) == 6
+        assert len(tokens) == 7
 
         assert tokens[0] == Token(type=TokenType.T_IF, startPosition=Position(line=1, column=1))
         assert tokens[1] == Token(type=TokenType.T_LPARENT, startPosition=Position(line=1, column=4))
@@ -185,3 +193,4 @@ class TestIf:
         assert tokens[3] == Token(type=TokenType.T_NOT_EQ, startPosition=Position(line=1, column=7))
         assert tokens[4] == IdentifierValueToken(startPosition=Position(line=1, column=10), length=1, value="b")
         assert tokens[5] == Token(type=TokenType.T_RPARENT, startPosition=Position(line=1, column=11))
+        assert tokens[6] == Token(TokenType.VT_EOF, startPosition=Position(line=1, column=12))

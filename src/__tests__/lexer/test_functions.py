@@ -12,7 +12,7 @@ class TestFunctions:
         """
 
         tokens = getTokens(code)
-        assert len(tokens) == 8
+        assert len(tokens) == 9
 
         assert tokens[0] == Token(startPosition=Position(line=1, column=1), type=TokenType.T_FUNCTION)
         assert tokens[1] == IdentifierValueToken(startPosition=Position(line=1, column=10), length=4, value="test")
@@ -22,6 +22,7 @@ class TestFunctions:
         assert tokens[5] == Token(startPosition=Position(line=2, column=5), type=TokenType.T_RETURN)
         assert tokens[6] == IntValueToken(startPosition=Position(line=2, column=12), length=1, value=1)
         assert tokens[7] == Token(startPosition=Position(line=3, column=1), type=TokenType.T_RBRACKET)
+        assert tokens[8] == Token(TokenType.VT_EOF, startPosition=Position(line=3, column=2))
 
     def testSimpleWithArguments(self):
         code = """
@@ -31,7 +32,7 @@ class TestFunctions:
         """
 
         tokens = getTokens(code)
-        assert len(tokens) == 13
+        assert len(tokens) == 14
 
         assert tokens[0] == Token(startPosition=Position(line=1, column=1), type=TokenType.T_FUNCTION)
         assert tokens[1] == IdentifierValueToken(startPosition=Position(line=1, column=10), length=4, value="test")
@@ -46,6 +47,7 @@ class TestFunctions:
         assert tokens[10] == Token(startPosition=Position(line=2, column=14), type=TokenType.T_PLUS)
         assert tokens[11] == IdentifierValueToken(startPosition=Position(line=2, column=16), length=1, value="b")
         assert tokens[12] == Token(startPosition=Position(line=3, column=1), type=TokenType.T_RBRACKET)
+        assert tokens[13] == Token(TokenType.VT_EOF, startPosition=Position(line=3, column=2))
 
     def testFunctionCall(self):
         code = """
@@ -54,7 +56,7 @@ class TestFunctions:
         """
 
         tokens = getTokens(code)
-        assert len(tokens) == 10
+        assert len(tokens) == 11
 
         assert tokens[0] == IdentifierValueToken(startPosition=Position(line=1, column=1), length=3, value="add")
         assert tokens[1] == Token(startPosition=Position(line=1, column=4), type=TokenType.T_LPARENT)
@@ -66,3 +68,4 @@ class TestFunctions:
         assert tokens[7] == Token(startPosition=Position(line=2, column=6), type=TokenType.T_LPARENT)
         assert tokens[8] == StringValueToken(startPosition=Position(line=2, column=7), length=6, value="test")
         assert tokens[9] == Token(startPosition=Position(line=2, column=13), type=TokenType.T_RPARENT)
+        assert tokens[10] == Token(TokenType.VT_EOF, startPosition=Position(line=2, column=14))

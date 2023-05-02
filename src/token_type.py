@@ -1,4 +1,4 @@
-from enum import Enum, auto
+from enum import Enum
 
 
 class TokenType(Enum):
@@ -77,4 +77,6 @@ class TokenType(Enum):
     T_PI = "PI"
 
     # variable names etc.
-    VT_ID = auto()
+    VT_ID = "identifier"
+
+    VT_EOF = "EOF"

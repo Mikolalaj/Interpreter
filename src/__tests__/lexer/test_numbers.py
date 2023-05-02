@@ -13,7 +13,7 @@ class TestNumbers:
         """
 
         tokens = getTokens(code)
-        assert len(tokens) == 7
+        assert len(tokens) == 8
         assert tokens[0] == IntValueToken(value=23, startPosition=Position(line=1, column=1), length=2)
         assert tokens[1] == IntValueToken(value=5, startPosition=Position(line=2, column=1), length=1)
         assert tokens[2] == FloatValueToken(value=13.111, startPosition=Position(line=2, column=4), length=6)
@@ -21,6 +21,7 @@ class TestNumbers:
         assert tokens[4] == IntValueToken(value=0, startPosition=Position(line=4, column=1), length=1)
         assert tokens[5] == Token(type=TokenType.T_MINUS, startPosition=Position(line=4, column=3))
         assert tokens[6] == IntValueToken(value=1, startPosition=Position(line=4, column=4), length=1)
+        assert tokens[7] == Token(TokenType.VT_EOF, startPosition=Position(line=4, column=5))
 
     def testNotValidNumbers(self):
         code = """
@@ -30,13 +31,14 @@ class TestNumbers:
         """
 
         tokens = getTokens(code)
-        assert len(tokens) == 6
+        assert len(tokens) == 7
         assert tokens[0] == IntValueToken(value=1, startPosition=Position(line=1, column=1), length=1)
         assert tokens[1] == Token(type=TokenType.T_DOT, startPosition=Position(line=1, column=3))
         assert tokens[2] == IntValueToken(value=3, startPosition=Position(line=1, column=4), length=1)
         assert tokens[3] == Token(type=TokenType.T_MINUS, startPosition=Position(line=3, column=1))
         assert tokens[4] == Token(type=TokenType.T_DOT, startPosition=Position(line=3, column=2))
         assert tokens[5] == IntValueToken(value=2, startPosition=Position(line=3, column=3), length=1)
+        assert tokens[6] == Token(TokenType.VT_EOF, startPosition=Position(line=3, column=4))
 
     def testArithmeticOperations(self):
         code = """
@@ -47,7 +49,7 @@ class TestNumbers:
         """
 
         tokens = getTokens(code)
-        assert len(tokens) == 12
+        assert len(tokens) == 13
         assert tokens[0] == IntValueToken(value=1, startPosition=Position(line=1, column=1), length=1)
         assert tokens[1] == Token(type=TokenType.T_PLUS, startPosition=Position(line=1, column=3))
         assert tokens[2] == IntValueToken(value=2, startPosition=Position(line=1, column=5), length=1)
@@ -60,6 +62,7 @@ class TestNumbers:
         assert tokens[9] == IntValueToken(value=7, startPosition=Position(line=4, column=1), length=1)
         assert tokens[10] == Token(type=TokenType.T_DIV, startPosition=Position(line=4, column=2))
         assert tokens[11] == IntValueToken(value=8, startPosition=Position(line=4, column=3), length=1)
+        assert tokens[12] == Token(TokenType.VT_EOF, startPosition=Position(line=4, column=4))
 
     def testNumberVariableInitialization(self):
         code = """
@@ -69,7 +72,7 @@ class TestNumbers:
         """
 
         tokens = getTokens(code)
-        assert len(tokens) == 10
+        assert len(tokens) == 11
         assert tokens[0] == Token(type=TokenType.T_VARIABLE, startPosition=Position(line=1, column=1))
         assert tokens[1] == IdentifierValueToken(startPosition=Position(line=1, column=5), length=1, value="a")
         assert tokens[2] == Token(type=TokenType.T_ASSIGN, startPosition=Position(line=1, column=7))
@@ -80,3 +83,4 @@ class TestNumbers:
         assert tokens[7] == IdentifierValueToken(startPosition=Position(line=3, column=1), length=1, value="c")
         assert tokens[8] == Token(type=TokenType.T_ASSIGN, startPosition=Position(line=3, column=2))
         assert tokens[9] == IntValueToken(value=0, startPosition=Position(line=3, column=3), length=1)
+        assert tokens[10] == Token(TokenType.VT_EOF, startPosition=Position(line=3, column=4))

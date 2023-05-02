@@ -25,7 +25,7 @@ LexerError: Invalid character `?` at [Line 7, Column 8]
 LexerError: Invalid identifier (!test) at [Line 8, Column 8]
 """
         )
-        assert len(tokens) == 14
+        assert len(tokens) == 15
 
         assert tokens[0] == IdentifierValueToken(value="foreachtest", length=11, startPosition=Position(line=1, column=1))
         assert tokens[1] == IdentifierValueToken(value="foreach_test", length=12, startPosition=Position(line=2, column=1))
@@ -41,6 +41,7 @@ LexerError: Invalid identifier (!test) at [Line 8, Column 8]
         assert tokens[11] == IdentifierValueToken(value="test", length=4, startPosition=Position(line=7, column=9))
         assert tokens[12] == IdentifierValueToken(value="test", length=4, startPosition=Position(line=7, column=14))
         assert tokens[13] == Token(type=TokenType.T_FOREACH, startPosition=Position(line=8, column=1))
+        assert tokens[14] == Token(type=TokenType.VT_EOF, startPosition=Position(line=8, column=13))
 
     def testAllTokens(self):
         code = """
@@ -93,7 +94,7 @@ LexerError: Invalid identifier (!test) at [Line 8, Column 8]
         """
 
         tokens = getTokens(code)
-        assert len(tokens) == 46
+        assert len(tokens) == 47
 
         assert tokens[0] == Token(type=TokenType.T_VARIABLE, startPosition=Position(line=1, column=1))
         assert tokens[1] == Token(type=TokenType.T_CUBOID, startPosition=Position(line=2, column=1))
@@ -141,3 +142,4 @@ LexerError: Invalid identifier (!test) at [Line 8, Column 8]
         assert tokens[43] == StringValueToken(startPosition=Position(line=44, column=1), value="test", length=6)
         assert tokens[44] == Token(type=TokenType.T_PI, startPosition=Position(line=45, column=1))
         assert tokens[45] == IdentifierValueToken(startPosition=Position(line=46, column=1), value="identifier", length=10)
+        assert tokens[46] == Token(TokenType.VT_EOF, startPosition=Position(line=46, column=11))

@@ -1,4 +1,12 @@
-from src.tokens import BooleanValueToken, IdentifierValueToken, Token, Position, IntValueToken, FloatValueToken, StringValueToken
+from src.tokens import (
+    BooleanValueToken,
+    IdentifierValueToken,
+    Token,
+    Position,
+    IntValueToken,
+    FloatValueToken,
+    StringValueToken,
+)
 from src.token_type import TokenType
 from .utils import getTokens
 
@@ -14,7 +22,7 @@ class TestTypes:
 
         tokens = getTokens(code)
 
-        assert len(tokens) == 14
+        assert len(tokens) == 15
 
         assert tokens[0] == IdentifierValueToken(startPosition=Position(line=1, column=1), length=1, value="a")
         assert tokens[1] == Token(type=TokenType.T_ASSIGN, startPosition=Position(line=1, column=3))
@@ -41,7 +49,7 @@ class TestTypes:
 
         tokens = getTokens(code)
 
-        assert len(tokens) == 14
+        assert len(tokens) == 15
 
         assert tokens[0] == IdentifierValueToken(startPosition=Position(line=1, column=1), length=1, value="a")
         assert tokens[1] == Token(type=TokenType.T_ASSIGN, startPosition=Position(line=1, column=3))
@@ -66,7 +74,7 @@ class TestTypes:
 
         tokens = getTokens(code)
 
-        assert len(tokens) == 6
+        assert len(tokens) == 7
 
         assert tokens[0] == IdentifierValueToken(startPosition=Position(line=1, column=1), length=1, value="a")
         assert tokens[1] == Token(type=TokenType.T_ASSIGN, startPosition=Position(line=1, column=3))
@@ -83,7 +91,7 @@ class TestTypes:
 
         tokens = getTokens(code)
 
-        assert len(tokens) == 6
+        assert len(tokens) == 7
 
         assert tokens[0] == IdentifierValueToken(startPosition=Position(line=1, column=1), length=1, value="a")
         assert tokens[1] == Token(type=TokenType.T_ASSIGN, startPosition=Position(line=1, column=3))
@@ -102,7 +110,7 @@ class TestTypes:
 
         tokens = getTokens(code)
 
-        assert len(tokens) == 4
+        assert len(tokens) == 5
 
         assert tokens[0] == StringValueToken(startPosition=Position(line=1, column=1), length=13, value='hello"world')
         assert tokens[1] == StringValueToken(startPosition=Position(line=2, column=1), length=13, value="hello\nworld")
@@ -116,7 +124,7 @@ class TestTypes:
 
         tokens = getTokens(code)
 
-        assert len(tokens) == 3
+        assert len(tokens) == 4
 
         assert tokens[0] == IdentifierValueToken(startPosition=Position(line=1, column=1), length=1, value="a")
         assert tokens[1] == Token(type=TokenType.T_ASSIGN, startPosition=Position(line=1, column=3))
@@ -129,7 +137,7 @@ class TestTypes:
 
         tokens = getTokens(code)
 
-        assert len(tokens) == 7
+        assert len(tokens) == 8
         assert tokens[0] == Token(startPosition=Position(1, 1), type=TokenType.T_LSQBRACKET)
         assert tokens[1] == IntValueToken(startPosition=Position(1, 2), length=1, value=1)
         assert tokens[2] == Token(startPosition=Position(1, 3), type=TokenType.T_COMMA)
@@ -145,7 +153,7 @@ class TestTypes:
 
         tokens = getTokens(code)
 
-        assert len(tokens) == 7
+        assert len(tokens) == 8
         assert tokens[0] == Token(startPosition=Position(1, 1), type=TokenType.T_LSQBRACKET)
         assert tokens[1] == FloatValueToken(startPosition=Position(1, 2), length=3, value=2.3)
         assert tokens[2] == Token(startPosition=Position(1, 5), type=TokenType.T_COMMA)
@@ -161,7 +169,7 @@ class TestTypes:
 
         tokens = getTokens(code)
 
-        assert len(tokens) == 7
+        assert len(tokens) == 8
         assert tokens[0] == Token(startPosition=Position(1, 1), type=TokenType.T_LSQBRACKET)
         assert tokens[1] == BooleanValueToken(startPosition=Position(1, 2), value=True)
         assert tokens[2] == Token(startPosition=Position(1, 6), type=TokenType.T_COMMA)
@@ -177,7 +185,7 @@ class TestTypes:
 
         tokens = getTokens(code)
 
-        assert len(tokens) == 5
+        assert len(tokens) == 6
         assert tokens[0] == Token(startPosition=Position(1, 1), type=TokenType.T_LSQBRACKET)
         assert tokens[1] == StringValueToken(startPosition=Position(1, 2), length=7, value="hello")
         assert tokens[2] == Token(startPosition=Position(1, 9), type=TokenType.T_COMMA)
@@ -191,7 +199,7 @@ class TestTypes:
 
         tokens = getTokens(code)
 
-        assert len(tokens) == 7
+        assert len(tokens) == 8
         assert tokens[0] == Token(startPosition=Position(1, 1), type=TokenType.T_LSQBRACKET)
         assert tokens[1] == IdentifierValueToken(startPosition=Position(1, 2), length=1, value="a")
         assert tokens[2] == Token(startPosition=Position(1, 3), type=TokenType.T_COMMA)

@@ -10,7 +10,7 @@ class TestLoops:
         """
 
         tokens = getTokens(code)
-        assert len(tokens) == 6
+        assert len(tokens) == 7
 
         assert tokens[0] == Token(type=TokenType.T_WHILE, startPosition=Position(line=1, column=1))
         assert tokens[1] == Token(type=TokenType.T_LPARENT, startPosition=Position(line=1, column=6))
@@ -18,6 +18,7 @@ class TestLoops:
         assert tokens[3] == Token(type=TokenType.T_RPARENT, startPosition=Position(line=1, column=11))
         assert tokens[4] == Token(type=TokenType.T_LBRACKET, startPosition=Position(line=1, column=13))
         assert tokens[5] == Token(type=TokenType.T_RBRACKET, startPosition=Position(line=1, column=15))
+        assert tokens[6] == Token(TokenType.VT_EOF, startPosition=Position(line=1, column=16))
 
     def testWhileWithContinueBreak(self):
         code = """
@@ -28,7 +29,7 @@ class TestLoops:
         """
 
         tokens = getTokens(code)
-        assert len(tokens) == 10
+        assert len(tokens) == 11
 
         assert tokens[0] == Token(type=TokenType.T_WHILE, startPosition=Position(line=1, column=1))
         assert tokens[1] == Token(type=TokenType.T_LPARENT, startPosition=Position(line=1, column=6))
@@ -40,6 +41,7 @@ class TestLoops:
         assert tokens[7] == Token(type=TokenType.T_CONTINUE, startPosition=Position(line=2, column=5))
         assert tokens[8] == Token(type=TokenType.T_BREAK, startPosition=Position(line=3, column=5))
         assert tokens[9] == Token(type=TokenType.T_RBRACKET, startPosition=Position(line=4, column=1))
+        assert tokens[10] == Token(TokenType.VT_EOF, startPosition=Position(line=4, column=2))
 
     def testForeach(self):
         code = """
@@ -50,7 +52,7 @@ class TestLoops:
         """
 
         tokens = getTokens(code)
-        assert len(tokens) == 22
+        assert len(tokens) == 23
 
         assert tokens[0] == Token(type=TokenType.T_VARIABLE, startPosition=Position(line=1, column=1))
         assert tokens[1] == IdentifierValueToken(value="arr", length=3, startPosition=Position(line=1, column=5))
@@ -74,3 +76,4 @@ class TestLoops:
         assert tokens[19] == IdentifierValueToken(value="i", length=1, startPosition=Position(line=3, column=11))
         assert tokens[20] == Token(type=TokenType.T_RPARENT, startPosition=Position(line=3, column=12))
         assert tokens[21] == Token(type=TokenType.T_RBRACKET, startPosition=Position(line=4, column=1))
+        assert tokens[22] == Token(TokenType.VT_EOF, startPosition=Position(line=4, column=2))

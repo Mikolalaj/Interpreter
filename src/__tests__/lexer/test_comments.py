@@ -1,4 +1,5 @@
-from src.tokens import Position, IntValueToken
+from src.token_type import TokenType
+from src.tokens import Position, IntValueToken, Token
 from .utils import getTokens
 
 
@@ -9,7 +10,9 @@ class TestComments:
         """
 
         tokens = getTokens(code)
-        assert len(tokens) == 0
+        assert len(tokens) == 1
+
+        assert tokens[0] == Token(TokenType.VT_EOF, startPosition=Position(line=1, column=20))
 
     def testCommentAfterCode(self):
         code = """
@@ -17,6 +20,7 @@ class TestComments:
         """
 
         tokens = getTokens(code)
-        assert len(tokens) == 1
+        assert len(tokens) == 2
 
         assert tokens[0] == IntValueToken(value=5, length=1, startPosition=Position(line=1, column=1))
+        assert tokens[1] == Token(TokenType.VT_EOF, startPosition=Position(line=1, column=22))

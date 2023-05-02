@@ -18,24 +18,35 @@ class Lexer:
 
     def _getAllTokens(self) -> List[Token]:
         allTokens = []
-        while not self.source.isEndOfSource():
-            token = self._getNextToken()
-            if token is not None:
-                allTokens.append(token)
+        token = self.getNextToken()
+        while token.type != TokenType.VT_EOF:
+            allTokens.append(token)
+            token = self.getNextToken()
+        allTokens.append(token)
         return allTokens
 
-    def _getNextToken(self) -> Optional[Token]:
+    def getNextToken(self) -> Token:
         self._skipWhitespace()
         if self.currentCharacter == "#":
             self._skipLine()
+
+        if self.source.isEndOfSource():
+            return Token(type=TokenType.VT_EOF, startPosition=self.source.getPosition())
+
+        token = None
         try:
             token = self._tryBuildString() or self._tryBuildNumber() or self._tryBuildIdentifierOrKeyword()
+            if token is not None:
+                return token
+            else:
+                return Token(type=TokenType.VT_EOF, startPosition=self.source.getPosition())
         except LexerError as e:
             print(e)
-            return None
+
         if token is not None:
             return token
-        return None
+        else:
+            return self.getNextToken()
 
     def _tryBuildNumber(self) -> Optional[FloatValueToken | IntValueToken]:
         startPosition = self.source.getPosition()
@@ -144,7 +155,7 @@ class Lexer:
         self._nextCharacter()
 
         while not self.source.isEndOfSource() and self.currentCharacter != '"':
-            if length-1 > MAX_STRING_LENGTH:
+            if length - 1 > MAX_STRING_LENGTH:
                 raise LexerError("String is too long", self.source.position)
             if self.currentCharacter == "\\":
                 self._nextCharacter()
@@ -175,7 +186,7 @@ class Lexer:
 
     def _getTokenType(self, value: str) -> Optional[TokenType]:
         for tokenType in TokenType:
-            if tokenType.value == value:
+            if not tokenType.name.startswith("V") and tokenType.value == value:
                 return tokenType
         return None
 

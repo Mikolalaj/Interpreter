@@ -23,7 +23,7 @@ LexerError: Invalid character `q` in number at [Line 3, Column 1]
 LexerError: Invalid character `@` at [Line 4, Column 2]
 """
         )
-        assert len(tokens) == 6
+        assert len(tokens) == 7
 
         assert tokens[0] == IdentifierValueToken(startPosition=Position(line=1, column=1), length=3, value="jp2")
         assert tokens[1] == IdentifierValueToken(startPosition=Position(line=1, column=5), length=3, value="gmd")
@@ -31,6 +31,7 @@ LexerError: Invalid character `@` at [Line 4, Column 2]
         assert tokens[3] == IdentifierValueToken(startPosition=Position(line=4, column=1), length=1, value="a")
         assert tokens[4] == IdentifierValueToken(startPosition=Position(line=4, column=3), length=2, value="d3")
         assert tokens[5] == IdentifierValueToken(startPosition=Position(line=5, column=1), length=2, value="d3")
+        assert tokens[6] == Token(TokenType.VT_EOF, startPosition=Position(line=5, column=3))
 
     def testIdentifierWithUnderscore(self):
         code = """
@@ -42,7 +43,7 @@ LexerError: Invalid character `@` at [Line 4, Column 2]
         """
 
         tokens = getTokens(code)
-        assert len(tokens) == 20
+        assert len(tokens) == 21
 
         assert tokens[0] == Token(type=TokenType.T_VARIABLE, startPosition=Position(line=1, column=1))
         assert tokens[1] == IdentifierValueToken(startPosition=Position(line=1, column=5), length=2, value="_a")
@@ -64,3 +65,4 @@ LexerError: Invalid character `@` at [Line 4, Column 2]
         assert tokens[17] == IdentifierValueToken(startPosition=Position(line=5, column=5), length=4, value="a_1_")
         assert tokens[18] == Token(type=TokenType.T_ASSIGN, startPosition=Position(line=5, column=10))
         assert tokens[19] == IntValueToken(startPosition=Position(line=5, column=12), length=1, value=5)
+        assert tokens[20] == Token(TokenType.VT_EOF, startPosition=Position(line=5, column=13))

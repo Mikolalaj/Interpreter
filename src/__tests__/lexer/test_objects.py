@@ -9,12 +9,12 @@ class TestObjects:
     def testCreating(self):
         code = "let a = Cuboid ( width = 4 , length = 2 , height = 5 )"
         lexer = Lexer(source=StringSource(code))
-        assert len(lexer._getAllTokens()) == 17
+        assert len(lexer._getAllTokens()) == 18
 
     def testCreatingNoSpaces(self):
         code = "let a=Cuboid(width=4,length=2,height=5)"
         lexer = Lexer(source=StringSource(code))
-        assert len(lexer._getAllTokens()) == 17
+        assert len(lexer._getAllTokens()) == 18
 
     def testAllObjectTypes(self):
         code = """
@@ -27,7 +27,7 @@ class TestObjects:
         """
 
         tokens = getTokens(code)
-        assert len(tokens) == 12
+        assert len(tokens) == 13
 
         assert tokens[0] == Token(startPosition=Position(line=1, column=1), type=TokenType.T_CUBOID)
         assert tokens[1] == IdentifierValueToken(startPosition=Position(line=1, column=8), length=6, value="cuboid")
@@ -41,6 +41,7 @@ class TestObjects:
         assert tokens[9] == IdentifierValueToken(startPosition=Position(line=5, column=8), length=6, value="sphere")
         assert tokens[10] == Token(startPosition=Position(line=6, column=1), type=TokenType.T_TETRAHEDRON)
         assert tokens[11] == IdentifierValueToken(startPosition=Position(line=6, column=13), length=11, value="tetrahedron")
+        assert tokens[12] == Token(TokenType.VT_EOF, startPosition=Position(line=6, column=24))
 
     def testObjectMethodCall(self):
         code = """
@@ -48,7 +49,7 @@ class TestObjects:
         """
 
         tokens = getTokens(code)
-        assert len(tokens) == 8
+        assert len(tokens) == 9
 
         assert tokens[0] == Token(startPosition=Position(line=1, column=1), type=TokenType.T_VARIABLE)
         assert tokens[1] == IdentifierValueToken(startPosition=Position(line=1, column=5), length=1, value="a")
@@ -58,3 +59,4 @@ class TestObjects:
         assert tokens[5] == IdentifierValueToken(startPosition=Position(line=1, column=16), length=11, value="getProperty")
         assert tokens[6] == Token(startPosition=Position(line=1, column=27), type=TokenType.T_LPARENT)
         assert tokens[7] == Token(startPosition=Position(line=1, column=28), type=TokenType.T_RPARENT)
+        assert tokens[8] == Token(TokenType.VT_EOF, startPosition=Position(line=1, column=29))
