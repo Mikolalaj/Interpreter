@@ -109,7 +109,6 @@ class TestIf:
         """
 
         tokens = getTokens(code)
-        print(tokens)
         assert len(tokens) == 11
 
         assert tokens[0] == Token(type=TokenType.T_IF, startPosition=Position(line=1, column=1))
@@ -130,7 +129,6 @@ class TestIf:
         """
 
         tokens = getTokens(code)
-        print(tokens)
         assert len(tokens) == 11
 
         assert tokens[0] == Token(type=TokenType.T_IF, startPosition=Position(line=1, column=1))
@@ -151,7 +149,6 @@ class TestIf:
         """
 
         tokens = getTokens(code)
-        print(tokens)
         assert len(tokens) == 7
 
         assert tokens[0] == Token(type=TokenType.T_IF, startPosition=Position(line=1, column=1))
@@ -168,7 +165,6 @@ class TestIf:
         """
 
         tokens = getTokens(code)
-        print(tokens)
         assert len(tokens) == 6
 
         assert tokens[0] == Token(type=TokenType.T_IF, startPosition=Position(line=1, column=1))
@@ -184,7 +180,6 @@ class TestIf:
         """
 
         tokens = getTokens(code)
-        print(tokens)
         assert len(tokens) == 7
 
         assert tokens[0] == Token(type=TokenType.T_IF, startPosition=Position(line=1, column=1))
