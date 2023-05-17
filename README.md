@@ -226,9 +226,9 @@ Konwersja typów jest możliwa tylko w przypadku konwersji typu `int` na `float`
 Program                     = Statement* ;
 
 Statement                   = FunctionDefinition
-                            | FunctionStatement ;
+                            | StatementWithoutFunction ;
 
-FunctionStatement           = VariableDeclaration
+StatementWithoutFunction    = VariableDeclaration
                             | VariableAssignment
                             | WhileLoop
                             | Expression
@@ -237,8 +237,7 @@ FunctionStatement           = VariableDeclaration
                             | Comment
                             | IfStatement
                             | ForEachLoop
-                            | ReturnStatement
-                            | "\n";
+                            | ReturnStatement ;
 
 Identifier                  = LetterOrUnderscore (LetterOrUnderscore | Digit)* ;
 
@@ -251,9 +250,7 @@ Integer                     = DigitWithoutZero Digit* ;
 Float                       = "0" "." Digit+
                             | DigitWithoutZero Digit* "." Digit+ ;
 
-Minus                       = "-" ;
-
-Number                      = (Minus)? (Integer | Float) ;
+Number                      = Integer | Float ;
 
 String                      = "\"" AnyCharacters "\"" ;
 
@@ -265,7 +262,7 @@ ListIndex                   = LeftBracket Integer RightBracket ;
 
 ListGetValue                = List ListIndex ;
 
-VariableAssignment          = Identifier AssignSymbol (Value | FunctionCall | ObjectMethodCall | ObjectProperty | ListGetValue | Identifier) ;
+VariableAssignment          = Identifier AssignSymbol (Value | FunctionCall | ObjectMethodCall | ObjectProperty | ListGetValue | Identifier | Expression) ;
 
 VariableDeclaration         = "let" VariableAssignment ;
 
@@ -279,9 +276,9 @@ Condition                   = LeftParenthesis Expression RightParenthesis ;
 
 (* Function *)
 
-FunctionBlock               = LeftBrace FunctionStatement* RightBrace ;
+BlockWithoutFunction        = LeftBrace StatementWithoutFunction* RightBrace ;
 
-FunctionDefinition          = "function" Identifier LeftParenthesis Parameters RightParenthesis FunctionBlock ;
+FunctionDefinition          = "function" Identifier LeftParenthesis Parameters RightParenthesis BlockWithoutFunction ;
 
 Parameters                  = (Identifier (Comma Identifier)*)? ;
 
@@ -295,7 +292,7 @@ ReturnStatement             = "return" Expression ;
 
 (* If *)
 
-IfStatement                 = "if" Condition Block ( "elif" Condition Block )* ( "else" Block )? ;
+IfStatement                 = "if" Condition BlockWithoutFunction ( "elif" Condition BlockWithoutFunction )* ( "else" BlockWithoutFunction )? ;
 
 (* Loops *)
 
@@ -317,11 +314,11 @@ AdditiveExpression          = MultiplicativeExpression ( ( "+" | "-" ) Multiplic
 
 MultiplicativeExpression    = PrimaryExpression ( ( "*" | "/" ) PrimaryExpression )* ;
 
-PrimaryExpression           = Identifier
+PrimaryExpression           = NotOperator? Literal | ( LeftParenthesis Expression RightParenthesis ) ;
+
+Literal                     = Identifier
                             | Boolean
-                            | Number
-                            | LeftParenthesis Expression RightParenthesis
-                            | NotOperator PrimaryExpression ;
+                            | Number ;
 
 (* Object *)
 
@@ -353,7 +350,7 @@ OrOperator                  = "or" ;
 
 AndOperator                 = "and" ;
 
-NotOperator                 = "not" ;
+NotOperator                 = "not" | "-" ;
 
 (* Symbols *)
 
