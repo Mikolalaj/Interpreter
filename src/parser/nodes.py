@@ -1,11 +1,14 @@
+from abc import ABC, abstractmethod
+import math
 from typing import Any, List, Optional
 from typing import Literal as LiteralType
+from src.token_type import TokenType
 
 from src.tokens import Position
 
 
 class Assignment:
-    def __init__(self, name: str, value: Any):
+    def __init__(self, name: "str | ObjectProperty", value: Any):
         self.name = name
         self.value = value
 
@@ -114,6 +117,26 @@ class LiteralString(Literal):
     def __eq__(self, __value: object) -> bool:
         if isinstance(__value, LiteralString):
             return self.value == __value.value
+        else:
+            return False
+
+
+class LiteralSubscriptable(Literal):
+    def __init__(self, startPosition: Position, value: str, subscript: Expression):
+        super().__init__(startPosition)
+        self.value = value
+        self.subscript = subscript
+
+    def __repr__(self):
+        return f"(LiteralSubscriptable:{self.value} Subscript:{self.subscript})"
+
+    def __eq__(self, __value: object) -> bool:
+        if isinstance(__value, LiteralSubscriptable):
+            return (
+                self.value == __value.value
+                and self.subscript == __value.subscript
+                and self.startPosition == __value.startPosition
+            )
         else:
             return False
 
@@ -481,6 +504,178 @@ class ForEachLoop:
             return False
 
 
+class Object(ABC):
+    @abstractmethod
+    def getSurfaceArea(self):
+        raise NotImplementedError
+
+    @abstractmethod
+    def getVolume(self):
+        raise NotImplementedError
+
+    @abstractmethod
+    def display(self):
+        raise NotImplementedError
+
+
+class Cuboid(Object):
+    def __init__(self, width: float, length: float, height: float):
+        self.width = width
+        self.length = length
+        self.height = height
+
+    def getSurfaceArea(self) -> float:
+        return 2 * (self.width * self.length + self.width * self.height + self.length * self.height)
+
+    def getVolume(self) -> float:
+        return self.width * self.length * self.height
+
+    def display(self) -> None:
+        print(f"Cuboid: width={self.width} length={self.length} height={self.height}")
+
+
+class ObjectWithBaseArea(Object):
+    @abstractmethod
+    def getBaseArea(self):
+        raise NotImplementedError
+
+
+class Pyramid(ObjectWithBaseArea):
+    def __init__(self, width: float, length: float, height: float):
+        self.width = width
+        self.length = length
+        self.height = height
+
+    def getSurfaceArea(self) -> float:
+        return (
+            self.width * self.length
+            + self.width * math.sqrt((self.length / 2) ** 2 + self.height**2)
+            + self.length * math.sqrt((self.width / 2) ** 2 + self.height**2)
+        )
+
+    def getVolume(self) -> float:
+        return self.width * self.length * self.height / 3
+
+    def getBaseArea(self) -> float:
+        return self.width * self.length
+
+    def display(self) -> None:
+        print(f"Pyramid: width={self.width} length={self.length} height={self.height}")
+
+
+class Cone(ObjectWithBaseArea):
+    def __init__(self, radius: float, height: float):
+        self.radius = radius
+        self.height = height
+
+    def getSurfaceArea(self) -> float:
+        return math.pi * self.radius * (self.radius + math.sqrt(self.height**2 + self.radius**2))
+
+    def getVolume(self) -> float:
+        return math.pi * self.radius**2 * self.height / 3
+
+    def getBaseArea(self) -> float:
+        return math.pi * self.radius**2
+
+    def display(self) -> None:
+        print(f"Cone: radius={self.radius} height={self.height}")
+
+
+class Cylinder(ObjectWithBaseArea):
+    def __init__(self, radius: float, height: float):
+        self.radius = radius
+        self.height = height
+
+    def getSurfaceArea(self) -> float:
+        return 2 * math.pi * self.radius * (self.radius + self.height)
+
+    def getVolume(self) -> float:
+        return math.pi * self.radius**2 * self.height
+
+    def getBaseArea(self) -> float:
+        return math.pi * self.radius**2
+
+    def display(self) -> None:
+        print(f"Cylinder: radius={self.radius} height={self.height}")
+
+
+class Tetrahedron(ObjectWithBaseArea):
+    def __init__(self, edge: float):
+        self.edge = edge
+
+    def getSurfaceArea(self) -> float:
+        return math.sqrt(3) * self.edge**2
+
+    def getVolume(self) -> float:
+        return math.sqrt(2) * self.edge**3 / 12
+
+    def getBaseArea(self) -> float:
+        return math.sqrt(3) * self.edge**2 / 4
+
+    def display(self) -> None:
+        print(f"Tetrahedron: edge={self.edge}")
+
+
+# ObjectType = "Cuboid" | "Pyramid" | "Cone" | "Cylinder" | "Sphere" | "Tetrahedron" ;
+ObjectType = (
+    LiteralType[TokenType.T_CUBOID]
+    | LiteralType[TokenType.T_PYRAMID]
+    | LiteralType[TokenType.T_CONE]
+    | LiteralType[TokenType.T_CYLINDER]
+    | LiteralType[TokenType.T_SPHERE]
+    | LiteralType[TokenType.T_TETRAHEDRON]
+)
+
+
+# ObjectConstructor = ObjectType LeftParenthesis Arguments RightParenthesis ;
+class ObjectConstructor:
+    def __init__(self, startPosition: Position, objectType: ObjectType, arguments: List[Assignment]) -> None:
+        self.startPosition = startPosition
+        self.objectType = objectType
+        self.arguments = arguments
+
+    def __repr__(self):
+        return f"(ObjectConstructor:{self.objectType} {self.arguments})"
+
+    def __eq__(self, __value: object) -> bool:
+        if isinstance(__value, ObjectConstructor):
+            return self.objectType == __value.objectType and self.arguments == __value.arguments
+        else:
+            return False
+
+
+# ObjectMethodCall = Identifier "." FunctionCall ;
+class ObjectMethodCall:
+    def __init__(self, identifier: str, functionCall: FunctionCall) -> None:
+        self.identifier = identifier
+        self.functionCall = functionCall
+
+    def __repr__(self):
+        return f"(ObjectMethodCall:{self.identifier} {self.functionCall})"
+
+    def __eq__(self, __value: object) -> bool:
+        if isinstance(__value, ObjectMethodCall):
+            return self.identifier == __value.identifier and self.functionCall == __value.functionCall
+        else:
+            return False
+
+
+# ObjectProperty = Identifier "." Identifier ;
+class ObjectProperty:
+    def __init__(self, identifier: str, property: str) -> None:
+        self.identifier = identifier
+        self.property = property
+
+    def __repr__(self):
+        return f"(ObjectProperty:{self.identifier} {self.property})"
+
+    def __eq__(self, __value: object) -> bool:
+        if isinstance(__value, ObjectProperty):
+            return self.identifier == __value.identifier and self.property == __value.property
+        else:
+            return False
+
+
 StatementWithoutFunction = (
     Expression
     | IfStatement
@@ -490,9 +685,7 @@ StatementWithoutFunction = (
     | ReturnStatement
     | WhileLoop
     | ForEachLoop
-    # | ObjectDeclaration
-    # | ObjectMethodCall
-    # | Comment
+    | ObjectMethodCall
 )
 
 Statement = FunctionDefinition | StatementWithoutFunction

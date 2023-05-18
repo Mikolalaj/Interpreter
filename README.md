@@ -318,7 +318,8 @@ PrimaryExpression           = NotOperator? Literal | ( LeftParenthesis Expressio
 
 Literal                     = Identifier
                             | Boolean
-                            | Number ;
+                            | Number 
+                            | Identifier LeftBracket Expression RightBracket ;
 
 (* Object *)
 
