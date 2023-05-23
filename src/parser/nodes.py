@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
+from enum import Enum
 import math
 from typing import Any, List, Optional
 from typing import Literal as LiteralType
-from src.token_type import TokenType
 
 from src.tokens import Position
 
@@ -276,22 +276,8 @@ class LogicalOrExpression(Expression):
             return False
 
 
-class LemonListValue:
-    def __init__(self, value: Literal) -> None:
-        self.value = value
-
-    def __repr__(self):
-        return f"(LemonListValue:{self.value})"
-
-    def __eq__(self, __value: object) -> bool:
-        if isinstance(__value, LemonListValue):
-            return self.value == __value.value
-        else:
-            return False
-
-
 class LemonList:
-    def __init__(self, values: Optional[List[LemonListValue]]) -> None:
+    def __init__(self, values: Optional[List[Expression]]) -> None:
         self.values = values
 
     def __repr__(self):
@@ -482,7 +468,7 @@ class WhileLoop:
 
 # ForEachLoop = "foreach" Identifier "in" Identifier WhileBlock ;
 class ForEachLoop:
-    def __init__(self, startPosition: Position, identifier: str, iterable: str, block: WhileBlock) -> None:
+    def __init__(self, startPosition: Position, identifier: str, iterable: Expression, block: WhileBlock) -> None:
         self.startPosition = startPosition
         self.identifier = identifier
         self.iterable = iterable
@@ -616,14 +602,16 @@ class Tetrahedron(ObjectWithBaseArea):
 
 
 # ObjectType = "Cuboid" | "Pyramid" | "Cone" | "Cylinder" | "Sphere" | "Tetrahedron" ;
-ObjectType = (
-    LiteralType[TokenType.T_CUBOID]
-    | LiteralType[TokenType.T_PYRAMID]
-    | LiteralType[TokenType.T_CONE]
-    | LiteralType[TokenType.T_CYLINDER]
-    | LiteralType[TokenType.T_SPHERE]
-    | LiteralType[TokenType.T_TETRAHEDRON]
-)
+class ObjectType(Enum):
+    CUBOID = "Cuboid"
+    PYRAMID = "Pyramid"
+    CONE = "Cone"
+    CYLINDER = "Cylinder"
+    SPHERE = "Sphere"
+    TETRAHEDRON = "Tetrahedron"
+
+    def __eq__(self, __value: object) -> bool:
+        return self.value == __value
 
 
 # ObjectConstructor = ObjectType LeftParenthesis Arguments RightParenthesis ;

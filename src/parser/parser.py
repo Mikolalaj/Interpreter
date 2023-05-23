@@ -13,7 +13,6 @@ from src.parser.nodes import (
     FunctionCall,
     IfStatement,
     LemonList,
-    LemonListValue,
     Literal,
     LiteralBool,
     LiteralFloat,
@@ -50,13 +49,6 @@ class Parser:
         self.token = tokens[0] if tokens else lexer.getNextToken()
         self.nextToken: Optional[Token] = None
         self.tokens = tokens
-        self.assignableTokens = [
-            TokenType.VT_ID,
-            TokenType.VT_INT,
-            TokenType.VT_FLOAT,
-            TokenType.VT_STRING,
-            TokenType.VT_BOOLEAN,
-        ]
 
         self.nextLexerToken()
 
@@ -171,15 +163,6 @@ class Parser:
             self.nextLexerToken()
             return Assignment(name, list)
 
-        if self.token.type == TokenType.VT_STRING:
-            value = self.token.getValue()
-            self.nextLexerToken()
-            return Assignment(name, value)
-
-        value = self.token.getValue()
-        self.nextLexerToken()
-        return Assignment(name, value)
-
     def parseArguments(self) -> Optional[List[Assignment]]:
         arguments = []
         if self.token.type != TokenType.T_LPARENT:
@@ -255,33 +238,21 @@ class Parser:
         self.nextLexerToken()
         return LemonList(values)
 
-    # ListValue = Number | String | Boolean | Identifier ;
-    def parseListValues(self) -> Optional[List[LemonListValue]]:
+    # ListValue = Expression ;
+    def parseListValues(self) -> Optional[List[Expression]]:
         values = []
-        while self.isType(
-            TokenType.VT_INT, TokenType.VT_FLOAT, TokenType.VT_STRING, TokenType.VT_BOOLEAN, TokenType.VT_ID
-        ):
-            if self.token.type == TokenType.VT_INT:
-                values.append(LemonListValue(LiteralInt(self.token.startPosition, self.token.getValue())))
-            elif self.token.type == TokenType.VT_FLOAT:
-                values.append(LemonListValue(LiteralFloat(self.token.startPosition, self.token.getValue())))
-            elif self.token.type == TokenType.VT_STRING:
-                values.append(LemonListValue(LiteralString(self.token.startPosition, self.token.getValue())))
-            elif self.token.type == TokenType.VT_BOOLEAN:
-                values.append(LemonListValue(LiteralBool(self.token.startPosition, self.token.getValue())))
-            elif self.token.type == TokenType.VT_ID:
-                values.append(LemonListValue(LiteralIndentifier(self.token.startPosition, self.token.getValue())))
-            else:
-                if len(values) == 0:
-                    return None
-                raise Exception(f"Expected int, float, string, bool or identifier, got {self.token}")
-            self.nextLexerToken()
+        expression = self.parseExpression()
+        while expression is not None:
+            values.append(expression)
             if self.token.type == TokenType.T_COMMA:
                 self.nextLexerToken()
+                expression = self.parseExpression()
             elif self.token.type == TokenType.T_RSQBRACKET:
                 break
             else:
                 raise Exception(f"Expected ',', got {self.token}")
+        if len(values) == 0:
+            return None
         return values
 
     # ListIndex = LeftBracket Integer RightBracket ;
@@ -309,6 +280,9 @@ class Parser:
         if self.token.type == TokenType.VT_FLOAT:
             self.nextLexerToken()
             return LiteralFloat(token.startPosition, token.getValue())
+        if self.token.type == TokenType.VT_STRING:
+            self.nextLexerToken()
+            return LiteralString(token.startPosition, token.getValue())
         if self.token.type == TokenType.VT_ID:
             self.nextLexerToken()
             subscriptable = self.parseSubscriptable(token)
@@ -566,10 +540,9 @@ class Parser:
         if not self.isType(TokenType.T_IN):
             raise Exception(f"Expected 'in', got {self.token}")
         self.nextLexerToken()
-        if not self.isType(TokenType.VT_ID):
-            raise Exception(f"Expected identifier, got {self.token}")
-        iterable = self.token.getValue()
-        self.nextLexerToken()
+        iterable = self.parseExpression()
+        if iterable is None:
+            raise Exception(f"Expected expression, got {self.token}")
         if not self.isType(TokenType.T_RPARENT):
             raise Exception(f"Expected ')', got {self.token}")
         self.nextLexerToken()
@@ -580,17 +553,21 @@ class Parser:
 
     # ObjectConstructor = ObjectType LeftParenthesis Arguments RightParenthesis ;
     def parseObjectConstructor(self) -> Optional[ObjectConstructor]:
-        if not self.isType(
-            TokenType.T_CUBOID,
-            TokenType.T_PYRAMID,
-            TokenType.T_CONE,
-            TokenType.T_CYLINDER,
-            TokenType.T_SPHERE,
-            TokenType.T_TETRAHEDRON,
-        ):
+        if self.isType(TokenType.T_CUBOID):
+            objectType = ObjectType.CUBOID
+        elif self.isType(TokenType.T_PYRAMID):
+            objectType = ObjectType.PYRAMID
+        elif self.isType(TokenType.T_CONE):
+            objectType = ObjectType.CONE
+        elif self.isType(TokenType.T_CYLINDER):
+            objectType = ObjectType.CYLINDER
+        elif self.isType(TokenType.T_SPHERE):
+            objectType = ObjectType.SPHERE
+        elif self.isType(TokenType.T_TETRAHEDRON):
+            objectType = ObjectType.TETRAHEDRON
+        else:
             return None
         startPosition = self.token.startPosition
-        objectType = cast(ObjectType, self.token.type)
         self.nextLexerToken()
         arguments = self.parseArguments()
         if arguments is None:

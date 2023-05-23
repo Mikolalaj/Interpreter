@@ -4,6 +4,8 @@ from src.parser.nodes import (
     Assignment,
     Break,
     ComparisonExpression,
+    ForEachLoop,
+    FunctionCall,
     LiteralIndentifier,
     LiteralInt,
     WhileBlock,
@@ -13,7 +15,7 @@ from src.token_type import TokenType
 from src.tokens import IdentifierValueToken, IntValueToken, Position, Token
 
 
-class TestWhile:
+class TestLoops:
     def testWhile(self):
         # while (a < 10) { a = a + 1 }
         tokens = [
@@ -83,6 +85,62 @@ class TestWhile:
                 startPosition=Position(0, 15),
                 statements=[
                     Break(),
-                ]
+                ],
+            ),
+        )
+
+    def testForEach(self):
+        # foreach (a in b) { }
+        tokens = [
+            Token(type=TokenType.T_FOREACH, startPosition=Position(0, 0)),
+            Token(type=TokenType.T_LPARENT, startPosition=Position(0, 8)),
+            IdentifierValueToken(value="a", startPosition=Position(0, 9), length=1),
+            Token(type=TokenType.T_IN, startPosition=Position(0, 11)),
+            IdentifierValueToken(value="b", startPosition=Position(0, 14), length=1),
+            Token(type=TokenType.T_RPARENT, startPosition=Position(0, 16)),
+            Token(type=TokenType.T_LBRACKET, startPosition=Position(0, 18)),
+            Token(type=TokenType.T_RBRACKET, startPosition=Position(0, 20)),
+        ]
+        objects = getObjects(tokens)
+
+        assert len(objects) == 1
+        assert objects[0] == ForEachLoop(
+            startPosition=Position(0, 0),
+            identifier="a",
+            iterable=LiteralIndentifier(value="b", startPosition=Position(0, 14)),
+            block=WhileBlock(
+                startPosition=Position(0, 18),
+                statements=[],
+            ),
+        )
+
+    def testForEachExpression(self):
+        # foreach (a in functioncall()) {}
+        tokens = [
+            Token(type=TokenType.T_FOREACH, startPosition=Position(0, 0)),
+            Token(type=TokenType.T_LPARENT, startPosition=Position(0, 8)),
+            IdentifierValueToken(value="a", startPosition=Position(0, 9), length=1),
+            Token(type=TokenType.T_IN, startPosition=Position(0, 11)),
+            IdentifierValueToken(value="functioncall", startPosition=Position(0, 14), length=12),
+            Token(type=TokenType.T_LPARENT, startPosition=Position(0, 14)),
+            Token(type=TokenType.T_RPARENT, startPosition=Position(0, 15)),
+            Token(type=TokenType.T_RPARENT, startPosition=Position(0, 16)),
+            Token(type=TokenType.T_LBRACKET, startPosition=Position(0, 18)),
+            Token(type=TokenType.T_RBRACKET, startPosition=Position(0, 20)),
+        ]
+        objects = getObjects(tokens)
+
+        assert len(objects) == 1
+        assert objects[0] == ForEachLoop(
+            startPosition=Position(0, 0),
+            identifier="a",
+            iterable=FunctionCall(
+                name="functioncall",
+                arguments=[],
+                startPosition=Position(0, 14),
+            ),
+            block=WhileBlock(
+                startPosition=Position(0, 18),
+                statements=[],
             ),
         )

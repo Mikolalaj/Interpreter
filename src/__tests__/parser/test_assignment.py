@@ -10,7 +10,9 @@ from src.parser.nodes import (
     LiteralIndentifier,
     LiteralInt,
     LiteralSubscriptable,
+    LiteralString,
     ObjectConstructor,
+    ObjectType,
 )
 
 from src.tokens import (
@@ -72,7 +74,7 @@ class TestAssignment:
         objects = getObjects(tokens)
 
         assert len(objects) == 1
-        assert objects[0] == Assignment("a", "hello")
+        assert objects[0] == Assignment("a", LiteralString(Position(0, 4), "hello"))
 
     def testIdentifierAssignment(self):
         # a = b
@@ -144,7 +146,7 @@ class TestAssignment:
             "a",
             ObjectConstructor(
                 Position(0, 4),
-                TokenType.T_CUBOID,
+                ObjectType.CUBOID,
                 [
                     Assignment("width", LiteralInt(Position(0, 17), 4)),
                     Assignment("length", LiteralInt(Position(0, 27), 2)),

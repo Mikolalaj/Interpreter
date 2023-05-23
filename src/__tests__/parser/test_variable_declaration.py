@@ -2,7 +2,7 @@ from typing import List
 
 from src.token_type import TokenType
 from .utils import getObjects
-from src.parser.nodes import Assignment, LiteralInt, ObjectConstructor, VariableDeclaration
+from src.parser.nodes import Assignment, LiteralInt, ObjectConstructor, ObjectType, VariableDeclaration
 
 from src.tokens import IdentifierValueToken, IntValueToken, Position, Token
 
@@ -45,7 +45,7 @@ class TestAssignment:
                 "a",
                 ObjectConstructor(
                     startPosition=Position(0, 8),
-                    objectType=TokenType.T_TETRAHEDRON,
+                    objectType=ObjectType.TETRAHEDRON,
                     arguments=[Assignment("edge", LiteralInt(Position(0, 25), 3))],
                 ),
             ),
