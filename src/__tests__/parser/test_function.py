@@ -81,6 +81,7 @@ class TestFunction:
 
         assert len(objects) == 1
         assert objects[0] == FunctionCall(
+            startPosition=Position(0, 0),
             name="test",
             arguments=[],
         )
@@ -103,6 +104,7 @@ class TestFunction:
 
         assert len(objects) == 1
         assert objects[0] == FunctionCall(
+            startPosition=Position(0, 0),
             name="test",
             arguments=[
                 Assignment(name="a", value=LiteralInt(value=1, startPosition=Position(0, 8))),

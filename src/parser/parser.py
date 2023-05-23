@@ -6,6 +6,7 @@ from src.parser.nodes import (
     BlockWithoutFunciton,
     Break,
     ComparisonExpression,
+    ComparisonOperator,
     ConditionWithBlock,
     Continue,
     ForEachLoop,
@@ -156,21 +157,6 @@ class Parser:
         if self.token.type != TokenType.T_ASSIGN:
             return None
         self.nextLexerToken()
-        self.peekNextLexerToken()
-
-        if self.nextToken and self.isType(TokenType.VT_ID) and self.nextToken.type == TokenType.T_DOT:
-            objectName = self.token.getValue()
-            self.nextLexerToken()
-            self.nextLexerToken()
-            if not self.isType(TokenType.VT_ID):
-                raise Exception(f"Expected method or property name, got {self.token}")
-            methodName = self.token.getValue()
-            self.nextLexerToken()
-            arguments = self.parseArguments()
-            if arguments is None:
-                return Assignment(name, ObjectProperty(objectName, methodName))
-            self.nextLexerToken()
-            return Assignment(name, ObjectMethodCall(objectName, FunctionCall(methodName, arguments)))
 
         objectConstructor = self.parseObjectConstructor()
         if objectConstructor is not None:
@@ -215,18 +201,21 @@ class Parser:
         else:
             raise Exception(f"Expected ')', got {self.token}")
 
-    def parseObjectMethodCallOrProperty(self, name: str) -> Optional[ObjectMethodCall | ObjectProperty]:
+    def parseObjectMethodCallOrProperty(
+        self, name: str, startPosition: Position
+    ) -> Optional[ObjectMethodCall | ObjectProperty]:
         if self.token.type != TokenType.T_DOT:
             return None
         self.nextLexerToken()
         if self.token.type != TokenType.VT_ID:
             raise Exception(f"Expected method name, got {self.token}")
         methodName = self.token.getValue()
+        fucntionCallPosition = self.token.startPosition
         self.nextLexerToken()
         arguments = self.parseArguments()
         if arguments is None:
-            return ObjectProperty(name, methodName)
-        return ObjectMethodCall(name, FunctionCall(methodName, arguments))
+            return ObjectProperty(startPosition, name, methodName)
+        return ObjectMethodCall(startPosition, name, FunctionCall(fucntionCallPosition, methodName, arguments))
 
     def parseStartingWithIdentifier(
         self,
@@ -240,9 +229,9 @@ class Parser:
 
         arguments = self.parseArguments()
         if arguments is not None:
-            return FunctionCall(name, arguments)
+            return FunctionCall(startPosition, name, arguments)
 
-        objectMethodCallOrProperty = self.parseObjectMethodCallOrProperty(name)
+        objectMethodCallOrProperty = self.parseObjectMethodCallOrProperty(name, startPosition)
         if objectMethodCallOrProperty is not None:
             if isinstance(objectMethodCallOrProperty, ObjectMethodCall):
                 return objectMethodCallOrProperty
@@ -325,6 +314,12 @@ class Parser:
             subscriptable = self.parseSubscriptable(token)
             if subscriptable is not None:
                 return subscriptable
+            arguments = self.parseArguments()
+            if arguments is not None:
+                return FunctionCall(token.startPosition, token.getValue(), arguments)
+            objectMethodCallOrProperty = self.parseObjectMethodCallOrProperty(token.getValue(), token.startPosition)
+            if objectMethodCallOrProperty is not None:
+                return objectMethodCallOrProperty
             return LiteralIndentifier(token.startPosition, token.getValue())
         return None
 
@@ -403,7 +398,7 @@ class Parser:
             TokenType.T_EQ,
             TokenType.T_NOT_EQ,
         ) and self.isNextSameLine(left.startPosition):
-            operator = self.token.type.value
+            operator = cast(ComparisonOperator, self.token.type.value)
             self.nextLexerToken()
             right = self.parseComparisonExpression()
             if right is None:

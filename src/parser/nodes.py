@@ -7,6 +7,15 @@ from src.token_type import TokenType
 from src.tokens import Position
 
 
+class Expression:
+    def __init__(self, startPosition: Position):
+        self.startPosition = startPosition
+
+
+class Literal(Expression):
+    pass
+
+
 class Assignment:
     def __init__(self, name: "str | ObjectProperty", value: Any):
         self.name = name
@@ -22,8 +31,9 @@ class Assignment:
             return False
 
 
-class FunctionCall:
-    def __init__(self, name: str, arguments: List[Assignment]):
+class FunctionCall(Literal):
+    def __init__(self, startPosition: Position, name: str, arguments: List[Assignment]):
+        super().__init__(startPosition)
         self.name = name
         self.arguments = arguments
 
@@ -35,15 +45,6 @@ class FunctionCall:
             return self.name == __value.name and self.arguments == __value.arguments
         else:
             return False
-
-
-class Expression:
-    def __init__(self, startPosition: Position):
-        self.startPosition = startPosition
-
-
-class Literal(Expression):
-    pass
 
 
 class LiteralFloat(Literal):
@@ -210,13 +211,11 @@ class AdditiveExpression(Expression):
             return False
 
 
+ComparisonOperator = LiteralType["<", ">", "<=", ">=", "==", "!="]  # noqa: F722
+
+
 class ComparisonExpression(Expression):
-    def __init__(
-        self,
-        left: Expression,
-        right: Expression,
-        operator: LiteralType["<", ">", "<=", ">=", "==", "!="],  # noqa: F722
-    ):
+    def __init__(self, left: Expression, right: Expression, operator: ComparisonOperator):
         super().__init__(left.startPosition)
         self.left = left
         self.operator = operator
@@ -645,8 +644,9 @@ class ObjectConstructor:
 
 
 # ObjectMethodCall = Identifier "." FunctionCall ;
-class ObjectMethodCall:
-    def __init__(self, identifier: str, functionCall: FunctionCall) -> None:
+class ObjectMethodCall(Literal):
+    def __init__(self, startPosition: Position, identifier: str, functionCall: FunctionCall) -> None:
+        super().__init__(startPosition)
         self.identifier = identifier
         self.functionCall = functionCall
 
@@ -655,14 +655,19 @@ class ObjectMethodCall:
 
     def __eq__(self, __value: object) -> bool:
         if isinstance(__value, ObjectMethodCall):
-            return self.identifier == __value.identifier and self.functionCall == __value.functionCall
+            return (
+                self.identifier == __value.identifier
+                and self.functionCall == __value.functionCall
+                and self.startPosition == __value.startPosition
+            )
         else:
             return False
 
 
 # ObjectProperty = Identifier "." Identifier ;
-class ObjectProperty:
-    def __init__(self, identifier: str, property: str) -> None:
+class ObjectProperty(Literal):
+    def __init__(self, startPosition: Position, identifier: str, property: str) -> None:
+        super().__init__(startPosition)
         self.identifier = identifier
         self.property = property
 
