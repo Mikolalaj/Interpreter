@@ -1,4 +1,4 @@
-from .tokens import Position
+from .tokens import Position, Token
 
 
 class LexerError(Exception):
@@ -9,6 +9,11 @@ class LexerError(Exception):
     def __str__(self):
         return f"LexerError: {self.message} at {self.position}"
 
-    def print_error_and_exit(self):
-        print(f"Error: unexpected character: {self.message} at: {self.position}")
-        exit()
+
+class ParserError(Exception):
+    def __init__(self, expected: Token | str, actualToken: Token):
+        self.expected = expected
+        self.actualToken = actualToken
+
+    def __str__(self):
+        return f"ParserError: Expected {self.expected} but got {self.actualToken} instead"
