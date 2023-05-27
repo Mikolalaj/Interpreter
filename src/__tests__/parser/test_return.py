@@ -1,5 +1,5 @@
 from .utils import getObjects
-from src.parser.nodes import AdditiveExpression, LiteralIndentifier, LiteralInt, ReturnStatement
+from src.parser.nodes import AdditiveExpression, LiteralIdentifier, LiteralInt, ReturnStatement
 from src.token_type import TokenType
 from src.tokens import IdentifierValueToken, IntValueToken, Position, Token
 
@@ -19,7 +19,7 @@ class TestReturn:
         assert objects[0] == ReturnStatement(
             startPosition=Position(0, 0),
             expression=AdditiveExpression(
-                left=LiteralIndentifier(value="a", startPosition=Position(0, 7)),
+                left=LiteralIdentifier(value="a", startPosition=Position(0, 7)),
                 right=LiteralInt(value=1, startPosition=Position(0, 11)),
                 operator="+",
             ),

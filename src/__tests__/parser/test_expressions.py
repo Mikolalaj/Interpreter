@@ -7,7 +7,7 @@ from src.parser.nodes import (
     ComparisonExpression,
     LiteralBool,
     LiteralFloat,
-    LiteralIndentifier,
+    LiteralIdentifier,
     LiteralInt,
     LogicalAndExpression,
     LogicalOrExpression,
@@ -46,7 +46,7 @@ class TestLiterals:
         objects = getObjects(tokens)
 
         assert len(objects) == 1
-        assert objects[0] == LiteralIndentifier(Position(0, 0), "test")
+        assert objects[0] == LiteralIdentifier(Position(0, 0), "test")
 
 
 class TestPrimaryExpression:
@@ -92,7 +92,7 @@ class TestPrimaryExpression:
 
         assert len(objects) == 1
         assert objects[0] == PrimaryExpression(
-            isNegated=True, literal=LiteralIndentifier(Position(0, 0), "test"), startPosition=Position(0, 0)
+            isNegated=True, literal=LiteralIdentifier(Position(0, 0), "test"), startPosition=Position(0, 0)
         )
 
     def testParenthesis(self):

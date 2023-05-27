@@ -6,7 +6,7 @@ from src.parser.nodes import (
     AdditiveExpression,
     Assignment,
     LemonList,
-    LiteralIndentifier,
+    LiteralIdentifier,
     LiteralInt,
     LiteralString,
 )
@@ -84,8 +84,8 @@ class TestList:
             "a",
             LemonList(
                 values=[
-                    LiteralIndentifier(Position(0, 5), "b"),
-                    LiteralIndentifier(Position(0, 8), "c"),
+                    LiteralIdentifier(Position(0, 5), "b"),
+                    LiteralIdentifier(Position(0, 8), "c"),
                 ]
             ),
         )

@@ -1,23 +1,22 @@
-from abc import ABC, abstractmethod
+from abc import ABC
 from enum import Enum
-import math
-from typing import Any, List, Optional
+from typing import List, Optional
 from typing import Literal as LiteralType
 
 from src.tokens import Position
 
 
-class Expression:
+class Node(ABC):
+    pass
+
+
+class Expression(Node):
     def __init__(self, startPosition: Position):
         self.startPosition = startPosition
 
 
-class Literal(Expression):
-    pass
-
-
-class Assignment:
-    def __init__(self, name: "str | ObjectProperty", value: Any):
+class Assignment(Node):
+    def __init__(self, name: "str | ObjectProperty", value: "Expression | ObjectConstructor | LemonList"):
         self.name = name
         self.value = value
 
@@ -29,6 +28,10 @@ class Assignment:
             return self.name == __value.name and self.value == __value.value
         else:
             return False
+
+
+class Literal(Expression):
+    pass
 
 
 class FunctionCall(Literal):
@@ -92,7 +95,7 @@ class LiteralBool(Literal):
             return False
 
 
-class LiteralIndentifier(Literal):
+class LiteralIdentifier(Literal):
     def __init__(self, startPosition: Position, value: str):
         super().__init__(startPosition)
         self.value = value
@@ -101,7 +104,7 @@ class LiteralIndentifier(Literal):
         return f"(LiteralIdentifier:{self.value})"
 
     def __eq__(self, __value: object) -> bool:
-        if isinstance(__value, LiteralIndentifier):
+        if isinstance(__value, LiteralIdentifier):
             return self.value == __value.value
         else:
             return False
@@ -276,8 +279,8 @@ class LogicalOrExpression(Expression):
             return False
 
 
-class LemonList:
-    def __init__(self, values: Optional[List[Expression]]) -> None:
+class LemonList(Node):
+    def __init__(self, values: List[Expression]) -> None:
         self.values = values
 
     def __repr__(self):
@@ -291,7 +294,7 @@ class LemonList:
 
 
 # Block = LeftBrace StatementWithoutFunciton* RightBrace
-class BlockWithoutFunciton:
+class BlockWithoutFunciton(Node):
     def __init__(self, startPosition: Position, statements: List["StatementWithoutFunction"]) -> None:
         self.startPosition = startPosition
         self.statements = statements
@@ -307,7 +310,7 @@ class BlockWithoutFunciton:
 
 
 # ConditionWithBlock = Condition Block
-class ConditionWithBlock:
+class ConditionWithBlock(Node):
     def __init__(self, condition: Expression, block: BlockWithoutFunciton) -> None:
         self.condition = condition
         self.block = block
@@ -323,7 +326,7 @@ class ConditionWithBlock:
 
 
 # IfStatement = "if" ConditionWithBlock ( "elif" ConditionWithBlock )* ( "else" Block )? ;
-class IfStatement:
+class IfStatement(Node):
     def __init__(
         self,
         startPosition: Position,
@@ -351,7 +354,7 @@ class IfStatement:
             return False
 
 
-class Parameter:
+class Parameter(Node):
     def __init__(self, name: str):
         self.name = name
 
@@ -365,7 +368,7 @@ class Parameter:
             return False
 
 
-class FunctionDefinition:
+class FunctionDefinition(Node):
     def __init__(
         self,
         name: str,
@@ -386,7 +389,7 @@ class FunctionDefinition:
             return False
 
 
-class VariableDeclaration:
+class VariableDeclaration(Node):
     def __init__(self, startPosition: Position, assignment: Assignment):
         self.startPosition = startPosition
         self.assignment = assignment
@@ -401,7 +404,7 @@ class VariableDeclaration:
             return False
 
 
-class ReturnStatement:
+class ReturnStatement(Node):
     def __init__(self, startPosition: Position, expression: Expression):
         self.startPosition = startPosition
         self.expression = expression
@@ -416,7 +419,7 @@ class ReturnStatement:
             return False
 
 
-class WhileOperation:
+class WhileOperation(Node):
     pass
 
 
@@ -430,7 +433,7 @@ class Continue(WhileOperation):
         return isinstance(__value, Continue)
 
 
-class WhileBlock:
+class WhileBlock(Node):
     def __init__(self, startPosition: Position, statements: List["StatementWithoutFunction | WhileOperation"]) -> None:
         self.startPosition = startPosition
         self.statements = statements
@@ -446,7 +449,7 @@ class WhileBlock:
 
 
 # WhileLoop = "while" Condition WhileBlock ;
-class WhileLoop:
+class WhileLoop(Node):
     def __init__(self, startPosition: Position, condition: Expression, block: WhileBlock) -> None:
         self.startPosition = startPosition
         self.condition = condition
@@ -467,7 +470,7 @@ class WhileLoop:
 
 
 # ForEachLoop = "foreach" Identifier "in" Identifier WhileBlock ;
-class ForEachLoop:
+class ForEachLoop(Node):
     def __init__(self, startPosition: Position, identifier: str, iterable: Expression, block: WhileBlock) -> None:
         self.startPosition = startPosition
         self.identifier = identifier
@@ -489,118 +492,6 @@ class ForEachLoop:
             return False
 
 
-class Object(ABC):
-    @abstractmethod
-    def getSurfaceArea(self):
-        raise NotImplementedError
-
-    @abstractmethod
-    def getVolume(self):
-        raise NotImplementedError
-
-    @abstractmethod
-    def display(self):
-        raise NotImplementedError
-
-
-class Cuboid(Object):
-    def __init__(self, width: float, length: float, height: float):
-        self.width = width
-        self.length = length
-        self.height = height
-
-    def getSurfaceArea(self) -> float:
-        return 2 * (self.width * self.length + self.width * self.height + self.length * self.height)
-
-    def getVolume(self) -> float:
-        return self.width * self.length * self.height
-
-    def display(self) -> None:
-        print(f"Cuboid: width={self.width} length={self.length} height={self.height}")
-
-
-class ObjectWithBaseArea(Object):
-    @abstractmethod
-    def getBaseArea(self):
-        raise NotImplementedError
-
-
-class Pyramid(ObjectWithBaseArea):
-    def __init__(self, width: float, length: float, height: float):
-        self.width = width
-        self.length = length
-        self.height = height
-
-    def getSurfaceArea(self) -> float:
-        return (
-            self.width * self.length
-            + self.width * math.sqrt((self.length / 2) ** 2 + self.height**2)
-            + self.length * math.sqrt((self.width / 2) ** 2 + self.height**2)
-        )
-
-    def getVolume(self) -> float:
-        return self.width * self.length * self.height / 3
-
-    def getBaseArea(self) -> float:
-        return self.width * self.length
-
-    def display(self) -> None:
-        print(f"Pyramid: width={self.width} length={self.length} height={self.height}")
-
-
-class Cone(ObjectWithBaseArea):
-    def __init__(self, radius: float, height: float):
-        self.radius = radius
-        self.height = height
-
-    def getSurfaceArea(self) -> float:
-        return math.pi * self.radius * (self.radius + math.sqrt(self.height**2 + self.radius**2))
-
-    def getVolume(self) -> float:
-        return math.pi * self.radius**2 * self.height / 3
-
-    def getBaseArea(self) -> float:
-        return math.pi * self.radius**2
-
-    def display(self) -> None:
-        print(f"Cone: radius={self.radius} height={self.height}")
-
-
-class Cylinder(ObjectWithBaseArea):
-    def __init__(self, radius: float, height: float):
-        self.radius = radius
-        self.height = height
-
-    def getSurfaceArea(self) -> float:
-        return 2 * math.pi * self.radius * (self.radius + self.height)
-
-    def getVolume(self) -> float:
-        return math.pi * self.radius**2 * self.height
-
-    def getBaseArea(self) -> float:
-        return math.pi * self.radius**2
-
-    def display(self) -> None:
-        print(f"Cylinder: radius={self.radius} height={self.height}")
-
-
-class Tetrahedron(ObjectWithBaseArea):
-    def __init__(self, edge: float):
-        self.edge = edge
-
-    def getSurfaceArea(self) -> float:
-        return math.sqrt(3) * self.edge**2
-
-    def getVolume(self) -> float:
-        return math.sqrt(2) * self.edge**3 / 12
-
-    def getBaseArea(self) -> float:
-        return math.sqrt(3) * self.edge**2 / 4
-
-    def display(self) -> None:
-        print(f"Tetrahedron: edge={self.edge}")
-
-
 # ObjectType = "Cuboid" | "Pyramid" | "Cone" | "Cylinder" | "Sphere" | "Tetrahedron" ;
 class ObjectType(Enum):
     CUBOID = "Cuboid"
@@ -615,7 +506,7 @@ class ObjectType(Enum):
 
 
 # ObjectConstructor = ObjectType LeftParenthesis Arguments RightParenthesis ;
-class ObjectConstructor:
+class ObjectConstructor(Node):
     def __init__(self, startPosition: Position, objectType: ObjectType, arguments: List[Assignment]) -> None:
         self.startPosition = startPosition
         self.objectType = objectType

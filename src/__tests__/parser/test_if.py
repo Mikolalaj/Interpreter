@@ -5,7 +5,7 @@ from src.parser.nodes import (
     ComparisonExpression,
     ConditionWithBlock,
     IfStatement,
-    LiteralIndentifier,
+    LiteralIdentifier,
     LiteralInt,
 )
 from src.token_type import TokenType
@@ -39,8 +39,8 @@ class TestIf:
             startPosition=Position(0, 0),
             ifCB=ConditionWithBlock(
                 condition=ComparisonExpression(
-                    left=LiteralIndentifier(value="a", startPosition=Position(0, 4)),
-                    right=LiteralIndentifier(value="b", startPosition=Position(0, 8)),
+                    left=LiteralIdentifier(value="a", startPosition=Position(0, 4)),
+                    right=LiteralIdentifier(value="b", startPosition=Position(0, 8)),
                     operator=">",
                 ),
                 block=BlockWithoutFunciton(
@@ -92,8 +92,8 @@ class TestIf:
             startPosition=Position(0, 0),
             ifCB=ConditionWithBlock(
                 condition=ComparisonExpression(
-                    left=LiteralIndentifier(value="a", startPosition=Position(0, 4)),
-                    right=LiteralIndentifier(value="b", startPosition=Position(0, 8)),
+                    left=LiteralIdentifier(value="a", startPosition=Position(0, 4)),
+                    right=LiteralIdentifier(value="b", startPosition=Position(0, 8)),
                     operator=">",
                 ),
                 block=BlockWithoutFunciton(
@@ -104,8 +104,8 @@ class TestIf:
             elifCBs=[
                 ConditionWithBlock(
                     condition=ComparisonExpression(
-                        left=LiteralIndentifier(value="a", startPosition=Position(3, 5)),
-                        right=LiteralIndentifier(value="b", startPosition=Position(3, 9)),
+                        left=LiteralIdentifier(value="a", startPosition=Position(3, 5)),
+                        right=LiteralIdentifier(value="b", startPosition=Position(3, 9)),
                         operator="<",
                     ),
                     block=BlockWithoutFunciton(
@@ -171,8 +171,8 @@ class TestIf:
             startPosition=Position(0, 0),
             ifCB=ConditionWithBlock(
                 condition=ComparisonExpression(
-                    left=LiteralIndentifier(value="a", startPosition=Position(0, 4)),
-                    right=LiteralIndentifier(value="b", startPosition=Position(0, 8)),
+                    left=LiteralIdentifier(value="a", startPosition=Position(0, 4)),
+                    right=LiteralIdentifier(value="b", startPosition=Position(0, 8)),
                     operator=">",
                 ),
                 block=BlockWithoutFunciton(
@@ -183,8 +183,8 @@ class TestIf:
             elifCBs=[
                 ConditionWithBlock(
                     condition=ComparisonExpression(
-                        left=LiteralIndentifier(value="a", startPosition=Position(3, 5)),
-                        right=LiteralIndentifier(value="b", startPosition=Position(3, 9)),
+                        left=LiteralIdentifier(value="a", startPosition=Position(3, 5)),
+                        right=LiteralIdentifier(value="b", startPosition=Position(3, 9)),
                         operator="<",
                     ),
                     block=BlockWithoutFunciton(
@@ -194,8 +194,8 @@ class TestIf:
                 ),
                 ConditionWithBlock(
                     condition=ComparisonExpression(
-                        left=LiteralIndentifier(value="a", startPosition=Position(6, 5)),
-                        right=LiteralIndentifier(value="b", startPosition=Position(6, 10)),
+                        left=LiteralIdentifier(value="a", startPosition=Position(6, 5)),
+                        right=LiteralIdentifier(value="b", startPosition=Position(6, 10)),
                         operator="==",
                     ),
                     block=BlockWithoutFunciton(
@@ -242,8 +242,8 @@ class TestIf:
             startPosition=Position(0, 0),
             ifCB=ConditionWithBlock(
                 condition=ComparisonExpression(
-                    left=LiteralIndentifier(value="a", startPosition=Position(0, 4)),
-                    right=LiteralIndentifier(value="b", startPosition=Position(0, 8)),
+                    left=LiteralIdentifier(value="a", startPosition=Position(0, 4)),
+                    right=LiteralIdentifier(value="b", startPosition=Position(0, 8)),
                     operator=">",
                 ),
                 block=BlockWithoutFunciton(
@@ -307,8 +307,8 @@ class TestIf:
             startPosition=Position(0, 0),
             ifCB=ConditionWithBlock(
                 condition=ComparisonExpression(
-                    left=LiteralIndentifier(value="a", startPosition=Position(0, 4)),
-                    right=LiteralIndentifier(value="b", startPosition=Position(0, 8)),
+                    left=LiteralIdentifier(value="a", startPosition=Position(0, 4)),
+                    right=LiteralIdentifier(value="b", startPosition=Position(0, 8)),
                     operator=">",
                 ),
                 block=BlockWithoutFunciton(
@@ -319,8 +319,8 @@ class TestIf:
             elifCBs=[
                 ConditionWithBlock(
                     condition=ComparisonExpression(
-                        left=LiteralIndentifier(value="a", startPosition=Position(3, 5)),
-                        right=LiteralIndentifier(value="b", startPosition=Position(3, 9)),
+                        left=LiteralIdentifier(value="a", startPosition=Position(3, 5)),
+                        right=LiteralIdentifier(value="b", startPosition=Position(3, 9)),
                         operator="<",
                     ),
                     block=BlockWithoutFunciton(

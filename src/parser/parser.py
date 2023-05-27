@@ -17,7 +17,7 @@ from src.parser.nodes import (
     Literal,
     LiteralBool,
     LiteralFloat,
-    LiteralIndentifier,
+    LiteralIdentifier,
     LiteralInt,
     LiteralString,
     LiteralSubscriptable,
@@ -141,7 +141,7 @@ class Parser:
 
     # Assignment = Identifier = ( Expression | String | List | FunctionCall | ObjectMethodCall | ObjectProperty | ListGetValue ) ;
     def parseAssignment(self, name: Optional[str | ObjectProperty] = None) -> Optional[Assignment]:
-        if not name:
+        if name is None:
             if self.token.type != TokenType.VT_ID:
                 return None
             name = self.token.getValue()
@@ -163,6 +163,7 @@ class Parser:
         if list is not None:
             self.nextLexerToken()
             return Assignment(name, list)
+        return None
 
     def parseArguments(self) -> Optional[List[Assignment]]:
         arguments = []
@@ -203,7 +204,7 @@ class Parser:
 
     def parseStartingWithIdentifier(
         self,
-    ) -> Optional[FunctionCall | Assignment | LiteralIndentifier | ObjectMethodCall]:
+    ) -> Optional[FunctionCall | Assignment | LiteralIdentifier | ObjectMethodCall]:
         if self.token.type != TokenType.VT_ID:
             return None
         objectProperty = None
@@ -226,7 +227,7 @@ class Parser:
         if assignment is not None:
             return assignment
 
-        return LiteralIndentifier(startPosition, name)
+        return LiteralIdentifier(startPosition, name)
 
     # List = LeftBracket ListValue (Comma ListValue)* RightBracket ;
     def parseList(self) -> Optional[LemonList]:
@@ -237,7 +238,7 @@ class Parser:
         if self.token.type != TokenType.T_RSQBRACKET:
             raise ParserError(']', self.token)
         self.nextLexerToken()
-        return LemonList(values)
+        return LemonList(values or [])
 
     # ListValue = Expression ;
     def parseListValues(self) -> Optional[List[Expression]]:
@@ -295,7 +296,7 @@ class Parser:
             objectMethodCallOrProperty = self.parseObjectMethodCallOrProperty(token.getValue(), token.startPosition)
             if objectMethodCallOrProperty is not None:
                 return objectMethodCallOrProperty
-            return LiteralIndentifier(token.startPosition, token.getValue())
+            return LiteralIdentifier(token.startPosition, token.getValue())
         return None
 
     # PrimaryExpression = NotOperator? Literal | ( LeftParenthesis Expression RightParenthesis ) ;
@@ -343,7 +344,7 @@ class Parser:
             right = self.parseMultiplicativeExpression()
             if right is None:
                 raise ParserError('expression', self.token)
-            return MultiplicativeExpression(left, right, operator)
+            return MultiplicativeExpression(left, right, operator)  # type: ignore
         return left
 
     # AdditiveExpression = MultiplicativeExpression ( ( "+" | "-" ) MultiplicativeExpression )* ;
@@ -357,7 +358,7 @@ class Parser:
             right = self.parseAdditiveExpression()
             if right is None:
                 raise ParserError('expression', self.token)
-            return AdditiveExpression(left, right, operator)
+            return AdditiveExpression(left, right, operator)  # type: ignore
         return left
 
     # ComparisonExpression = AdditiveExpression ( ( "<" | ">" | "<=" | ">=" | "==" | "!=" ) AdditiveExpression )? ;

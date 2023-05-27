@@ -1,3 +1,4 @@
+from src.parser.nodes import Node
 from .tokens import Position, Token
 
 
@@ -17,3 +18,12 @@ class ParserError(Exception):
 
     def __str__(self):
         return f"ParserError: Expected {self.expected} but got {self.actualToken} instead"
+
+
+class InterpreterError(Exception):
+    def __init__(self, message: str, node: Node):
+        self.message = message
+        self.node = node
+
+    def __str__(self):
+        return f"InterpreterError: {self.message}"

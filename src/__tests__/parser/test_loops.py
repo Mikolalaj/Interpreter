@@ -6,7 +6,7 @@ from src.parser.nodes import (
     ComparisonExpression,
     ForEachLoop,
     FunctionCall,
-    LiteralIndentifier,
+    LiteralIdentifier,
     LiteralInt,
     WhileBlock,
     WhileLoop,
@@ -39,7 +39,7 @@ class TestLoops:
         assert objects[0] == WhileLoop(
             startPosition=Position(0, 0),
             condition=ComparisonExpression(
-                left=LiteralIndentifier(value="a", startPosition=Position(0, 7)),
+                left=LiteralIdentifier(value="a", startPosition=Position(0, 7)),
                 right=LiteralInt(value=10, startPosition=Position(0, 11)),
                 operator="<",
             ),
@@ -49,7 +49,7 @@ class TestLoops:
                     Assignment(
                         name="a",
                         value=AdditiveExpression(
-                            left=LiteralIndentifier(value="a", startPosition=Position(0, 21)),
+                            left=LiteralIdentifier(value="a", startPosition=Position(0, 21)),
                             right=LiteralInt(value=1, startPosition=Position(0, 25)),
                             operator="+",
                         ),
@@ -77,7 +77,7 @@ class TestLoops:
         assert objects[0] == WhileLoop(
             startPosition=Position(0, 0),
             condition=ComparisonExpression(
-                left=LiteralIndentifier(value="a", startPosition=Position(0, 7)),
+                left=LiteralIdentifier(value="a", startPosition=Position(0, 7)),
                 right=LiteralInt(value=10, startPosition=Position(0, 11)),
                 operator="<",
             ),
@@ -107,7 +107,7 @@ class TestLoops:
         assert objects[0] == ForEachLoop(
             startPosition=Position(0, 0),
             identifier="a",
-            iterable=LiteralIndentifier(value="b", startPosition=Position(0, 14)),
+            iterable=LiteralIdentifier(value="b", startPosition=Position(0, 14)),
             block=WhileBlock(
                 startPosition=Position(0, 18),
                 statements=[],

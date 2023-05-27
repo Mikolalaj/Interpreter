@@ -7,7 +7,7 @@ from src.parser.nodes import (
     Assignment,
     LiteralBool,
     LiteralFloat,
-    LiteralIndentifier,
+    LiteralIdentifier,
     LiteralInt,
     LiteralSubscriptable,
     LiteralString,
@@ -86,7 +86,7 @@ class TestAssignment:
         objects = getObjects(tokens)
 
         assert len(objects) == 1
-        assert objects[0] == Assignment("a", LiteralIndentifier(Position(0, 4), "b"))
+        assert objects[0] == Assignment("a", LiteralIdentifier(Position(0, 4), "b"))
 
     def testExpressionAssignment(self):
         # a = 1 + 2
