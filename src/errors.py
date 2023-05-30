@@ -1,3 +1,4 @@
+from typing import Optional
 from src.parser.nodes import Node
 from .tokens import Position, Token
 
@@ -21,9 +22,14 @@ class ParserError(Exception):
 
 
 class InterpreterError(Exception):
-    def __init__(self, message: str, node: Node):
+    def __init__(self, message: str, node: Optional[Node] = None):
         self.message = message
         self.node = node
 
     def __str__(self):
         return f"InterpreterError: {self.message}"
+
+
+class CriticalInterpreterError(InterpreterError):
+    def __init__(self, message: str, node: Optional[Node] = None):
+        super().__init__(message, node)

@@ -54,6 +54,20 @@ class Cuboid(ObjectWithBaseArea):
     def getBaseArea(self) -> float:
         return self.width * self.length
 
+    def __eq__(self, __value: object) -> bool:
+        return (
+            isinstance(__value, Cuboid)
+            and self.width == __value.width
+            and self.length == __value.length
+            and self.height == __value.height
+        )
+
+    def __str__(self) -> str:
+        return f"Cuboid: width={self.width} length={self.length} height={self.height}"
+
+    def __repr__(self) -> str:
+        return f"Cuboid: width={self.width} length={self.length} height={self.height}"
+
 
 class Pyramid(ObjectWithBaseArea):
     def __init__(self, width: float, length: float, height: float):

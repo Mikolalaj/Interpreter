@@ -1,12 +1,12 @@
 from typing import Callable, List, cast
 from typing import Literal as LiteralType
-from src.errors import InterpreterError
+from src.errors import CriticalInterpreterError, InterpreterError
+from src.interpreter.context import Context
 from src.interpreter.objects import Cuboid, Object, Pyramid, Cone, Cylinder, Tetrahedron, Sphere
 from src.parser.nodes import (
     AdditiveExpression,
     Assignment,
     ComparisonExpression,
-    Expression,
     LemonList,
     LiteralBool,
     LiteralFloat,
@@ -25,12 +25,6 @@ from src.parser.nodes import (
 from src.parser.parser import Parser
 
 
-Literals = int | float | bool | str | list
-Objects = Object
-Functions = Callable
-Variables = dict[str, Literals | Objects | Functions]
-
-
 class NodeVisitor(object):
     def visit(self, node: Node):
         method_name = "visit" + type(node).__name__
@@ -44,33 +38,37 @@ class NodeVisitor(object):
 class Interpreter(NodeVisitor):
     def __init__(self, parser: Parser) -> None:
         self.parser = parser
-        self.variables: Variables = {}
-        self.literals: dict[str, Literals] = {}
-        self.objects: dict[str, Objects] = {}
-        self.functions: dict[str, Functions] = {}
-
-    def isNameAvailable(self, name: str) -> bool:
-        if name in self.literals or name in self.objects:
-            return False
-        return True
+        self.context = Context()
 
     def interpret(self):
         nodes = self.parser.parse()
         for node in nodes:
-            self.visit(node)
+            try:
+                self.visit(node)
+            except TypeError as e:
+                print(f"TypeError: {e}")
+                return
+            except CriticalInterpreterError as e:
+                print(e)
+                return
+            except InterpreterError as e:
+                print(e)
 
     def visitVariableDeclaration(self, node: VariableDeclaration) -> None:
         variableName = node.assignment.name
         value = node.assignment.value
         if type(variableName) == str:
-            if not self.isNameAvailable(variableName):
-                raise InterpreterError(f"Variable {variableName} already declared", node)
-            if type(value) == ObjectConstructor:
-                self.objects[variableName] = self.visit(node.assignment.value)
-            else:
-                self.literals[variableName] = self.visit(node.assignment.value)
+            self.context.declare(variableName, self.visit(value))
         else:
             raise InterpreterError("Variable declaration's name has to be an identifier, not object property", node)
+
+    def visitAssignment(self, node: Assignment):
+        variableName = node.name
+        value = node.value
+        if type(variableName) == str:
+            self.context[variableName] = self.visit(value)
+        else:
+            raise InterpreterError("Assignment's name has to be an identifier, not object property", node)
 
     def visitLogicalOrExpression(self, node: LogicalOrExpression) -> bool:
         left: int | float | str | bool = self.visit(node.left)
@@ -170,13 +168,7 @@ class Interpreter(NodeVisitor):
         return node.value
 
     def visitLiteralIdentifier(self, node: LiteralIdentifier) -> int | float | bool | str | list | Object | Callable:
-        identifier = node.value
-        if identifier in self.literals:
-            return self.literals[identifier]
-        elif node.value in self.objects:
-            return self.objects[identifier]
-        else:
-            raise InterpreterError(f"Variable {node.value} is not defined", node)
+        return self.context[node.value]
 
     def visitLemonList(self, node: LemonList) -> List[int] | List[float] | List[bool] | List[str] | List:
         if len(node.values) == 0:
@@ -238,8 +230,6 @@ class Interpreter(NodeVisitor):
         value = next((argument.value for argument in node.arguments if argument.name == name), None)
         if value is None:
             raise InterpreterError(f"Cuboid constructor requires {name} argument", node)
-        if type(value) != Expression:
-            raise InterpreterError(f"Cuboid constructor requires {name} argument to be an expression", node)
         expressionValue = self.visit(value)
         if type(expressionValue) != int and type(expressionValue) != float:
             raise InterpreterError("Cuboid constructor requires width argument to be a number", node)
