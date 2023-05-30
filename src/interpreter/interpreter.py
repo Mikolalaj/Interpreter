@@ -13,6 +13,7 @@ from src.parser.nodes import (
     LiteralIdentifier,
     LiteralInt,
     LiteralString,
+    LiteralSubscriptable,
     LogicalAndExpression,
     LogicalOrExpression,
     MultiplicativeExpression,
@@ -169,6 +170,19 @@ class Interpreter(NodeVisitor):
 
     def visitLiteralIdentifier(self, node: LiteralIdentifier) -> int | float | bool | str | list | Object | Callable:
         return self.context[node.value]
+
+    def visitLiteralSubscriptable(self, node: LiteralSubscriptable) -> int | float | bool | str:
+        subscriptable = self.context[node.value]
+        index = self.visit(node.subscript)
+        if type(index) != int:
+            raise TypeError(f"String indices must be integers, not {type(index)}")
+        if type(subscriptable) == str or type(subscriptable) == list:
+            subscriptable = cast(str | list, subscriptable)
+            if index >= len(subscriptable):
+                raise InterpreterError(f"Index {index} is out of range")
+            return subscriptable[index]
+        else:
+            raise TypeError(f"Type {type(subscriptable)} is not subscriptable")
 
     def visitLemonList(self, node: LemonList) -> List[int] | List[float] | List[bool] | List[str] | List:
         if len(node.values) == 0:

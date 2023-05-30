@@ -5,6 +5,7 @@ from src.parser.nodes import (
     LiteralIdentifier,
     LiteralInt,
     LiteralString,
+    LiteralSubscriptable,
     VariableDeclaration,
 )
 from src.tokens import Position
@@ -69,3 +70,24 @@ class TestList:
             ]
         )
         assert interpreter.context == {"a": [1, 2, 3], "i": 1}
+
+    def testListSubscript(self):
+        """
+        let a = [1, 2, 3]
+        let b = a[1]
+        """
+        interpreter = getInterpreter(
+            [
+                VariableDeclaration(
+                    POSITION,
+                    Assignment(
+                        "a",
+                        LemonList([LiteralInt(POSITION, 1), LiteralInt(POSITION, 2), LiteralInt(POSITION, 3)]),
+                    ),
+                ),
+                VariableDeclaration(
+                    POSITION, Assignment("b", LiteralSubscriptable(POSITION, "a", LiteralInt(POSITION, 1)))
+                ),
+            ]
+        )
+        assert interpreter.context == {"a": [1, 2, 3], "b": 2}

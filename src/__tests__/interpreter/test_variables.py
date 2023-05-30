@@ -6,6 +6,7 @@ from src.parser.nodes import (
     LiteralIdentifier,
     LiteralInt,
     LiteralString,
+    LiteralSubscriptable,
     VariableDeclaration,
 )
 from src.tokens import Position
@@ -87,3 +88,37 @@ class TestVariables:
         )
 
         assert interpreter.context == {"a": 2}
+
+    def testStringSubscript(self):
+        """
+        let a = "Hello"
+        let b = a[0]
+        """
+        interpreter = getInterpreter(
+            [
+                VariableDeclaration(POSITION, Assignment("a", LiteralString(POSITION, "Hello"))),
+                VariableDeclaration(
+                    POSITION, Assignment("b", LiteralSubscriptable(POSITION, "a", LiteralInt(POSITION, 0)))
+                ),
+            ]
+        )
+
+        assert interpreter.context == {"a": "Hello", "b": "H"}
+
+    def testStringSubscriptError(self, capfd):
+        """
+        let a = "Hello"
+        let b = a[5]
+        """
+        interpreter = getInterpreter(
+            [
+                VariableDeclaration(POSITION, Assignment("a", LiteralString(POSITION, "Hello"))),
+                VariableDeclaration(
+                    POSITION, Assignment("b", LiteralSubscriptable(POSITION, "a", LiteralInt(POSITION, 5)))
+                ),
+            ]
+        )
+        out, _ = capfd.readouterr()
+        assert out == "InterpreterError: Index 5 is out of range\n"
+
+        assert interpreter.context == {"a": "Hello"}
