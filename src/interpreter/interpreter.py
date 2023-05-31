@@ -221,8 +221,10 @@ class Interpreter(NodeVisitor):
         return condition
 
     def visitBlockWithoutFunciton(self, node: BlockWithoutFunciton):
+        self.nextContext()
         for statement in node.statements:
             self.visit(statement)
+        self.previousContext()
 
     # Objects
 
@@ -276,3 +278,13 @@ class Interpreter(NodeVisitor):
         if type(expressionValue) != int and type(expressionValue) != float:
             raise InterpreterError("Cuboid constructor requires width argument to be a number", node)
         return expressionValue
+
+    # Context
+
+    def nextContext(self) -> None:
+        self.context = Context(self.context)
+
+    def previousContext(self) -> None:
+        if self.context.parent is None:
+            raise InterpreterError("Cannot exit global context")
+        self.context = self.context.parent

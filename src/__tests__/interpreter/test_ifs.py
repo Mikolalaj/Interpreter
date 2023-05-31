@@ -5,6 +5,7 @@ from src.parser.nodes import (
     ComparisonExpression,
     ConditionWithBlock,
     IfStatement,
+    LiteralBool,
     LiteralInt,
     VariableDeclaration,
 )
@@ -98,7 +99,7 @@ class TestIf:
                         ConditionWithBlock(
                             ComparisonExpression(LiteralInt(POSITION, 3), LiteralInt(POSITION, 2), ">"),
                             BlockWithoutFunciton(POSITION, [Assignment("a", LiteralInt(POSITION, 4))]),
-                        )
+                        ),
                     ],
                     BlockWithoutFunciton(POSITION, [Assignment("a", LiteralInt(POSITION, 5))]),
                 ),
@@ -107,20 +108,30 @@ class TestIf:
 
         assert interpreter.context == {"a": 4}
 
-    # def testVariableDeclarationsFail(self, capfd):
-    #     """
-    #     let a = 1
-    #     let a = 2
-    #     let c = "Hello"
-    #     """
-    #     interpreter = getInterpreter(
-    #         [
-    #             VariableDeclaration(POSITION, Assignment("a", LiteralInt(POSITION, 1))),
-    #             VariableDeclaration(POSITION, Assignment("a", LiteralInt(POSITION, 2))),
-    #             VariableDeclaration(POSITION, Assignment("c", LiteralString(POSITION, "Hello"))),
-    #         ]
-    #     )
-    #     out, _ = capfd.readouterr()
-    #     assert out == "InterpreterError: Variable a is already defined\n"
+    def testIfContext(self, capfd):
+        """
+        if (true) {
+            let a = 2
+        }
+        a = 1
+        """
+        interpreter = getInterpreter(
+            [
+                IfStatement(
+                    POSITION,
+                    ConditionWithBlock(
+                        LiteralBool(POSITION, True),
+                        BlockWithoutFunciton(
+                            POSITION, [VariableDeclaration(POSITION, Assignment("a", LiteralInt(POSITION, 2)))]
+                        ),
+                    ),
+                    None,
+                    None,
+                ),
+                Assignment("a", LiteralInt(POSITION, 1)),
+            ]
+        )
+        out, _ = capfd.readouterr()
+        assert out == "InterpreterError: Variable a is not defined\n"
 
-    #     assert interpreter.context == {"a": 1}
+        assert interpreter.context == {}
