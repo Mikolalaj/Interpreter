@@ -28,7 +28,6 @@ from src.parser.nodes import (
     ObjectMethodCall,
     ObjectProperty,
     ObjectType,
-    Parameter,
     FunctionDefinition,
     PrimaryExpression,
     Expression,
@@ -101,41 +100,41 @@ class Parser:
             or self.parseForEachLoop()
         )
 
-    def parseParameters(self) -> Optional[List[Parameter]]:
+    def parseParameters(self) -> Optional[List[str]]:
         parameters = []
         if self.token.type != TokenType.T_LPARENT:
             return None
         self.nextLexerToken()
         if self.token.type == TokenType.VT_ID:
-            parameters.append(Parameter(self.token.getValue()))
+            parameters.append(self.token.getValue())
             self.nextLexerToken()
             while self.token.type == TokenType.T_COMMA:
                 self.nextLexerToken()
                 if self.token.type == TokenType.VT_ID:
-                    parameters.append(Parameter(self.token.getValue()))
+                    parameters.append(self.token.getValue())
                     self.nextLexerToken()
                 else:
-                    raise ParserError('variable type', self.token)
+                    raise ParserError("variable type", self.token)
         if self.token.type == TokenType.T_RPARENT:
             self.nextLexerToken()
             return parameters
         else:
-            raise ParserError(')', self.token)
+            raise ParserError(")", self.token)
 
     def parseFunctionDefinition(self) -> Optional[FunctionDefinition]:
         if self.token.type != TokenType.T_FUNCTION:
             return None
         self.nextLexerToken()
         if self.token.type != TokenType.VT_ID:
-            raise ParserError('function name', self.token)
+            raise ParserError("function name", self.token)
         name = self.token.getValue()
         self.nextLexerToken()
         parameters = self.parseParameters()
         if parameters is None:
-            raise ParserError('parameters', self.token)
+            raise ParserError("parameters", self.token)
         body = self.parseBlockWithoutFunction()
         if body is None:
-            raise ParserError('block', self.token)
+            raise ParserError("block", self.token)
         self.nextLexerToken()
         return FunctionDefinition(name, parameters, body)
 
@@ -179,12 +178,12 @@ class Parser:
                 if argument:
                     arguments.append(argument)
                 else:
-                    raise ParserError('argument', self.token)
+                    raise ParserError("argument", self.token)
         if self.token.type == TokenType.T_RPARENT:
             self.nextLexerToken()
             return arguments
         else:
-            raise ParserError(')', self.token)
+            raise ParserError(")", self.token)
 
     def parseObjectMethodCallOrProperty(
         self, name: str, startPosition: Position
@@ -193,7 +192,7 @@ class Parser:
             return None
         self.nextLexerToken()
         if self.token.type != TokenType.VT_ID:
-            raise ParserError('method name', self.token)
+            raise ParserError("method name", self.token)
         methodName = self.token.getValue()
         fucntionCallPosition = self.token.startPosition
         self.nextLexerToken()
@@ -236,7 +235,7 @@ class Parser:
         self.nextLexerToken()
         values = self.parseListValues()
         if self.token.type != TokenType.T_RSQBRACKET:
-            raise ParserError(']', self.token)
+            raise ParserError("]", self.token)
         self.nextLexerToken()
         return LemonList(values or [])
 
@@ -252,7 +251,7 @@ class Parser:
             elif self.token.type == TokenType.T_RSQBRACKET:
                 break
             else:
-                raise ParserError(',', self.token)
+                raise ParserError(",", self.token)
         if len(values) == 0:
             return None
         return values
@@ -264,9 +263,9 @@ class Parser:
         self.nextLexerToken()
         expression = self.parseExpression()
         if expression is None:
-            raise ParserError('expression', self.token)
+            raise ParserError("expression", self.token)
         if not self.isType(TokenType.T_RSQBRACKET):
-            raise ParserError(']', self.token)
+            raise ParserError("]", self.token)
         self.nextLexerToken()
         return LiteralSubscriptable(token.startPosition, token.getValue(), expression)
 
@@ -313,7 +312,7 @@ class Parser:
             self.nextLexerToken()
             expression = self.parseExpression()
             if expression is None:
-                raise ParserError('expression', self.token)
+                raise ParserError("expression", self.token)
             if self.isType(TokenType.T_RPARENT):
                 self.nextLexerToken()
                 if startPosition:
@@ -321,7 +320,7 @@ class Parser:
                 else:
                     raise Exception("Start Position is not set")
             else:
-                raise ParserError(')', self.token)
+                raise ParserError(")", self.token)
         else:
             literal = self.parseLiteral()
             if literal is None:
@@ -343,7 +342,7 @@ class Parser:
             self.nextLexerToken()
             right = self.parseMultiplicativeExpression()
             if right is None:
-                raise ParserError('expression', self.token)
+                raise ParserError("expression", self.token)
             return MultiplicativeExpression(left, right, operator)  # type: ignore
         return left
 
@@ -357,7 +356,7 @@ class Parser:
             self.nextLexerToken()
             right = self.parseAdditiveExpression()
             if right is None:
-                raise ParserError('expression', self.token)
+                raise ParserError("expression", self.token)
             return AdditiveExpression(left, right, operator)  # type: ignore
         return left
 
@@ -378,7 +377,7 @@ class Parser:
             self.nextLexerToken()
             right = self.parseComparisonExpression()
             if right is None:
-                raise ParserError('expression', self.token)
+                raise ParserError("expression", self.token)
             return ComparisonExpression(left, right, operator)
         return left
 
@@ -391,7 +390,7 @@ class Parser:
             self.nextLexerToken()
             right = self.parseLogicalAndExpression()
             if right is None:
-                raise ParserError('expression', self.token)
+                raise ParserError("expression", self.token)
             return LogicalAndExpression(left, right)
         return left
 
@@ -404,7 +403,7 @@ class Parser:
             self.nextLexerToken()
             right = self.parseLogicalOrExpression()
             if right is None:
-                raise ParserError('expression', self.token)
+                raise ParserError("expression", self.token)
             return LogicalOrExpression(left, right)
         return left
 
@@ -433,10 +432,10 @@ class Parser:
     def parseConditionWithBlock(self) -> ConditionWithBlock:
         condition = self.parseCondition()
         if condition is None:
-            raise ParserError('condition', self.token)
+            raise ParserError("condition", self.token)
         block = self.parseBlockWithoutFunction()
         if block is None:
-            raise ParserError('block', self.token)
+            raise ParserError("block", self.token)
         return ConditionWithBlock(condition, block)
 
     def parseCondition(self) -> Optional[Expression]:
@@ -445,12 +444,12 @@ class Parser:
         self.nextLexerToken()
         expression = self.parseExpression()
         if expression is None:
-            raise ParserError('expression', self.token)
+            raise ParserError("expression", self.token)
         if self.isType(TokenType.T_RPARENT):
             self.nextLexerToken()
             return expression
         else:
-            raise ParserError(')', self.token)
+            raise ParserError(")", self.token)
 
     def parseBlockWithoutFunction(self) -> Optional[BlockWithoutFunciton]:
         if not self.isType(TokenType.T_LBRACKET):
@@ -461,7 +460,7 @@ class Parser:
         while not self.isType(TokenType.T_RBRACKET):
             statement = self.parseStatementWithoutFunction()
             if statement is None:
-                raise ParserError('statement', self.token)
+                raise ParserError("statement", self.token)
             statements.append(statement)
         self.nextLexerToken()
         return BlockWithoutFunciton(startPosition, statements)
@@ -474,7 +473,7 @@ class Parser:
         self.nextLexerToken()
         variableAssignment = self.parseAssignment()
         if variableAssignment is None:
-            raise ParserError('variable assignment', self.token)
+            raise ParserError("variable assignment", self.token)
         return VariableDeclaration(startPosition, variableAssignment)
 
     def parseReturnStatement(self) -> Optional[ReturnStatement]:
@@ -484,7 +483,7 @@ class Parser:
         self.nextLexerToken()
         expression = self.parseExpression()
         if expression is None:
-            raise ParserError('expression', self.token)
+            raise ParserError("expression", self.token)
         return ReturnStatement(startPosition, expression)
 
     def parseWhileOperation(self) -> Optional[WhileOperation]:
@@ -508,7 +507,7 @@ class Parser:
         while not self.isType(TokenType.T_RBRACKET):
             statement = self.parseStatementForWhileLoop()
             if statement is None:
-                raise ParserError('statement', self.token)
+                raise ParserError("statement", self.token)
             statements.append(statement)
         self.nextLexerToken()
         return WhileBlock(startPosition, statements)
@@ -520,10 +519,10 @@ class Parser:
         self.nextLexerToken()
         condition = self.parseCondition()
         if condition is None:
-            raise ParserError('condition', self.token)
+            raise ParserError("condition", self.token)
         block = self.parseWhileBlock()
         if block is None:
-            raise ParserError('block', self.token)
+            raise ParserError("block", self.token)
         return WhileLoop(startPosition, condition, block)
 
     # ForEachLoop = "foreach" Identifier "in" Identifier WhileBlock ;
@@ -533,24 +532,24 @@ class Parser:
         startPosition = self.token.startPosition
         self.nextLexerToken()
         if not self.isType(TokenType.T_LPARENT):
-            raise ParserError('(', self.token)
+            raise ParserError("(", self.token)
         self.nextLexerToken()
         if not self.isType(TokenType.VT_ID):
-            raise ParserError('identifier', self.token)
+            raise ParserError("identifier", self.token)
         identifier = self.token.getValue()
         self.nextLexerToken()
         if not self.isType(TokenType.T_IN):
-            raise ParserError('in', self.token)
+            raise ParserError("in", self.token)
         self.nextLexerToken()
         iterable = self.parseExpression()
         if iterable is None:
-            raise ParserError('expression', self.token)
+            raise ParserError("expression", self.token)
         if not self.isType(TokenType.T_RPARENT):
-            raise ParserError(')', self.token)
+            raise ParserError(")", self.token)
         self.nextLexerToken()
         block = self.parseWhileBlock()
         if block is None:
-            raise ParserError('block', self.token)
+            raise ParserError("block", self.token)
         return ForEachLoop(startPosition, identifier, iterable, block)
 
     # ObjectConstructor = ObjectType LeftParenthesis Arguments RightParenthesis ;
@@ -573,7 +572,7 @@ class Parser:
         self.nextLexerToken()
         arguments = self.parseArguments()
         if arguments is None:
-            raise ParserError('arguments', self.token)
+            raise ParserError("arguments", self.token)
         return ObjectConstructor(startPosition, objectType, arguments)
 
     def isType(self, *type: TokenType) -> bool:

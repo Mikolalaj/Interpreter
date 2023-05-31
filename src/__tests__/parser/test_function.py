@@ -1,5 +1,5 @@
 from .utils import getObjects
-from src.parser.nodes import Assignment, BlockWithoutFunciton, FunctionCall, FunctionDefinition, LiteralInt, Parameter
+from src.parser.nodes import Assignment, BlockWithoutFunciton, FunctionCall, FunctionDefinition, LiteralInt
 from src.token_type import TokenType
 from src.tokens import IdentifierValueToken, IntValueToken, Position, Token
 
@@ -28,7 +28,7 @@ class TestFunction:
         assert len(objects) == 1
         assert objects[0] == FunctionDefinition(
             name="test",
-            parameters=[Parameter("a"), Parameter("b"), Parameter("c")],
+            parameters=["a", "b", "c"],
             body=BlockWithoutFunciton(
                 startPosition=Position(0, 23),
                 statements=[

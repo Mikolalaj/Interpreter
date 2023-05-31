@@ -354,27 +354,8 @@ class IfStatement(Node):
             return False
 
 
-class Parameter(Node):
-    def __init__(self, name: str):
-        self.name = name
-
-    def __repr__(self):
-        return self.name
-
-    def __eq__(self, __value: object) -> bool:
-        if isinstance(__value, Parameter):
-            return self.name == __value.name
-        else:
-            return False
-
-
 class FunctionDefinition(Node):
-    def __init__(
-        self,
-        name: str,
-        parameters: List[Parameter],
-        body: Optional[BlockWithoutFunciton],
-    ):
+    def __init__(self, name: str, parameters: List[str], body: Optional[BlockWithoutFunciton]):
         self.name = name
         self.parameters = parameters
         self.body = body

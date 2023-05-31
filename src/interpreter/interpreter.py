@@ -6,7 +6,10 @@ from src.interpreter.objects import Cuboid, Object, Pyramid, Cone, Cylinder, Tet
 from src.parser.nodes import (
     AdditiveExpression,
     Assignment,
+    BlockWithoutFunciton,
     ComparisonExpression,
+    ConditionWithBlock,
+    IfStatement,
     LemonList,
     LiteralBool,
     LiteralFloat,
@@ -156,6 +159,8 @@ class Interpreter(NodeVisitor):
         else:
             return literalValue
 
+    # Literals
+
     def visitLiteralFloat(self, node: LiteralFloat) -> float:
         return node.value
 
@@ -197,6 +202,29 @@ class Interpreter(NodeVisitor):
             else:
                 list.append(value)
         return cast(List[int] | List[float] | List[bool] | List[str], list)
+
+    # If
+
+    def visitIfStatement(self, node: IfStatement):
+        conditionsWithBlocks = [node.ifCB] + (node.elifCBs or [])
+        for conditionWithBlock in conditionsWithBlocks:
+            if self.visit(conditionWithBlock.condition):
+                self.visit(conditionWithBlock.block)
+                return
+        if node.elseBlock:
+            self.visit(node.elseBlock)
+
+    def visitConditionWithBlock(self, node: ConditionWithBlock) -> bool:
+        condition = self.visit(node.condition)
+        if type(condition) != bool:
+            raise TypeError(f"Condition must be a boolean, not {type(condition)}")
+        return condition
+
+    def visitBlockWithoutFunciton(self, node: BlockWithoutFunciton):
+        for statement in node.statements:
+            self.visit(statement)
+
+    # Objects
 
     def visitObjectConstructor(self, node: ObjectConstructor) -> Object:
         if node.objectType == ObjectType.CUBOID:
