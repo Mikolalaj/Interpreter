@@ -44,7 +44,7 @@ class TestIf:
                     operator=">",
                 ),
                 block=BlockWithoutFunciton(
-                    statements=[Assignment(name="a", value=LiteralInt(Position(1, 9), 1))],
+                    statements=[Assignment(position=Position(1, 5), name="a", value=LiteralInt(Position(1, 9), 1))],
                     startPosition=Position(0, 12),
                 ),
             ),
@@ -97,7 +97,7 @@ class TestIf:
                     operator=">",
                 ),
                 block=BlockWithoutFunciton(
-                    statements=[Assignment(name="a", value=LiteralInt(Position(1, 9), 1))],
+                    statements=[Assignment(position=Position(1, 5), name="a", value=LiteralInt(Position(1, 9), 1))],
                     startPosition=Position(0, 12),
                 ),
             ),
@@ -109,7 +109,7 @@ class TestIf:
                         operator="<",
                     ),
                     block=BlockWithoutFunciton(
-                        statements=[Assignment(name="a", value=LiteralInt(Position(4, 9), 2))],
+                        statements=[Assignment(position=Position(4, 5), name="a", value=LiteralInt(Position(4, 9), 2))],
                         startPosition=Position(3, 13),
                     ),
                 )
@@ -176,7 +176,7 @@ class TestIf:
                     operator=">",
                 ),
                 block=BlockWithoutFunciton(
-                    statements=[Assignment(name="a", value=LiteralInt(Position(1, 9), 1))],
+                    statements=[Assignment(name="a", value=LiteralInt(Position(1, 9), 1), position=Position(1, 5))],
                     startPosition=Position(0, 12),
                 ),
             ),
@@ -188,7 +188,7 @@ class TestIf:
                         operator="<",
                     ),
                     block=BlockWithoutFunciton(
-                        statements=[Assignment(name="a", value=LiteralInt(Position(4, 9), 2))],
+                        statements=[Assignment(name="a", value=LiteralInt(Position(4, 9), 2), position=Position(4, 5))],
                         startPosition=Position(3, 13),
                     ),
                 ),
@@ -199,7 +199,7 @@ class TestIf:
                         operator="==",
                     ),
                     block=BlockWithoutFunciton(
-                        statements=[Assignment(name="a", value=LiteralInt(Position(7, 9), 3))],
+                        statements=[Assignment(name="a", value=LiteralInt(Position(7, 9), 3), position=Position(7, 5))],
                         startPosition=Position(6, 13),
                     ),
                 ),
@@ -247,13 +247,13 @@ class TestIf:
                     operator=">",
                 ),
                 block=BlockWithoutFunciton(
-                    statements=[Assignment(name="a", value=LiteralInt(Position(1, 9), 1))],
+                    statements=[Assignment(name="a", value=LiteralInt(Position(1, 9), 1), position=Position(1, 5))],
                     startPosition=Position(0, 12),
                 ),
             ),
             elifCBs=None,
             elseBlock=BlockWithoutFunciton(
-                statements=[Assignment(name="a", value=LiteralInt(Position(4, 9), 2))],
+                statements=[Assignment(name="a", value=LiteralInt(Position(4, 9), 2), position=Position(4, 5))],
                 startPosition=Position(3, 5),
             ),
         )
@@ -312,7 +312,7 @@ class TestIf:
                     operator=">",
                 ),
                 block=BlockWithoutFunciton(
-                    statements=[Assignment(name="a", value=LiteralInt(Position(1, 9), 1))],
+                    statements=[Assignment(name="a", value=LiteralInt(Position(1, 9), 1), position=Position(1, 5))],
                     startPosition=Position(0, 12),
                 ),
             ),
@@ -324,13 +324,13 @@ class TestIf:
                         operator="<",
                     ),
                     block=BlockWithoutFunciton(
-                        statements=[Assignment(name="a", value=LiteralInt(Position(4, 9), 2))],
+                        statements=[Assignment(name="a", value=LiteralInt(Position(4, 9), 2), position=Position(4, 5))],
                         startPosition=Position(3, 13),
                     ),
                 )
             ],
             elseBlock=BlockWithoutFunciton(
-                statements=[Assignment(name="a", value=LiteralInt(Position(7, 9), 3))],
+                statements=[Assignment(name="a", value=LiteralInt(Position(7, 9), 3), position=Position(7, 5))],
                 startPosition=Position(6, 5),
             ),
         )

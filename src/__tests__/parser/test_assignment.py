@@ -4,6 +4,7 @@ from src.token_type import TokenType
 from .utils import getObjects
 from src.parser.nodes import (
     AdditiveExpression,
+    Argument,
     Assignment,
     LiteralBool,
     LiteralFloat,
@@ -28,7 +29,7 @@ from src.tokens import (
 
 # Assignment = Identifier = ( Expression | String | List | FunctionCall | ObjectMethodCall | ObjectProperty | ListGetValue ) ;
 class TestAssignment:
-    def testIntAssignment(self):
+    def testIntAssignment(self) -> None:
         # a = 1
         tokens: List[Token] = [
             IdentifierValueToken(Position(0, 0), 1, "a"),
@@ -38,9 +39,9 @@ class TestAssignment:
         objects = getObjects(tokens)
 
         assert len(objects) == 1
-        assert objects[0] == Assignment("a", LiteralInt(Position(0, 4), 1))
+        assert objects[0] == Assignment(Position(0, 0), "a", LiteralInt(Position(0, 4), 1))
 
-    def testFloatAssignment(self):
+    def testFloatAssignment(self) -> None:
         # a = 1.0
         tokens: List[Token] = [
             IdentifierValueToken(Position(0, 0), 1, "a"),
@@ -50,9 +51,9 @@ class TestAssignment:
         objects = getObjects(tokens)
 
         assert len(objects) == 1
-        assert objects[0] == Assignment("a", LiteralFloat(Position(0, 4), 1.0))
+        assert objects[0] == Assignment(Position(0, 0), "a", LiteralFloat(Position(0, 4), 1.0))
 
-    def testBoolAssignment(self):
+    def testBoolAssignment(self) -> None:
         # a = true
         tokens: List[Token] = [
             IdentifierValueToken(Position(0, 0), 1, "a"),
@@ -62,9 +63,9 @@ class TestAssignment:
         objects = getObjects(tokens)
 
         assert len(objects) == 1
-        assert objects[0] == Assignment("a", LiteralBool(Position(0, 4), True))
+        assert objects[0] == Assignment(Position(0, 0), "a", LiteralBool(Position(0, 4), True))
 
-    def testStringAssignment(self):
+    def testStringAssignment(self) -> None:
         # a = "hello"
         tokens: List[Token] = [
             IdentifierValueToken(Position(0, 0), 1, "a"),
@@ -74,9 +75,9 @@ class TestAssignment:
         objects = getObjects(tokens)
 
         assert len(objects) == 1
-        assert objects[0] == Assignment("a", LiteralString(Position(0, 4), "hello"))
+        assert objects[0] == Assignment(Position(0, 0), "a", LiteralString(Position(0, 4), "hello"))
 
-    def testIdentifierAssignment(self):
+    def testIdentifierAssignment(self) -> None:
         # a = b
         tokens: List[Token] = [
             IdentifierValueToken(Position(0, 0), 1, "a"),
@@ -86,9 +87,9 @@ class TestAssignment:
         objects = getObjects(tokens)
 
         assert len(objects) == 1
-        assert objects[0] == Assignment("a", LiteralIdentifier(Position(0, 4), "b"))
+        assert objects[0] == Assignment(Position(0, 0), "a", LiteralIdentifier(Position(0, 4), "b"))
 
-    def testExpressionAssignment(self):
+    def testExpressionAssignment(self) -> None:
         # a = 1 + 2
         tokens: List[Token] = [
             IdentifierValueToken(Position(0, 0), 1, "a"),
@@ -101,10 +102,10 @@ class TestAssignment:
 
         assert len(objects) == 1
         assert objects[0] == Assignment(
-            "a", AdditiveExpression(LiteralInt(Position(0, 4), 1), LiteralInt(Position(0, 8), 2), "+")
+            Position(0, 0), "a", AdditiveExpression(LiteralInt(Position(0, 4), 1), LiteralInt(Position(0, 8), 2), "+")
         )
 
-    def testListIndexAssignment(self):
+    def testListIndexAssignment(self) -> None:
         # a = b[0]
         tokens: List[Token] = [
             IdentifierValueToken(Position(0, 0), 1, "a"),
@@ -117,9 +118,11 @@ class TestAssignment:
         objects = getObjects(tokens)
 
         assert len(objects) == 1
-        assert objects[0] == Assignment("a", LiteralSubscriptable(Position(0, 4), "b", LiteralInt(Position(0, 6), 0)))
+        assert objects[0] == Assignment(
+            Position(0, 0), "a", LiteralSubscriptable(Position(0, 4), "b", LiteralInt(Position(0, 6), 0))
+        )
 
-    def testObjectAssignment(self):
+    def testObjectAssignment(self) -> None:
         # a = Cuboid(width=4, length=2, height=5)
         tokens: List[Token] = [
             IdentifierValueToken(Position(0, 0), 1, "a"),
@@ -143,14 +146,15 @@ class TestAssignment:
 
         assert len(objects) == 1
         assert objects[0] == Assignment(
+            Position(0, 0),
             "a",
             ObjectConstructor(
                 Position(0, 4),
                 ObjectType.CUBOID,
                 [
-                    Assignment("width", LiteralInt(Position(0, 17), 4)),
-                    Assignment("length", LiteralInt(Position(0, 27), 2)),
-                    Assignment("height", LiteralInt(Position(0, 38), 5)),
+                    Argument(Position(0, 11), "width", LiteralInt(Position(0, 17), 4)),
+                    Argument(Position(0, 20), "length", LiteralInt(Position(0, 27), 2)),
+                    Argument(Position(0, 30), "height", LiteralInt(Position(0, 38), 5)),
                 ],
             ),
         )

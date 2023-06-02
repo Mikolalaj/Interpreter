@@ -1,5 +1,5 @@
 from .utils import getObjects
-from src.parser.nodes import Assignment, BlockWithoutFunciton, FunctionCall, FunctionDefinition, LiteralInt
+from src.parser.nodes import Argument, Assignment, BlockWithoutFunciton, FunctionCall, FunctionDefinition, LiteralInt
 from src.token_type import TokenType
 from src.tokens import IdentifierValueToken, IntValueToken, Position, Token
 
@@ -27,12 +27,14 @@ class TestFunction:
 
         assert len(objects) == 1
         assert objects[0] == FunctionDefinition(
+            position=Position(0, 0),
             name="test",
             parameters=["a", "b", "c"],
             body=BlockWithoutFunciton(
                 startPosition=Position(0, 23),
                 statements=[
                     Assignment(
+                        position=Position(0, 25),
                         name="a",
                         value=LiteralInt(value=1, startPosition=Position(0, 29)),
                     )
@@ -57,12 +59,14 @@ class TestFunction:
 
         assert len(objects) == 1
         assert objects[0] == FunctionDefinition(
+            position=Position(0, 0),
             name="test",
             parameters=[],
             body=BlockWithoutFunciton(
                 startPosition=Position(0, 16),
                 statements=[
                     Assignment(
+                        position=Position(0, 18),
                         name="a",
                         value=LiteralInt(value=1, startPosition=Position(0, 22)),
                     )
@@ -107,8 +111,8 @@ class TestFunction:
             startPosition=Position(0, 0),
             name="test",
             arguments=[
-                Assignment(name="a", value=LiteralInt(value=1, startPosition=Position(0, 8))),
-                Assignment(name="b", value=LiteralInt(value=2, startPosition=Position(0, 13))),
+                Argument(name="a", value=LiteralInt(value=1, startPosition=Position(0, 8)), position=Position(0, 6)),
+                Argument(name="b", value=LiteralInt(value=2, startPosition=Position(0, 13)), position=Position(0, 11)),
             ],
         )
 

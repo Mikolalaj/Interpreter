@@ -2,13 +2,13 @@ from typing import List
 
 from src.token_type import TokenType
 from .utils import getObjects
-from src.parser.nodes import Assignment, LiteralInt, ObjectConstructor, ObjectType, VariableDeclaration
+from src.parser.nodes import Argument, Assignment, LiteralInt, ObjectConstructor, ObjectType, VariableDeclaration
 
 from src.tokens import IdentifierValueToken, IntValueToken, Position, Token
 
 
 class TestAssignment:
-    def testIntAssignment(self):
+    def testIntAssignment(self) -> None:
         # let a = 1
         tokens: List[Token] = [
             Token(TokenType.T_VARIABLE, Position(0, 0)),
@@ -20,10 +20,10 @@ class TestAssignment:
 
         assert len(objects) == 1
         assert objects[0] == VariableDeclaration(
-            startPosition=Position(0, 0), assignment=Assignment("a", LiteralInt(Position(0, 8), 1))
+            startPosition=Position(0, 0), assignment=Assignment(Position(0, 0), "a", LiteralInt(Position(0, 8), 1))
         )
 
-    def testObjectDeclaration(self):
+    def testObjectDeclaration(self) -> None:
         # let a = Tetrahedron(edge=3)
         tokens: List[Token] = [
             Token(TokenType.T_VARIABLE, Position(0, 0)),
@@ -42,11 +42,12 @@ class TestAssignment:
         assert objects[0] == VariableDeclaration(
             startPosition=Position(0, 0),
             assignment=Assignment(
+                Position(0, 0),
                 "a",
                 ObjectConstructor(
                     startPosition=Position(0, 8),
                     objectType=ObjectType.TETRAHEDRON,
-                    arguments=[Assignment("edge", LiteralInt(Position(0, 25), 3))],
+                    arguments=[Argument(Position(0, 20), "edge", LiteralInt(Position(0, 25), 3))],
                 ),
             ),
         )

@@ -1,41 +1,63 @@
 from dataclasses import dataclass, field
+from typing import Optional
 from src.errors import CriticalInterpreterError
-from src.interpreter.types import Variables, Values
+from src.interpreter.types import VariableWithPosition, Values
+from src.tokens import Position
 
 
 @dataclass
 class Context:
     parent: "Context | None" = None
-    local_values: Variables = field(default_factory=dict)
+    local_values: VariableWithPosition = field(default_factory=dict)
 
-    def __getitem__(self, key: str) -> Values:
-        if key in self.local_values:
+    def get(self, key: str, position: Position) -> Values:
+        if self.__isNameInLocalValues(key):
+            return self.local_values[key][0]
+        elif self.parent is not None:
+            return self.parent.get(key, position)
+        else:
+            raise CriticalInterpreterError(f"Variable {key} at {position} is not defined")
+
+    def __getLocal(self, key: str) -> Optional[tuple[Values, Position]]:
+        if self.__isNameInLocalValues(key):
             return self.local_values[key]
+        return None
+
+    def set(self, key: str, value: Values, position: Position) -> None:
+        local = self.__getLocal(key)
+        if local is not None:
+            if type(local[0]) != type(value):
+                raise CriticalInterpreterError(
+                    f"Variable {key} at {position} is already defined as {type(local[0])} at {local[1]}"  # noqa: E501
+                )
+            self.local_values[key] = (value, position)
         elif self.parent is not None:
-            return self.parent[key]
+            self.parent.set(key, value, position)
         else:
             raise CriticalInterpreterError(f"Variable {key} is not defined")
 
-    def __setitem__(self, key: str, value: Values) -> None:
-        if key in self.local_values:
-            if type(self.local_values[key]) != type(value):
-                raise CriticalInterpreterError(f"Variable {key} is already defined as {type(self.local_values[key])}")
-            self.local_values[key] = value
-        elif self.parent is not None:
-            self.parent[key] = value
-        else:
-            raise CriticalInterpreterError(f"Variable {key} is not defined")
+    def declare(self, key: str, value: Values, position: Position) -> None:
+        local = self.__getLocal(key)
+        if local is not None:
+            raise CriticalInterpreterError(f"Variable {key} at {position} is already defined at {local[1]}")
+        self.local_values[key] = (value, position)
+
+    def __isNameInLocalValues(self, name: str) -> bool:
+        return any([name == key for key in self.local_values])
 
     def __eq__(self, __value: object) -> bool:
         return self.local_values == __value
-
-    def declare(self, key: str, value: Values) -> None:
-        if key in self.local_values:
-            raise CriticalInterpreterError(f"Variable {key} is already defined")
-        self.local_values[key] = value
 
     def __repr__(self) -> str:
         return f"Context(parent={self.parent}, local_values={self.local_values})"
 
     def __str__(self) -> str:
         return f"Context(parent={self.parent}, local_values={self.local_values})"
+
+    def isNameAvailable(self, name: str) -> bool:
+        if name in self.local_values:
+            return False
+        elif self.parent is not None:
+            return self.parent.isNameAvailable(name)
+        else:
+            return True

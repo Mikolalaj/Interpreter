@@ -16,7 +16,10 @@ class Expression(Node):
 
 
 class Assignment(Node):
-    def __init__(self, name: "str | ObjectProperty", value: "Expression | ObjectConstructor | LemonList"):
+    def __init__(
+        self, position: Position, name: "str | ObjectProperty", value: "Expression | ObjectConstructor | LemonList"
+    ):
+        self.position = position
         self.name = name
         self.value = value
 
@@ -30,12 +33,28 @@ class Assignment(Node):
             return False
 
 
+class Argument(Node):
+    def __init__(self, position: Position, name: str, value: "Expression | ObjectConstructor | LemonList"):
+        self.position = position
+        self.name = name
+        self.value = value
+
+    def __repr__(self):
+        return f"(Argument: {self.name} Value:{self.value})"
+
+    def __eq__(self, __value: object) -> bool:
+        if isinstance(__value, Argument):
+            return self.name == __value.name and self.value == __value.value
+        else:
+            return False
+
+
 class Literal(Expression):
     pass
 
 
 class FunctionCall(Literal):
-    def __init__(self, startPosition: Position, name: str, arguments: List[Assignment]):
+    def __init__(self, startPosition: Position, name: str, arguments: List[Argument]):
         super().__init__(startPosition)
         self.name = name
         self.arguments = arguments
@@ -355,7 +374,8 @@ class IfStatement(Node):
 
 
 class FunctionDefinition(Node):
-    def __init__(self, name: str, parameters: List[str], body: Optional[BlockWithoutFunciton]):
+    def __init__(self, position: Position, name: str, parameters: List[str], body: BlockWithoutFunciton):
+        self.position = position
         self.name = name
         self.parameters = parameters
         self.body = body
@@ -488,7 +508,7 @@ class ObjectType(Enum):
 
 # ObjectConstructor = ObjectType LeftParenthesis Arguments RightParenthesis ;
 class ObjectConstructor(Node):
-    def __init__(self, startPosition: Position, objectType: ObjectType, arguments: List[Assignment]) -> None:
+    def __init__(self, startPosition: Position, objectType: ObjectType, arguments: List[Argument]) -> None:
         self.startPosition = startPosition
         self.objectType = objectType
         self.arguments = arguments

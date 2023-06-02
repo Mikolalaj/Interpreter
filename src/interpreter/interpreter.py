@@ -1,14 +1,18 @@
-from typing import Callable, List, cast
+from typing import List, Optional, cast
 from typing import Literal as LiteralType
 from src.errors import CriticalInterpreterError, InterpreterError
 from src.interpreter.context import Context
 from src.interpreter.objects import Cuboid, Object, Pyramid, Cone, Cylinder, Tetrahedron, Sphere
+from src.interpreter.types import Values
 from src.parser.nodes import (
     AdditiveExpression,
+    Argument,
     Assignment,
     BlockWithoutFunciton,
     ComparisonExpression,
     ConditionWithBlock,
+    FunctionCall,
+    FunctionDefinition,
     IfStatement,
     LemonList,
     LiteralBool,
@@ -24,6 +28,7 @@ from src.parser.nodes import (
     ObjectConstructor,
     ObjectType,
     PrimaryExpression,
+    ReturnStatement,
     VariableDeclaration,
 )
 from src.parser.parser import Parser
@@ -62,7 +67,7 @@ class Interpreter(NodeVisitor):
         variableName = node.assignment.name
         value = node.assignment.value
         if type(variableName) == str:
-            self.context.declare(variableName, self.visit(value))
+            self.context.declare(variableName, self.visit(value), node.startPosition)
         else:
             raise InterpreterError("Variable declaration's name has to be an identifier, not object property", node)
 
@@ -70,7 +75,7 @@ class Interpreter(NodeVisitor):
         variableName = node.name
         value = node.value
         if type(variableName) == str:
-            self.context[variableName] = self.visit(value)
+            self.context.set(variableName, self.visit(value), node.position)
         else:
             raise InterpreterError("Assignment's name has to be an identifier, not object property", node)
 
@@ -173,11 +178,11 @@ class Interpreter(NodeVisitor):
     def visitLiteralString(self, node: LiteralString) -> str:
         return node.value
 
-    def visitLiteralIdentifier(self, node: LiteralIdentifier) -> int | float | bool | str | list | Object | Callable:
-        return self.context[node.value]
+    def visitLiteralIdentifier(self, node: LiteralIdentifier) -> Values:
+        return self.context.get(node.value, node.startPosition)
 
     def visitLiteralSubscriptable(self, node: LiteralSubscriptable) -> int | float | bool | str:
-        subscriptable = self.context[node.value]
+        subscriptable = self.context.get(node.value, node.startPosition)
         index = self.visit(node.subscript)
         if type(index) != int:
             raise TypeError(f"String indices must be integers, not {type(index)}")
@@ -205,14 +210,14 @@ class Interpreter(NodeVisitor):
 
     # If
 
-    def visitIfStatement(self, node: IfStatement):
+    def visitIfStatement(self, node: IfStatement) -> Optional[Values]:
         conditionsWithBlocks = [node.ifCB] + (node.elifCBs or [])
         for conditionWithBlock in conditionsWithBlocks:
             if self.visit(conditionWithBlock.condition):
-                self.visit(conditionWithBlock.block)
-                return
+                return self.visit(conditionWithBlock.block)
         if node.elseBlock:
-            self.visit(node.elseBlock)
+            return self.visit(node.elseBlock)
+        return None
 
     def visitConditionWithBlock(self, node: ConditionWithBlock) -> bool:
         condition = self.visit(node.condition)
@@ -222,9 +227,50 @@ class Interpreter(NodeVisitor):
 
     def visitBlockWithoutFunciton(self, node: BlockWithoutFunciton):
         self.nextContext()
+        returnValue = None
         for statement in node.statements:
-            self.visit(statement)
+            returnValue = self.visit(statement)
+            if returnValue is not None:
+                break
         self.previousContext()
+        return returnValue
+
+    # Functions
+
+    def visitArgument(self, node: Argument):
+        variableName = node.name
+        value = node.value
+        self.context.declare(variableName, self.visit(value), node.position)
+
+    def visitFunctionDefinition(self, node: FunctionDefinition):
+        functionName = node.name
+        if not self.context.isNameAvailable(functionName):
+            raise InterpreterError(f"Function '{functionName}' is already defined", node)
+        self.context.declare(functionName, node, node.position)
+
+    def visitFunctionCall(self, node: FunctionCall) -> Optional[Values]:
+        function = self.context.get(node.name, node.startPosition)
+        if type(function) != FunctionDefinition:
+            raise TypeError(f"Type {type(function)} is not callable")
+        function = cast(FunctionDefinition, function)
+        self.nextContext()
+        self.expectNumberOfArguments(node.arguments, len(function.parameters), node)
+        for parameter in function.parameters:
+            argument = self.getArgumentValue(node, parameter)
+            self.context.declare(parameter, argument, node.startPosition)
+        result = self.visit(function.body)
+        result = cast(Values | None, result)
+        self.previousContext()
+        return result
+
+    def visitReturnStatement(self, node: ReturnStatement) -> Optional[Values]:
+        return self.visit(node.expression)
+
+    def getArgumentValue(self, node: FunctionCall, name: str) -> Values:
+        value = next((argument.value for argument in node.arguments if argument.name == name), None)
+        if value is None:
+            raise InterpreterError(f"Funciton {node.name} requires {name} argument", node)
+        return self.visit(value)
 
     # Objects
 
@@ -262,21 +308,26 @@ class Interpreter(NodeVisitor):
         else:
             raise InterpreterError(f"Object type {node.objectType} is not supported", node)
 
-    def expectNumberOfArguments(self, arguments: list[Assignment], expected: int, node: ObjectConstructor) -> None:
+    def expectNumberOfArguments(
+        self, arguments: list[Argument], expected: int, node: ObjectConstructor | FunctionCall
+    ) -> None:
         if len(arguments) != expected:
-            raise InterpreterError(
-                f"{node.objectType} constructor takes 3 arguments, {len(arguments)} were given", node
-            )
+            if type(node) == FunctionCall:
+                raise InterpreterError(f"{node.name} constructor takes 3 arguments, {len(arguments)} were given", node)
+            elif type(node) == ObjectConstructor:
+                raise InterpreterError(
+                    f"{node.objectType} constructor takes 3 arguments, {len(arguments)} were given", node
+                )
 
     def getObjectArgumentValue(
         self, node: ObjectConstructor, name: LiteralType["width", "length", "height", "radius", "edge"]  # noqa: F821
     ) -> int | float:
         value = next((argument.value for argument in node.arguments if argument.name == name), None)
         if value is None:
-            raise InterpreterError(f"Cuboid constructor requires {name} argument", node)
+            raise InterpreterError(f"{node.objectType} constructor requires {name} argument", node)
         expressionValue = self.visit(value)
         if type(expressionValue) != int and type(expressionValue) != float:
-            raise InterpreterError("Cuboid constructor requires width argument to be a number", node)
+            raise InterpreterError(f"{node.objectType} constructor requires {name} argument to be a number", node)
         return expressionValue
 
     # Context
@@ -288,3 +339,9 @@ class Interpreter(NodeVisitor):
         if self.context.parent is None:
             raise InterpreterError("Cannot exit global context")
         self.context = self.context.parent
+
+
+class Function:
+    def __init__(self, arguments: list[str], block: BlockWithoutFunciton):
+        self.arguments = arguments
+        self.block = block

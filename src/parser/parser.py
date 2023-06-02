@@ -3,6 +3,7 @@ from src.errors import ParserError
 from src.lexer import Lexer
 from src.parser.nodes import (
     AdditiveExpression,
+    Argument,
     Assignment,
     BlockWithoutFunciton,
     Break,
@@ -124,6 +125,7 @@ class Parser:
     def parseFunctionDefinition(self) -> Optional[FunctionDefinition]:
         if self.token.type != TokenType.T_FUNCTION:
             return None
+        position = self.token.startPosition
         self.nextLexerToken()
         if self.token.type != TokenType.VT_ID:
             raise ParserError("function name", self.token)
@@ -136,15 +138,20 @@ class Parser:
         if body is None:
             raise ParserError("block", self.token)
         self.nextLexerToken()
-        return FunctionDefinition(name, parameters, body)
+        return FunctionDefinition(position, name, parameters, body)
 
     # Assignment = Identifier = ( Expression | String | List | FunctionCall | ObjectMethodCall | ObjectProperty | ListGetValue ) ;
-    def parseAssignment(self, name: Optional[str | ObjectProperty] = None) -> Optional[Assignment]:
+    def parseAssignment(
+        self, name: Optional[str | ObjectProperty] = None, position: Optional[Position] = None
+    ) -> Optional[Assignment]:
         if name is None:
             if self.token.type != TokenType.VT_ID:
                 return None
             name = self.token.getValue()
+            position = self.token.startPosition
             self.nextLexerToken()
+        if position is None:
+            raise Exception("Position is None")
 
         if self.token.type != TokenType.T_ASSIGN:
             return None
@@ -152,29 +159,54 @@ class Parser:
 
         objectConstructor = self.parseObjectConstructor()
         if objectConstructor is not None:
-            return Assignment(name, objectConstructor)
+            return Assignment(position, name, objectConstructor)
 
         expression = self.parseExpression()
         if expression is not None:
-            return Assignment(name, expression)
+            return Assignment(position, name, expression)
 
         list = self.parseList()
         if list is not None:
             self.nextLexerToken()
-            return Assignment(name, list)
+            return Assignment(position, name, list)
         return None
 
-    def parseArguments(self) -> Optional[List[Assignment]]:
+    def parseArgument(self) -> Optional[Argument]:
+        if self.token.type != TokenType.VT_ID:
+            return None
+        name = self.token.getValue()
+        position = self.token.startPosition
+        self.nextLexerToken()
+
+        if self.token.type != TokenType.T_ASSIGN:
+            return None
+        self.nextLexerToken()
+
+        objectConstructor = self.parseObjectConstructor()
+        if objectConstructor is not None:
+            return Argument(position, name, objectConstructor)
+
+        expression = self.parseExpression()
+        if expression is not None:
+            return Argument(position, name, expression)
+
+        list = self.parseList()
+        if list is not None:
+            self.nextLexerToken()
+            return Argument(position, name, list)
+        return None
+
+    def parseArguments(self) -> Optional[List[Argument]]:
         arguments = []
         if self.token.type != TokenType.T_LPARENT:
             return None
         self.nextLexerToken()
-        argument = self.parseAssignment()
+        argument = self.parseArgument()
         if argument:
             arguments.append(argument)
             while self.token.type == TokenType.T_COMMA:
                 self.nextLexerToken()
-                argument = self.parseAssignment()
+                argument = self.parseArgument()
                 if argument:
                     arguments.append(argument)
                 else:
@@ -222,7 +254,7 @@ class Parser:
             else:
                 objectProperty = objectMethodCallOrProperty
 
-        assignment = self.parseAssignment(objectProperty if objectProperty else name)
+        assignment = self.parseAssignment(objectProperty if objectProperty else name, startPosition)
         if assignment is not None:
             return assignment
 

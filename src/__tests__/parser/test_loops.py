@@ -47,6 +47,7 @@ class TestLoops:
                 startPosition=Position(0, 15),
                 statements=[
                     Assignment(
+                        position=Position(0, 17),
                         name="a",
                         value=AdditiveExpression(
                             left=LiteralIdentifier(value="a", startPosition=Position(0, 21)),

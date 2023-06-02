@@ -26,12 +26,12 @@ class TestExpressions:
         interpreter = getInterpreter(
             [
                 VariableDeclaration(
-                    POSITION, Assignment("a", PrimaryExpression(POSITION, True, LiteralInt(POSITION, 1)))
+                    POSITION, Assignment(POSITION, "a", PrimaryExpression(POSITION, True, LiteralInt(POSITION, 1)))
                 ),
             ]
         )
 
-        assert interpreter.context == {"a": -1}
+        assert interpreter.context == {"a": (-1, POSITION)}
 
     def testMultiplicativeExpressions(self):
         """
@@ -42,6 +42,7 @@ class TestExpressions:
                 VariableDeclaration(
                     POSITION,
                     Assignment(
+                        POSITION,
                         "a",
                         MultiplicativeExpression(
                             LiteralInt(POSITION, 4),
@@ -53,7 +54,7 @@ class TestExpressions:
             ]
         )
 
-        assert interpreter.context == {"a": 10}
+        assert interpreter.context == {"a": (10, POSITION)}
 
     def testMultiplicativeExpressionsFail(self, capfd):
         """
@@ -64,6 +65,7 @@ class TestExpressions:
                 VariableDeclaration(
                     POSITION,
                     Assignment(
+                        POSITION,
                         "a",
                         MultiplicativeExpression(LiteralInt(POSITION, 4), LiteralString(POSITION, "2"), "*"),
                     ),
@@ -84,6 +86,7 @@ class TestExpressions:
                 VariableDeclaration(
                     POSITION,
                     Assignment(
+                        POSITION,
                         "a",
                         AdditiveExpression(LiteralInt(POSITION, 2), LiteralFloat(POSITION, 3.2), "+"),
                     ),
@@ -91,7 +94,7 @@ class TestExpressions:
             ]
         )
 
-        assert interpreter.context == {"a": 5.2}
+        assert interpreter.context == {"a": (5.2, POSITION)}
 
     def testAdditiveExpressionsStrings(self):
         """
@@ -102,6 +105,7 @@ class TestExpressions:
                 VariableDeclaration(
                     POSITION,
                     Assignment(
+                        POSITION,
                         "a",
                         AdditiveExpression(LiteralString(POSITION, "Ala ma "), LiteralString(POSITION, "kota"), "+"),
                     ),
@@ -109,7 +113,7 @@ class TestExpressions:
             ]
         )
 
-        assert interpreter.context == {"a": "Ala ma kota"}
+        assert interpreter.context == {"a": ("Ala ma kota", POSITION)}
 
     def testAdditiveExpressionsFail(self, capfd):
         """
@@ -120,6 +124,7 @@ class TestExpressions:
                 VariableDeclaration(
                     POSITION,
                     Assignment(
+                        POSITION,
                         "a",
                         AdditiveExpression(LiteralString(POSITION, "Ala ma "), LiteralInt(POSITION, 5), "+"),
                     ),
@@ -140,6 +145,7 @@ class TestExpressions:
                 VariableDeclaration(
                     POSITION,
                     Assignment(
+                        POSITION,
                         "a",
                         ComparisonExpression(LiteralInt(POSITION, 2), LiteralInt(POSITION, 3), ">"),
                     ),
@@ -147,7 +153,7 @@ class TestExpressions:
             ]
         )
 
-        assert interpreter.context == {"a": False}
+        assert interpreter.context == {"a": (False, POSITION)}
 
     def testComparisonExpressionsNe(self):
         """
@@ -158,6 +164,7 @@ class TestExpressions:
                 VariableDeclaration(
                     POSITION,
                     Assignment(
+                        POSITION,
                         "a",
                         ComparisonExpression(LiteralInt(POSITION, 2), LiteralInt(POSITION, 3), "!="),
                     ),
@@ -165,7 +172,7 @@ class TestExpressions:
             ]
         )
 
-        assert interpreter.context == {"a": True}
+        assert interpreter.context == {"a": (True, POSITION)}
 
     def testComparisonExpressionsLe(self):
         """
@@ -176,6 +183,7 @@ class TestExpressions:
                 VariableDeclaration(
                     POSITION,
                     Assignment(
+                        POSITION,
                         "a",
                         ComparisonExpression(LiteralInt(POSITION, 2), LiteralInt(POSITION, 3), "<="),
                     ),
@@ -183,7 +191,7 @@ class TestExpressions:
             ]
         )
 
-        assert interpreter.context == {"a": True}
+        assert interpreter.context == {"a": (True, POSITION)}
 
     def testComparisonExpressionsGe(self):
         """
@@ -194,6 +202,7 @@ class TestExpressions:
                 VariableDeclaration(
                     POSITION,
                     Assignment(
+                        POSITION,
                         "a",
                         ComparisonExpression(LiteralInt(POSITION, 2), LiteralInt(POSITION, 3), ">="),
                     ),
@@ -201,7 +210,7 @@ class TestExpressions:
             ]
         )
 
-        assert interpreter.context == {"a": False}
+        assert interpreter.context == {"a": (False, POSITION)}
 
     def testComparisonExpressionsLt(self):
         """
@@ -212,6 +221,7 @@ class TestExpressions:
                 VariableDeclaration(
                     POSITION,
                     Assignment(
+                        POSITION,
                         "a",
                         ComparisonExpression(LiteralInt(POSITION, 2), LiteralInt(POSITION, 3), "<"),
                     ),
@@ -219,7 +229,7 @@ class TestExpressions:
             ]
         )
 
-        assert interpreter.context == {"a": True}
+        assert interpreter.context == {"a": (True, POSITION)}
 
     def testComparisonExpressionsGt(self):
         """
@@ -230,6 +240,7 @@ class TestExpressions:
                 VariableDeclaration(
                     POSITION,
                     Assignment(
+                        POSITION,
                         "a",
                         ComparisonExpression(LiteralInt(POSITION, 2), LiteralInt(POSITION, 3), ">"),
                     ),
@@ -237,7 +248,7 @@ class TestExpressions:
             ]
         )
 
-        assert interpreter.context == {"a": False}
+        assert interpreter.context == {"a": (False, POSITION)}
 
     def testComparisonExpressionsFail(self, capfd):
         """
@@ -248,6 +259,7 @@ class TestExpressions:
                 VariableDeclaration(
                     POSITION,
                     Assignment(
+                        POSITION,
                         "a",
                         ComparisonExpression(LiteralInt(POSITION, 2), LiteralString(POSITION, "3"), ">"),
                     ),
@@ -259,7 +271,7 @@ class TestExpressions:
         assert out == "TypeError: Unsupported operand type(s) for >: '<class 'int'>' and '<class 'str'>'\n"
         assert interpreter.context == {}
 
-    def testLogicalExpressionsAnd(self):
+    def testLogicalExpressionsAnd(self) -> None:
         """
         let a = true and false
         """
@@ -268,6 +280,7 @@ class TestExpressions:
                 VariableDeclaration(
                     POSITION,
                     Assignment(
+                        POSITION,
                         "a",
                         LogicalAndExpression(LiteralBool(POSITION, True), LiteralBool(POSITION, False)),
                     ),
@@ -275,7 +288,7 @@ class TestExpressions:
             ]
         )
 
-        assert interpreter.context == {"a": False}
+        assert interpreter.context == {"a": (False, POSITION)}
 
     def testLogicalExpressionsOr(self):
         """
@@ -286,6 +299,7 @@ class TestExpressions:
                 VariableDeclaration(
                     POSITION,
                     Assignment(
+                        POSITION,
                         "a",
                         LogicalOrExpression(LiteralBool(POSITION, True), LiteralBool(POSITION, False)),
                     ),
@@ -293,4 +307,4 @@ class TestExpressions:
             ]
         )
 
-        assert interpreter.context == {"a": True}
+        assert interpreter.context == {"a": (True, POSITION)}

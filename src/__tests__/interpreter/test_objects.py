@@ -1,6 +1,7 @@
 from src.interpreter.objects import Cuboid
 from .utils import getInterpreter
 from src.parser.nodes import (
+    Argument,
     Assignment,
     LiteralInt,
     ObjectConstructor,
@@ -22,14 +23,15 @@ class TestObjects:
                 VariableDeclaration(
                     POSITION,
                     Assignment(
+                        POSITION,
                         "a",
                         ObjectConstructor(
                             POSITION,
                             ObjectType.CUBOID,
                             [
-                                Assignment("width", LiteralInt(POSITION, 2)),
-                                Assignment("height", LiteralInt(POSITION, 3)),
-                                Assignment("length", LiteralInt(POSITION, 4)),
+                                Argument(POSITION, "width", LiteralInt(POSITION, 2)),
+                                Argument(POSITION, "height", LiteralInt(POSITION, 3)),
+                                Argument(POSITION, "length", LiteralInt(POSITION, 4)),
                             ],
                         ),
                     ),
@@ -37,4 +39,4 @@ class TestObjects:
             ]
         )
 
-        assert interpreter.context == {"a": Cuboid(width=2, height=3, length=4)}
+        assert interpreter.context == {"a": (Cuboid(width=2, height=3, length=4), POSITION)}

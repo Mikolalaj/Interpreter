@@ -15,7 +15,7 @@ from src.tokens import IdentifierValueToken, IntValueToken, Position, StringValu
 
 
 class TestList:
-    def testListOfIntegers(self):
+    def testListOfIntegers(self) -> None:
         # a = [1, 2, 3]
         tokens: List[Token] = [
             IdentifierValueToken(Position(0, 0), 1, "a"),
@@ -32,6 +32,7 @@ class TestList:
 
         assert len(objects) == 1
         assert objects[0] == Assignment(
+            Position(0, 0),
             "a",
             LemonList(
                 values=[
@@ -42,7 +43,7 @@ class TestList:
             ),
         )
 
-    def testListOfStrings(self):
+    def testListOfStrings(self) -> None:
         # a = ["hello", "world"]
         tokens: List[Token] = [
             IdentifierValueToken(Position(0, 0), 1, "a"),
@@ -57,6 +58,7 @@ class TestList:
 
         assert len(objects) == 1
         assert objects[0] == Assignment(
+            Position(0, 0),
             "a",
             LemonList(
                 values=[
@@ -66,7 +68,7 @@ class TestList:
             ),
         )
 
-    def testListOfIdentifiers(self):
+    def testListOfIdentifiers(self) -> None:
         # a = [b, c]
         tokens: List[Token] = [
             IdentifierValueToken(Position(0, 0), 1, "a"),
@@ -81,6 +83,7 @@ class TestList:
 
         assert len(objects) == 1
         assert objects[0] == Assignment(
+            Position(0, 0),
             "a",
             LemonList(
                 values=[
@@ -90,7 +93,7 @@ class TestList:
             ),
         )
 
-    def testListOfExpressions(self):
+    def testListOfExpressions(self) -> None:
         # a = [1 + 2, 3 + 4]
         tokens: List[Token] = [
             IdentifierValueToken(Position(0, 0), 1, "a"),
@@ -109,6 +112,7 @@ class TestList:
 
         assert len(objects) == 1
         assert objects[0] == Assignment(
+            Position(0, 0),
             "a",
             LemonList(
                 values=[

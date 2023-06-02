@@ -24,12 +24,12 @@ class TestIf:
         """
         interpreter = getInterpreter(
             [
-                VariableDeclaration(POSITION, Assignment("a", LiteralInt(POSITION, 1))),
+                VariableDeclaration(POSITION, Assignment(POSITION, "a", LiteralInt(POSITION, 1))),
                 IfStatement(
                     POSITION,
                     ConditionWithBlock(
                         ComparisonExpression(LiteralInt(POSITION, 2), LiteralInt(POSITION, 3), ">"),
-                        BlockWithoutFunciton(POSITION, [Assignment("a", LiteralInt(POSITION, 2))]),
+                        BlockWithoutFunciton(POSITION, [Assignment(POSITION, "a", LiteralInt(POSITION, 2))]),
                     ),
                     None,
                     None,
@@ -37,7 +37,7 @@ class TestIf:
             ]
         )
 
-        assert interpreter.context == {"a": 1}
+        assert interpreter.context == {"a": (1, POSITION)}
 
     def testIfElse(self):
         """
@@ -51,20 +51,20 @@ class TestIf:
         """
         interpreter = getInterpreter(
             [
-                VariableDeclaration(POSITION, Assignment("a", LiteralInt(POSITION, 1))),
+                VariableDeclaration(POSITION, Assignment(POSITION, "a", LiteralInt(POSITION, 1))),
                 IfStatement(
                     POSITION,
                     ConditionWithBlock(
                         ComparisonExpression(LiteralInt(POSITION, 2), LiteralInt(POSITION, 3), ">"),
-                        BlockWithoutFunciton(POSITION, [Assignment("a", LiteralInt(POSITION, 2))]),
+                        BlockWithoutFunciton(POSITION, [Assignment(POSITION, "a", LiteralInt(POSITION, 2))]),
                     ),
                     None,
-                    BlockWithoutFunciton(POSITION, [Assignment("a", LiteralInt(POSITION, 3))]),
+                    BlockWithoutFunciton(POSITION, [Assignment(POSITION, "a", LiteralInt(POSITION, 3))]),
                 ),
             ]
         )
 
-        assert interpreter.context == {"a": 3}
+        assert interpreter.context == {"a": (3, POSITION)}
 
     def testIfElseIfElse(self):
         """
@@ -84,29 +84,29 @@ class TestIf:
         """
         interpreter = getInterpreter(
             [
-                VariableDeclaration(POSITION, Assignment("a", LiteralInt(POSITION, 1))),
+                VariableDeclaration(POSITION, Assignment(POSITION, "a", LiteralInt(POSITION, 1))),
                 IfStatement(
                     POSITION,
                     ConditionWithBlock(
                         ComparisonExpression(LiteralInt(POSITION, 2), LiteralInt(POSITION, 3), ">"),
-                        BlockWithoutFunciton(POSITION, [Assignment("a", LiteralInt(POSITION, 2))]),
+                        BlockWithoutFunciton(POSITION, [Assignment(POSITION, "a", LiteralInt(POSITION, 2))]),
                     ),
                     [
                         ConditionWithBlock(
                             ComparisonExpression(LiteralInt(POSITION, 3), LiteralInt(POSITION, 2), "=="),
-                            BlockWithoutFunciton(POSITION, [Assignment("a", LiteralInt(POSITION, 3))]),
+                            BlockWithoutFunciton(POSITION, [Assignment(POSITION, "a", LiteralInt(POSITION, 3))]),
                         ),
                         ConditionWithBlock(
                             ComparisonExpression(LiteralInt(POSITION, 3), LiteralInt(POSITION, 2), ">"),
-                            BlockWithoutFunciton(POSITION, [Assignment("a", LiteralInt(POSITION, 4))]),
+                            BlockWithoutFunciton(POSITION, [Assignment(POSITION, "a", LiteralInt(POSITION, 4))]),
                         ),
                     ],
-                    BlockWithoutFunciton(POSITION, [Assignment("a", LiteralInt(POSITION, 5))]),
+                    BlockWithoutFunciton(POSITION, [Assignment(POSITION, "a", LiteralInt(POSITION, 5))]),
                 ),
             ]
         )
 
-        assert interpreter.context == {"a": 4}
+        assert interpreter.context == {"a": (4, POSITION)}
 
     def testIfContext(self, capfd):
         """
@@ -122,13 +122,14 @@ class TestIf:
                     ConditionWithBlock(
                         LiteralBool(POSITION, True),
                         BlockWithoutFunciton(
-                            POSITION, [VariableDeclaration(POSITION, Assignment("a", LiteralInt(POSITION, 2)))]
+                            POSITION,
+                            [VariableDeclaration(POSITION, Assignment(POSITION, "a", LiteralInt(POSITION, 2)))],
                         ),
                     ),
                     None,
                     None,
                 ),
-                Assignment("a", LiteralInt(POSITION, 1)),
+                Assignment(POSITION, "a", LiteralInt(POSITION, 1)),
             ]
         )
         out, _ = capfd.readouterr()

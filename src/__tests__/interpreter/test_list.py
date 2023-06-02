@@ -23,6 +23,7 @@ class TestList:
                 VariableDeclaration(
                     POSITION,
                     Assignment(
+                        POSITION,
                         "a",
                         LemonList([LiteralInt(POSITION, 1), LiteralInt(POSITION, 2), LiteralInt(POSITION, 3)]),
                     ),
@@ -30,7 +31,7 @@ class TestList:
             ]
         )
 
-        assert interpreter.context == {"a": [1, 2, 3]}
+        assert interpreter.context == {"a": ([1, 2, 3], POSITION)}
 
     def testListTypeError(self, capfd):
         """
@@ -41,6 +42,7 @@ class TestList:
                 VariableDeclaration(
                     POSITION,
                     Assignment(
+                        POSITION,
                         "a",
                         LemonList([LiteralInt(POSITION, 1), LiteralInt(POSITION, 2), LiteralString(POSITION, "3")]),
                     ),
@@ -59,17 +61,18 @@ class TestList:
         """
         interpreter = getInterpreter(
             [
-                VariableDeclaration(POSITION, Assignment("i", LiteralInt(POSITION, 1))),
+                VariableDeclaration(POSITION, Assignment(POSITION, "i", LiteralInt(POSITION, 1))),
                 VariableDeclaration(
                     POSITION,
                     Assignment(
+                        POSITION,
                         "a",
                         LemonList([LiteralIdentifier(POSITION, "i"), LiteralInt(POSITION, 2), LiteralInt(POSITION, 3)]),
                     ),
                 ),
             ]
         )
-        assert interpreter.context == {"a": [1, 2, 3], "i": 1}
+        assert interpreter.context == {"a": ([1, 2, 3], POSITION), "i": (1, POSITION)}
 
     def testListSubscript(self):
         """
@@ -81,13 +84,14 @@ class TestList:
                 VariableDeclaration(
                     POSITION,
                     Assignment(
+                        POSITION,
                         "a",
                         LemonList([LiteralInt(POSITION, 1), LiteralInt(POSITION, 2), LiteralInt(POSITION, 3)]),
                     ),
                 ),
                 VariableDeclaration(
-                    POSITION, Assignment("b", LiteralSubscriptable(POSITION, "a", LiteralInt(POSITION, 1)))
+                    POSITION, Assignment(POSITION, "b", LiteralSubscriptable(POSITION, "a", LiteralInt(POSITION, 1)))
                 ),
             ]
         )
-        assert interpreter.context == {"a": [1, 2, 3], "b": 2}
+        assert interpreter.context == {"a": ([1, 2, 3], POSITION), "b": (2, POSITION)}

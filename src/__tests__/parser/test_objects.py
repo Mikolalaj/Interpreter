@@ -2,13 +2,21 @@ from typing import List
 
 from src.token_type import TokenType
 from .utils import getObjects
-from src.parser.nodes import AdditiveExpression, Assignment, FunctionCall, LiteralInt, ObjectMethodCall, ObjectProperty
+from src.parser.nodes import (
+    AdditiveExpression,
+    Argument,
+    Assignment,
+    FunctionCall,
+    LiteralInt,
+    ObjectMethodCall,
+    ObjectProperty,
+)
 
 from src.tokens import IdentifierValueToken, IntValueToken, Position, Token
 
 
 class TestObjects:
-    def testObjectMethodCall(self):
+    def testObjectMethodCall(self) -> None:
         # object.method(a=1)
         tokens: List[Token] = [
             IdentifierValueToken(Position(0, 0), 1, "object"),
@@ -30,7 +38,8 @@ class TestObjects:
                 startPosition=Position(0, 7),
                 name="method",
                 arguments=[
-                    Assignment(
+                    Argument(
+                        position=Position(0, 14),
                         name="a",
                         value=LiteralInt(Position(0, 16), 1),
                     )
@@ -38,7 +47,7 @@ class TestObjects:
             ),
         )
 
-    def testObjectMethodCallAssignment(self):
+    def testObjectMethodCallAssignment(self) -> None:
         # a = object.method(a=1)
         tokens: List[Token] = [
             IdentifierValueToken(Position(0, 0), 1, "a"),
@@ -56,6 +65,7 @@ class TestObjects:
 
         assert len(objects) == 1
         assert objects[0] == Assignment(
+            Position(0, 0),
             name="a",
             value=ObjectMethodCall(
                 startPosition=Position(0, 4),
@@ -64,7 +74,8 @@ class TestObjects:
                     startPosition=Position(0, 11),
                     name="method",
                     arguments=[
-                        Assignment(
+                        Argument(
+                            position=Position(0, 18),
                             name="a",
                             value=LiteralInt(Position(0, 20), 1),
                         )
@@ -73,7 +84,7 @@ class TestObjects:
             ),
         )
 
-    def testObjectPropertyAssignment(self):
+    def testObjectPropertyAssignment(self) -> None:
         # a = object.property
         tokens: List[Token] = [
             IdentifierValueToken(Position(0, 0), 1, "a"),
@@ -86,6 +97,7 @@ class TestObjects:
 
         assert len(objects) == 1
         assert objects[0] == Assignment(
+            Position(0, 0),
             name="a",
             value=ObjectProperty(
                 startPosition=Position(0, 4),
@@ -94,7 +106,7 @@ class TestObjects:
             ),
         )
 
-    def testObjectPropertyAssignment2(self):
+    def testObjectPropertyAssignment2(self) -> None:
         # object.property = otherObject.property
         tokens: List[Token] = [
             IdentifierValueToken(Position(0, 0), 1, "object"),
@@ -109,6 +121,7 @@ class TestObjects:
 
         assert len(objects) == 1
         assert objects[0] == Assignment(
+            Position(0, 0),
             name=ObjectProperty(
                 startPosition=Position(0, 0),
                 identifier="object",
@@ -121,7 +134,7 @@ class TestObjects:
             ),
         )
 
-    def testObjectPropertyAssignment3(self):
+    def testObjectPropertyAssignment3(self) -> None:
         # object.property = function() + 1
         tokens: List[Token] = [
             IdentifierValueToken(Position(0, 0), 1, "object"),
@@ -138,6 +151,7 @@ class TestObjects:
 
         assert len(objects) == 1
         assert objects[0] == Assignment(
+            Position(0, 0),
             name=ObjectProperty(
                 startPosition=Position(0, 0),
                 identifier="object",
@@ -154,7 +168,7 @@ class TestObjects:
             ),
         )
 
-    def testObjectPropertyAssignment4(self):
+    def testObjectPropertyAssignment4(self) -> None:
         # object.property = object.property + 1
         tokens: List[Token] = [
             IdentifierValueToken(Position(0, 0), 1, "object"),
@@ -171,6 +185,7 @@ class TestObjects:
 
         assert len(objects) == 1
         assert objects[0] == Assignment(
+            Position(0, 0),
             name=ObjectProperty(
                 startPosition=Position(0, 0),
                 identifier="object",
@@ -187,7 +202,7 @@ class TestObjects:
             ),
         )
 
-    def testObjectPropertyAssignment5(self):
+    def testObjectPropertyAssignment5(self) -> None:
         # object.property = object.method() + 1
         tokens: List[Token] = [
             IdentifierValueToken(Position(0, 0), 1, "object"),
@@ -206,6 +221,7 @@ class TestObjects:
 
         assert len(objects) == 1
         assert objects[0] == Assignment(
+            Position(0, 0),
             name=ObjectProperty(
                 startPosition=Position(0, 0),
                 identifier="object",
