@@ -10,7 +10,6 @@ from src.parser.nodes import (
     Assignment,
     BlockWithoutFunciton,
     ComparisonExpression,
-    ConditionWithBlock,
     FunctionCall,
     FunctionDefinition,
     IfStatement,
@@ -214,25 +213,20 @@ class Interpreter(NodeVisitor):
         conditionsWithBlocks = [node.ifCB] + (node.elifCBs or [])
         for conditionWithBlock in conditionsWithBlocks:
             if self.visit(conditionWithBlock.condition):
-                return self.visit(conditionWithBlock.block)
+                self.nextContext()
+                returnValue = self.visit(conditionWithBlock.block)
+                self.previousContext()
+                return returnValue
         if node.elseBlock:
             return self.visit(node.elseBlock)
         return None
 
-    def visitConditionWithBlock(self, node: ConditionWithBlock) -> bool:
-        condition = self.visit(node.condition)
-        if type(condition) != bool:
-            raise TypeError(f"Condition must be a boolean, not {type(condition)}")
-        return condition
-
     def visitBlockWithoutFunciton(self, node: BlockWithoutFunciton):
-        self.nextContext()
         returnValue = None
         for statement in node.statements:
             returnValue = self.visit(statement)
             if returnValue is not None:
                 break
-        self.previousContext()
         return returnValue
 
     # Functions
