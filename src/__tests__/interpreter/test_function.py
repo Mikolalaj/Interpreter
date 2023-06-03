@@ -1,4 +1,4 @@
-from .utils import getInterpreter
+from .utils import assertNoOutput, getInterpreter
 from src.parser.nodes import (
     AdditiveExpression,
     Argument,
@@ -14,6 +14,8 @@ from src.parser.nodes import (
     LiteralInt,
     ReturnStatement,
     VariableDeclaration,
+    WhileBlock,
+    WhileLoop,
 )
 from src.tokens import Position
 
@@ -21,7 +23,7 @@ POSITION = Position(0, 0)
 
 
 class TestFunction:
-    def testFunctionDefinition(self) -> None:
+    def testFunctionDefinition(self, capfd) -> None:
         """
         function add(a, b) {
             return a + b
@@ -44,8 +46,9 @@ class TestFunction:
         interpreter = getInterpreter([functionDefinition])
 
         assert interpreter.context == {"add": (functionDefinition, POSITION)}
+        assertNoOutput(capfd)
 
-    def testFunctionCall(self):
+    def testFunctionCall(self, capfd):
         """
         function add(a, b) {
             return a + b
@@ -90,8 +93,9 @@ class TestFunction:
         )
 
         assert interpreter.context == {"add": (functionDefinition, Position(0, 0)), "a": (3, Position(3, 0))}
+        assertNoOutput(capfd)
 
-    def testFunctionCallScopes(self):
+    def testFunctionCallScopes(self, capfd):
         """
         let a = 1
         function test() {
@@ -131,8 +135,9 @@ class TestFunction:
             "test": (functionDefinition, Position(1, 0)),
             "b": (2, Position(3, 0)),
         }
+        assertNoOutput(capfd)
 
-    def testFunctionCallScopes2(self):
+    def testFunctionCallScopes2(self, capfd):
         """
         let a = 1
         function test() {
@@ -176,8 +181,9 @@ class TestFunction:
             "test": (functionDefinition, Position(1, 0)),
             "b": (3, Position(4, 0)),
         }
+        assertNoOutput(capfd)
 
-    def testFunctionCallWithIf(self):
+    def testFunctionCallWithIf(self, capfd):
         """
         function test(a) {
             if (a > 0) {
@@ -252,3 +258,72 @@ class TestFunction:
             "a": (True, Position(6, 0)),
             "b": (False, Position(7, 0)),
         }
+        assertNoOutput(capfd)
+
+    def testCallWithWhileLoop(self, capfd):
+        """
+        function test() {
+            let a = 1
+            while (a < 10) {
+                a = a + 1
+            }
+            return a
+        }
+        let a = test()
+        """
+        functionDefinition = FunctionDefinition(
+            Position(0, 0),
+            "test",
+            [],
+            BlockWithoutFunciton(
+                Position(1, 16),
+                [
+                    VariableDeclaration(
+                        Position(2, 4), Assignment(Position(2, 8), "a", LiteralInt(Position(2, 10), 1))
+                    ),
+                    WhileLoop(
+                        Position(3, 4),
+                        ComparisonExpression(
+                            LiteralIdentifier(Position(3, 11), "a"), LiteralInt(Position(3, 15), 10), "<"
+                        ),
+                        WhileBlock(
+                            Position(3, 18),
+                            [
+                                Assignment(
+                                    Position(4, 8),
+                                    "a",
+                                    AdditiveExpression(
+                                        LiteralIdentifier(Position(4, 10), "a"),
+                                        LiteralInt(Position(4, 14), 1),
+                                        "+",
+                                    ),
+                                )
+                            ],
+                        ),
+                    ),
+                    ReturnStatement(
+                        Position(6, 4),
+                        LiteralIdentifier(Position(6, 11), "a"),
+                    ),
+                ],
+            ),
+        )
+        interpreter = getInterpreter(
+            [
+                functionDefinition,
+                VariableDeclaration(
+                    Position(6, 0),
+                    Assignment(
+                        Position(6, 4),
+                        "a",
+                        FunctionCall(Position(6, 8), "test", []),
+                    ),
+                ),
+            ]
+        )
+
+        assert interpreter.context == {
+            "test": (functionDefinition, Position(0, 0)),
+            "a": (10, Position(6, 0)),
+        }
+        assertNoOutput(capfd)

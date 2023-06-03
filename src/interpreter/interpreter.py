@@ -31,6 +31,8 @@ from src.parser.nodes import (
     PrimaryExpression,
     ReturnStatement,
     VariableDeclaration,
+    WhileBlock,
+    WhileLoop,
 )
 from src.parser.parser import Parser
 
@@ -254,7 +256,7 @@ class Interpreter(NodeVisitor):
             raise TypeError(f"Type {type(function)} is not callable")
         function = cast(FunctionDefinition, function)
         self.nextContext()
-        self.expectNumberOfArguments(node.arguments, len(function.parameters), node)
+        self.expectNumberOfArguments(node.arguments, len(function.parameters), node, False)
         for parameter in function.parameters:
             argument = self.getArgumentValue(node, parameter)
             self.context.declare(parameter, argument, node.startPosition)
@@ -269,8 +271,29 @@ class Interpreter(NodeVisitor):
     def getArgumentValue(self, node: FunctionCall, name: str) -> Values:
         value = next((argument.value for argument in node.arguments if argument.name == name), None)
         if value is None:
-            raise InterpreterError(f"Funciton {node.name} requires {name} argument", node)
+            raise InterpreterError(f"Function {node.name} requires {name} argument", node)
         return self.visit(value)
+
+    # Loops
+
+    def visitWhileLoop(self, node: WhileLoop) -> Optional[Values]:
+        returnValue = None
+        while self.visit(node.condition):
+            self.nextContext()
+            returnValue = self.visit(node.block)
+            if returnValue is not None:
+                self.previousContext()
+                break
+            self.previousContext()
+        return returnValue
+
+    def visitWhileBlock(self, node: WhileBlock) -> Optional[Values]:
+        returnValue = None
+        for statement in node.statements:
+            returnValue = self.visit(statement)
+            if returnValue is not None:
+                break
+        return returnValue
 
     # Objects
 
@@ -309,14 +332,21 @@ class Interpreter(NodeVisitor):
             raise InterpreterError(f"Object type {node.objectType} is not supported", node)
 
     def expectNumberOfArguments(
-        self, arguments: list[Argument], expected: int, node: ObjectConstructor | FunctionCall
+        self,
+        arguments: list[Argument],
+        expected: int,
+        node: ObjectConstructor | FunctionCall,
+        isConstructor: bool = True,
     ) -> None:
         if len(arguments) != expected:
+            callableType = "Constructor" if isConstructor else "Function"
             if type(node) == FunctionCall:
-                raise InterpreterError(f"{node.name} constructor takes 3 arguments, {len(arguments)} were given", node)
+                raise InterpreterError(
+                    f"{callableType} {node.name} takes {expected} arguments, {len(arguments)} were given", node
+                )
             elif type(node) == ObjectConstructor:
                 raise InterpreterError(
-                    f"{node.objectType} constructor takes 3 arguments, {len(arguments)} were given", node
+                    f"{callableType} {node.objectType} takes {expected} arguments, {len(arguments)} were given", node
                 )
 
     def getObjectArgumentValue(
