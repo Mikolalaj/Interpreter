@@ -50,8 +50,8 @@ class Parser:
         self.token = tokens[0] if tokens else lexer.getNextToken()
         self.nextToken: Optional[Token] = None
         self.tokens = tokens
-
-        self.nextLexerToken()
+        if tokens is not None:
+            self.nextLexerToken()
 
     def nextLexerToken(self) -> None:
         if self.nextToken is not None:
@@ -93,12 +93,12 @@ class Parser:
     def parseStatementWithoutFunction(self) -> Optional[StatementWithoutFunction]:
         return (
             self.parseStartingWithIdentifier()
+            or self.parseForEachLoop()
             or self.parseExpression()
             or self.parseIfStatement()
             or self.parseVariableDeclaration()
             or self.parseReturnStatement()
             or self.parseWhileLoop()
-            or self.parseForEachLoop()
         )
 
     def parseParameters(self) -> Optional[List[str]]:
@@ -167,7 +167,6 @@ class Parser:
 
         list = self.parseList()
         if list is not None:
-            self.nextLexerToken()
             return Assignment(position, name, list)
         return None
 

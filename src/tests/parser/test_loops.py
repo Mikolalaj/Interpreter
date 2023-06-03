@@ -1,6 +1,7 @@
 from .parser_utils import getObjects
 from parser.nodes import (
     AdditiveExpression,
+    Argument,
     Assignment,
     Break,
     ComparisonExpression,
@@ -143,5 +144,52 @@ class TestLoops:
             block=WhileBlock(
                 startPosition=Position(0, 18),
                 statements=[],
+            ),
+        )
+
+    def testForEach2(self):
+        """
+        foreach (i in a) {
+            print(out=i)
+        }
+        """
+        tokens = [
+            Token(type=TokenType.T_FOREACH, startPosition=Position(0, 0)),
+            Token(type=TokenType.T_LPARENT, startPosition=Position(0, 8)),
+            IdentifierValueToken(value="i", startPosition=Position(0, 9), length=1),
+            Token(type=TokenType.T_IN, startPosition=Position(0, 11)),
+            IdentifierValueToken(value="a", startPosition=Position(0, 14), length=1),
+            Token(type=TokenType.T_RPARENT, startPosition=Position(0, 16)),
+            Token(type=TokenType.T_LBRACKET, startPosition=Position(0, 18)),
+            IdentifierValueToken(value="print", startPosition=Position(1, 4), length=5),
+            Token(type=TokenType.T_LPARENT, startPosition=Position(1, 9)),
+            IdentifierValueToken(value="out", startPosition=Position(1, 10), length=3),
+            Token(type=TokenType.T_ASSIGN, startPosition=Position(1, 13)),
+            IdentifierValueToken(value="i", startPosition=Position(1, 14), length=1),
+            Token(type=TokenType.T_RPARENT, startPosition=Position(1, 15)),
+            Token(type=TokenType.T_RBRACKET, startPosition=Position(2, 0)),
+        ]
+        objects = getObjects(tokens)
+
+        assert len(objects) == 1
+        assert objects[0] == ForEachLoop(
+            startPosition=Position(0, 0),
+            identifier="i",
+            iterable=LiteralIdentifier(value="a", startPosition=Position(0, 14)),
+            block=WhileBlock(
+                startPosition=Position(0, 18),
+                statements=[
+                    FunctionCall(
+                        name="print",
+                        arguments=[
+                            Argument(
+                                position=Position(1, 10),
+                                name="out",
+                                value=LiteralIdentifier(value="i", startPosition=Position(1, 14)),
+                            )
+                        ],
+                        startPosition=Position(1, 4),
+                    )
+                ],
             ),
         )
