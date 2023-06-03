@@ -571,6 +571,7 @@ StatementWithoutFunction = (
     | WhileLoop
     | ForEachLoop
     | ObjectMethodCall
+    | WhileOperation
 )
 
 Statement = FunctionDefinition | StatementWithoutFunction

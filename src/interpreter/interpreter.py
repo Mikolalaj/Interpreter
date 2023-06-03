@@ -1,3 +1,4 @@
+from enum import Enum
 from typing import List, Optional, cast
 from typing import Literal as LiteralType
 from src.errors import CriticalInterpreterError, InterpreterError
@@ -33,8 +34,15 @@ from src.parser.nodes import (
     VariableDeclaration,
     WhileBlock,
     WhileLoop,
+    Break,
+    Continue,
 )
 from src.parser.parser import Parser
+
+
+class LoopOperation(Enum):
+    CONTINUE = 1
+    BREAK = 2
 
 
 class NodeVisitor(object):
@@ -251,6 +259,13 @@ class Interpreter(NodeVisitor):
         self.context.declare(functionName, node, node.position)
 
     def visitFunctionCall(self, node: FunctionCall) -> Optional[Values]:
+        if node.name == "print":
+            if len(node.arguments) != 1:
+                raise TypeError(f"print() takes 1 positional argument but {len(node.arguments)} were given")
+            if node.arguments[0].name != "out":
+                raise TypeError(f'print() requires "out" argument but "{node.arguments[0].name}" was given')
+            print(self.visit(node.arguments[0].value))
+            return None
         function = self.context.get(node.name, node.startPosition)
         if type(function) != FunctionDefinition:
             raise TypeError(f"Type {type(function)} is not callable")
@@ -282,6 +297,11 @@ class Interpreter(NodeVisitor):
             self.nextContext()
             returnValue = self.visit(node.block)
             if returnValue is not None:
+                if returnValue == LoopOperation.BREAK:
+                    returnValue = None
+                elif returnValue == LoopOperation.CONTINUE:
+                    self.previousContext()
+                    continue
                 self.previousContext()
                 break
             self.previousContext()
@@ -294,6 +314,12 @@ class Interpreter(NodeVisitor):
             if returnValue is not None:
                 break
         return returnValue
+
+    def visitBreak(self, _: Break) -> LiteralType[LoopOperation.BREAK]:
+        return LoopOperation.BREAK
+
+    def visitContinue(self, _: Continue) -> LiteralType[LoopOperation.CONTINUE]:
+        return LoopOperation.CONTINUE
 
     # Objects
 
@@ -383,9 +409,3 @@ class Interpreter(NodeVisitor):
         if self.context.parent is None:
             raise InterpreterError("Cannot exit global context")
         self.context = self.context.parent
-
-
-class Function:
-    def __init__(self, arguments: list[str], block: BlockWithoutFunciton):
-        self.arguments = arguments
-        self.block = block

@@ -16,6 +16,7 @@ from src.parser.nodes import (
     VariableDeclaration,
     WhileBlock,
     WhileLoop,
+    LiteralString,
 )
 from src.tokens import Position
 
@@ -327,3 +328,20 @@ class TestFunction:
             "a": (10, Position(6, 0)),
         }
         assertNoOutput(capfd)
+
+    def testPrint(self, capfd):
+        """
+        print(out="test")
+        """
+        interpreter = getInterpreter(
+            [
+                FunctionCall(
+                    Position(0, 0),
+                    "print",
+                    [Argument(Position(0, 6), "out", LiteralString(Position(0, 8), "test"))],
+                )
+            ]
+        )
+
+        assert interpreter.context == {}
+        assert capfd.readouterr().out == "test\n"
