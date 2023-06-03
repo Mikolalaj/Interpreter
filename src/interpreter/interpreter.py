@@ -263,13 +263,12 @@ class Interpreter(NodeVisitor):
         self.context.declare(functionName, node, node.position)
 
     def visitFunctionCall(self, node: FunctionCall) -> Optional[Values]:
-        if node.name == "print":
-            if len(node.arguments) != 1:
-                raise TypeError(f"print() takes 1 positional argument but {len(node.arguments)} were given")
-            if node.arguments[0].name != "out":
-                raise TypeError(f'print() requires "out" argument but "{node.arguments[0].name}" was given')
-            print(self.visit(node.arguments[0].value))
+        result = self.visitPrint(node)
+        if result:
             return None
+        result = self.visitString(node) or self.visitInt(node) or self.visitFloat(node)
+        if result is not None:
+            return result
         function = self.context.get(node.name, node.startPosition)
         if type(function) != FunctionDefinition:
             raise TypeError(f"Type {type(function)} is not callable")
@@ -292,6 +291,59 @@ class Interpreter(NodeVisitor):
         if value is None:
             raise InterpreterError(f"Function {node.name} requires {name} argument", node)
         return self.visit(value)
+
+    def visitPrint(self, node: FunctionCall) -> bool:
+        if node.name != "print":
+            return False
+        if len(node.arguments) != 1:
+            raise TypeError(f"print() takes 1 positional argument but {len(node.arguments)} were given")
+        if node.arguments[0].name != "out":
+            raise TypeError(f'print() requires "out" argument but "{node.arguments[0].name}" was given')
+        printable = self.visit(node.arguments[0].value)
+        print(printable)
+        return True
+
+    def visitString(self, node: FunctionCall):
+        if node.name != "string":
+            return None
+        if len(node.arguments) != 1:
+            raise TypeError(f"string() takes 1 positional argument but {len(node.arguments)} were given")
+        if node.arguments[0].name != "value":
+            raise TypeError(f'string() requires "value" argument but "{node.arguments[0].name}" was given')
+        value = self.visit(node.arguments[0].value)
+        if type(value) != int and type(value) != float:
+            raise TypeError(f"Type {type(value)} is not convertible to string. Only int and float are supported")
+        return str(self.visit(node.arguments[0].value))
+
+    def visitInt(self, node: FunctionCall):
+        if node.name != "int":
+            return None
+        if len(node.arguments) != 1:
+            raise TypeError(f"int() takes 1 positional argument but {len(node.arguments)} were given")
+        if node.arguments[0].name != "value":
+            raise TypeError(f'int() requires "value" argument but "{node.arguments[0].name}" was given')
+        value = self.visit(node.arguments[0].value)
+        if type(value) != str and type(value) != float:
+            raise TypeError(f"Type {type(value)} is not convertible to int. Only string and float is supported")
+        try:
+            return int(value)
+        except ValueError:
+            raise TypeError(f"Variable {type(value)} is not a valid number")
+
+    def visitFloat(self, node: FunctionCall):
+        if node.name != "float":
+            return None
+        if len(node.arguments) != 1:
+            raise TypeError(f"float() takes 1 positional argument but {len(node.arguments)} were given")
+        if node.arguments[0].name != "value":
+            raise TypeError(f'float() requires "value" argument but "{node.arguments[0].name}" was given')
+        value = self.visit(node.arguments[0].value)
+        if type(value) != str and type(value) != int:
+            raise TypeError(f"Type {type(value)} is not convertible to float. Only string and int is supported")
+        try:
+            return float(value)
+        except ValueError:
+            raise TypeError(f"Variable {type(value)} is not a valid number")
 
     # Loops
 

@@ -3,6 +3,15 @@ from lexer.source import StringSource
 from parser.parser import Parser
 from interpreter.interpreter import Interpreter
 
+
+def interpretCode(code: str):
+    lexer = Lexer(StringSource(code))
+    parser = Parser(lexer)
+    interpreter = Interpreter(parser)
+
+    interpreter.interpret()
+
+
 code = """
 function add(a, b) {
     return a + b
@@ -19,15 +28,19 @@ else {
 
 let cylinder = Cylinder(radius=2, height=3)
 
+let volume = cube.getVolume() + cylinder.getVolume()
+let volumeString = string(value=volume)
+print(out="Volume: " + volumeString)
+
 let objects = [cube, cylinder]
 
 foreach (object in objects) {
     object.display()
 }
+
+let string = "2"
+let number = int(value=string) + 3
+print(out=number)
 """
 
-lexer = Lexer(StringSource(code))
-parser = Parser(lexer)
-interpreter = Interpreter(parser)
-
-interpreter.interpret()
+interpretCode(code)
