@@ -1,11 +1,15 @@
 from lexer.lexer import Lexer
-from lexer.source import StringSource
+from lexer.source import FileSource, StringSource
 from parser.parser import Parser
 from interpreter.interpreter import Interpreter
+import argparse
 
 
-def interpretCode(code: str):
-    lexer = Lexer(StringSource(code))
+def interpretCode(code: str, isFile: bool = False):
+    if isFile:
+        lexer = Lexer(FileSource(code))
+    else:
+        lexer = Lexer(StringSource(code))
     parser = Parser(lexer)
     interpreter = Interpreter(parser)
 
@@ -43,4 +47,12 @@ let number = int(value=string) + 3
 print(out=number)
 """
 
-interpretCode(code)
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Interpret code")
+    parser.add_argument("-f", "--file", type=str, help="Path to file", required=False)
+    args = parser.parse_args()
+    if args.file:
+        interpretCode(args.file, isFile=True)
+    else:
+        interpretCode(code)

@@ -22,9 +22,11 @@ class FileSource(Source):
     def __init__(self, path):
         self.fileStream = open(path, "r")
         self.eof = False
+        self.position = Position(line=1, column=0)
 
     def readNextCharacter(self) -> str:
         char = self.fileStream.read(1)
+        self.position = self.position.getNextLine() if char == "\n" else self.position.getNextCharacter()
         if not char:
             self.eof = True
         return char
