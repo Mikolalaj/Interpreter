@@ -4,9 +4,25 @@ from parser.parser import Parser
 from interpreter.interpreter import Interpreter
 
 code = """
-let a = [1, 2, 3]
-foreach (i in a) {
-    print(out=i)
+function add(a, b) {
+    return a + b
+}
+
+let cube = Cuboid(width=2, height=3, length=4)
+
+if (2 > 3) {
+    cube.width = add(a=2, b=3)
+}
+else {
+    cube.width = add(a=3, b=4)
+}
+
+let cylinder = Cylinder(radius=2, height=3)
+
+let objects = [cube, cylinder]
+
+foreach (object in objects) {
+    object.display()
 }
 """
 

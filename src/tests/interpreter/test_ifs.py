@@ -133,6 +133,6 @@ class TestIf:
             ]
         )
         out, _ = capfd.readouterr()
-        assert out == "InterpreterError: Variable a is not defined\n"
+        assert out == "InterpreterError: Variable a at [Line 0, Column 0] is not defined\n"
 
         assert interpreter.context == {}

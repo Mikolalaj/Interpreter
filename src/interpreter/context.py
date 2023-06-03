@@ -35,7 +35,7 @@ class Context:
         elif self.parent is not None:
             self.parent.set(key, value, position)
         else:
-            raise CriticalInterpreterError(f"Variable {key} is not defined")
+            raise CriticalInterpreterError(f"Variable {key} at {position} is not defined")
 
     def setObjectProperty(self, key: str, property: str, value: Values, position: Position) -> None:
         local = self.__getLocal(key)
@@ -48,7 +48,7 @@ class Context:
         elif self.parent is not None:
             self.parent.setObjectProperty(key, property, value, position)
         else:
-            raise CriticalInterpreterError(f"Variable {key} is not defined")
+            raise CriticalInterpreterError(f"Variable {key} at {position} is not defined")
 
     def declare(self, key: str, value: Values, position: Position) -> None:
         local = self.__getLocal(key)

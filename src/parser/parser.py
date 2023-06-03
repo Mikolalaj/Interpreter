@@ -137,7 +137,6 @@ class Parser:
         body = self.parseBlockWithoutFunction()
         if body is None:
             raise ParserError("block", self.token)
-        self.nextLexerToken()
         return FunctionDefinition(position, name, parameters, body)
 
     # Assignment = Identifier = ( Expression | String | List | FunctionCall | ObjectMethodCall | ObjectProperty | ListGetValue ) ;
