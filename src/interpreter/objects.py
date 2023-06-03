@@ -29,6 +29,15 @@ class Sphere(Object):
     def display(self) -> None:
         print(f"Sphere: radius={self.radius}")
 
+    def __eq__(self, __value: object) -> bool:
+        return isinstance(__value, Sphere) and self.radius == __value.radius
+
+    def __str__(self) -> str:
+        return f"Sphere: radius={self.radius}"
+
+    def __repr__(self) -> str:
+        return f"Sphere: radius={self.radius}"
+
 
 class ObjectWithBaseArea(Object):
     @abstractmethod
@@ -91,6 +100,20 @@ class Pyramid(ObjectWithBaseArea):
     def display(self) -> None:
         print(f"Pyramid: width={self.width} length={self.length} height={self.height}")
 
+    def __eq__(self, __value: object) -> bool:
+        return (
+            isinstance(__value, Pyramid)
+            and self.width == __value.width
+            and self.length == __value.length
+            and self.height == __value.height
+        )
+
+    def __str__(self) -> str:
+        return f"Pyramid: width={self.width} length={self.length} height={self.height}"
+
+    def __repr__(self) -> str:
+        return f"Pyramid: width={self.width} length={self.length} height={self.height}"
+
 
 class Cone(ObjectWithBaseArea):
     def __init__(self, radius: float, height: float):
@@ -108,6 +131,15 @@ class Cone(ObjectWithBaseArea):
 
     def display(self) -> None:
         print(f"Cone: radius={self.radius} height={self.height}")
+
+    def __eq__(self, __value: object) -> bool:
+        return isinstance(__value, Cone) and self.radius == __value.radius and self.height == __value.height
+
+    def __str__(self) -> str:
+        return f"Cone: radius={self.radius} height={self.height}"
+
+    def __repr__(self) -> str:
+        return f"Cone: radius={self.radius} height={self.height}"
 
 
 class Cylinder(ObjectWithBaseArea):
@@ -127,6 +159,15 @@ class Cylinder(ObjectWithBaseArea):
     def display(self) -> None:
         print(f"Cylinder: radius={self.radius} height={self.height}")
 
+    def __eq__(self, __value: object) -> bool:
+        return isinstance(__value, Cylinder) and self.radius == __value.radius and self.height == __value.height
+
+    def __str__(self) -> str:
+        return f"Cylinder: radius={self.radius} height={self.height}"
+
+    def __repr__(self) -> str:
+        return f"Cylinder: radius={self.radius} height={self.height}"
+
 
 class Tetrahedron(ObjectWithBaseArea):
     def __init__(self, edge: float):
@@ -143,3 +184,12 @@ class Tetrahedron(ObjectWithBaseArea):
 
     def display(self) -> None:
         print(f"Tetrahedron: edge={self.edge}")
+
+    def __eq__(self, __value: object) -> bool:
+        return isinstance(__value, Tetrahedron) and self.edge == __value.edge
+
+    def __str__(self) -> str:
+        return f"Tetrahedron: edge={self.edge}"
+
+    def __repr__(self) -> str:
+        return f"Tetrahedron: edge={self.edge}"

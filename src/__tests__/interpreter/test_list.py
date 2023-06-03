@@ -1,11 +1,15 @@
-from .utils import getInterpreter
+from src.interpreter.objects import Cuboid, Cylinder
+from .utils import assertNoOutput, getInterpreter
 from src.parser.nodes import (
+    Argument,
     Assignment,
     LemonList,
     LiteralIdentifier,
     LiteralInt,
     LiteralString,
     LiteralSubscriptable,
+    ObjectConstructor,
+    ObjectType,
     VariableDeclaration,
 )
 from src.tokens import Position
@@ -95,3 +99,64 @@ class TestList:
             ]
         )
         assert interpreter.context == {"a": ([1, 2, 3], POSITION), "b": (2, POSITION)}
+
+    def testListOfObjects(self, capfd):
+        """
+        let cube = Cuboid(width=2, height=3, length=4)
+        let cylinder = Cylinder(radius=2, height=3)
+        let a = [cube, cylinder]
+        """
+        interpreter = getInterpreter(
+            [
+                VariableDeclaration(
+                    POSITION,
+                    Assignment(
+                        POSITION,
+                        "cube",
+                        ObjectConstructor(
+                            POSITION,
+                            ObjectType.CUBOID,
+                            [
+                                Argument(POSITION, "width", LiteralInt(POSITION, 2)),
+                                Argument(POSITION, "height", LiteralInt(POSITION, 3)),
+                                Argument(POSITION, "length", LiteralInt(POSITION, 4)),
+                            ],
+                        ),
+                    ),
+                ),
+                VariableDeclaration(
+                    POSITION,
+                    Assignment(
+                        POSITION,
+                        "cylinder",
+                        ObjectConstructor(
+                            POSITION,
+                            ObjectType.CYLINDER,
+                            [
+                                Argument(POSITION, "radius", LiteralInt(POSITION, 2)),
+                                Argument(POSITION, "height", LiteralInt(POSITION, 3)),
+                            ],
+                        ),
+                    ),
+                ),
+                VariableDeclaration(
+                    POSITION,
+                    Assignment(
+                        POSITION,
+                        "a",
+                        LemonList([LiteralIdentifier(POSITION, "cube"), LiteralIdentifier(POSITION, "cylinder")]),
+                    ),
+                ),
+            ]
+        )
+
+        cube = Cuboid(width=2, height=3, length=4)
+        cylinder = Cylinder(radius=2, height=3)
+        a = [cube, cylinder]
+
+        assert interpreter.context == {
+            "a": (a, POSITION),
+            "cube": (cube, POSITION),
+            "cylinder": (cylinder, POSITION),
+        }
+        assertNoOutput(capfd)

@@ -11,6 +11,7 @@ from src.parser.nodes import (
     Assignment,
     BlockWithoutFunciton,
     ComparisonExpression,
+    ForEachLoop,
     FunctionCall,
     FunctionDefinition,
     IfStatement,
@@ -209,15 +210,18 @@ class Interpreter(NodeVisitor):
         else:
             raise TypeError(f"Type {type(subscriptable)} is not subscriptable")
 
-    def visitLemonList(self, node: LemonList) -> List[int] | List[float] | List[bool] | List[str] | List:
+    def visitLemonList(self, node: LemonList) -> List[int] | List[float] | List[bool] | List[str] | List[Object] | List:
         if len(node.values) == 0:
             return []
         firstValue = self.visit(node.values[0])
-        listType = type(firstValue)
+        if isinstance(firstValue, Object):
+            listType = Object
+        else:
+            listType = type(firstValue)
         list = [firstValue]
         for expression in node.values[1:]:
             value = self.visit(expression)
-            if type(value) != listType:
+            if not isinstance(value, listType):
                 raise InterpreterError("List cannot contain multiple types", node)
             else:
                 list.append(value)
@@ -313,6 +317,26 @@ class Interpreter(NodeVisitor):
             returnValue = self.visit(statement)
             if returnValue is not None:
                 break
+        return returnValue
+
+    def visitForEachLoop(self, node: ForEachLoop) -> Optional[Values]:
+        returnValue = None
+        iterable = self.visit(node.iterable)
+        if type(iterable) != list:
+            raise TypeError(f"Type {type(iterable)} is not iterable")
+        for element in iterable:
+            self.nextContext()
+            self.context.declare(node.identifier, element, node.startPosition)
+            returnValue = self.visit(node.block)
+            if returnValue is not None:
+                if returnValue == LoopOperation.BREAK:
+                    returnValue = None
+                elif returnValue == LoopOperation.CONTINUE:
+                    self.previousContext()
+                    continue
+                self.previousContext()
+                break
+            self.previousContext()
         return returnValue
 
     def visitBreak(self, _: Break) -> LiteralType[LoopOperation.BREAK]:

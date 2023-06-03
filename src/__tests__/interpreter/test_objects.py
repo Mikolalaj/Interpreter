@@ -19,7 +19,7 @@ POSITION = Position(0, 0)
 class TestObjects:
     def testConstructor(self, capfd):
         """
-        let a = new Cuboid(width=2, height=3, length=4)
+        let a = Cuboid(width=2, height=3, length=4)
         """
         interpreter = getInterpreter(
             [
@@ -47,7 +47,7 @@ class TestObjects:
 
     def testMethodCall(self, capfd):
         """
-        let cube = new Cuboid(width=2, height=3, length=4)
+        let cube = Cuboid(width=2, height=3, length=4)
         let volume = cube.getVolume()
         """
         interpreter = getInterpreter(
@@ -97,7 +97,7 @@ class TestObjects:
 
     def testProperty(self, capfd):
         """
-        let cube = new Cuboid(width=2, height=3, length=4)
+        let cube = Cuboid(width=2, height=3, length=4)
         cube.width = 5
         """
         interpreter = getInterpreter(

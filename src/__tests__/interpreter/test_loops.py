@@ -8,8 +8,10 @@ from src.parser.nodes import (
     ComparisonExpression,
     ConditionWithBlock,
     Continue,
+    ForEachLoop,
     FunctionCall,
     IfStatement,
+    LemonList,
     LiteralIdentifier,
     LiteralInt,
     VariableDeclaration,
@@ -194,3 +196,41 @@ class TestLoops:
 
         assert capfd.readouterr().out == "2\n4\n5\n"
         assert interpreter.context == {"a": (5, POSITION)}
+
+    def testForEach(self, capfd):
+        """
+        let a = [1, 2, 3]
+        foreach (i in a) {
+            print(out=i)
+        }
+        """
+        interpreter = getInterpreter(
+            [
+                VariableDeclaration(
+                    POSITION,
+                    Assignment(
+                        POSITION,
+                        "a",
+                        LemonList([LiteralInt(POSITION, 1), LiteralInt(POSITION, 2), LiteralInt(POSITION, 3)]),
+                    ),
+                ),
+                ForEachLoop(
+                    POSITION,
+                    "i",
+                    LiteralIdentifier(POSITION, "a"),
+                    WhileBlock(
+                        POSITION,
+                        [
+                            FunctionCall(
+                                POSITION,
+                                "print",
+                                [Argument(POSITION, "out", LiteralIdentifier(POSITION, "i"))],
+                            )
+                        ],
+                    ),
+                ),
+            ]
+        )
+
+        assert capfd.readouterr().out == "1\n2\n3\n"
+        assert interpreter.context == {"a": ([1, 2, 3], POSITION)}
