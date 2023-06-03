@@ -1,6 +1,7 @@
 from dataclasses import dataclass, field
 from typing import Optional
 from src.errors import CriticalInterpreterError
+from src.interpreter.objects import Object
 from src.interpreter.types import VariableWithPosition, Values
 from src.tokens import Position
 
@@ -33,6 +34,19 @@ class Context:
             self.local_values[key] = (value, position)
         elif self.parent is not None:
             self.parent.set(key, value, position)
+        else:
+            raise CriticalInterpreterError(f"Variable {key} is not defined")
+
+    def setObjectProperty(self, key: str, property: str, value: Values, position: Position) -> None:
+        local = self.__getLocal(key)
+        if local is not None:
+            if not isinstance(local[0], Object):
+                raise CriticalInterpreterError(
+                    f"Variable {key} at {position} is not an object. It's defined as {type(local[0])} at {local[1]}"  # noqa: E501
+                )
+            setattr(local[0], property, value)
+        elif self.parent is not None:
+            self.parent.setObjectProperty(key, property, value, position)
         else:
             raise CriticalInterpreterError(f"Variable {key} is not defined")
 

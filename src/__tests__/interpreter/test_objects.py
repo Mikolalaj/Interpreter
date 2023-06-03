@@ -7,6 +7,7 @@ from src.parser.nodes import (
     LiteralInt,
     ObjectConstructor,
     ObjectMethodCall,
+    ObjectProperty,
     ObjectType,
     VariableDeclaration,
 )
@@ -16,7 +17,7 @@ POSITION = Position(0, 0)
 
 
 class TestObjects:
-    def testObjectConstructor(self, capfd):
+    def testConstructor(self, capfd):
         """
         let a = new Cuboid(width=2, height=3, length=4)
         """
@@ -44,7 +45,7 @@ class TestObjects:
         assert interpreter.context == {"a": (Cuboid(width=2, height=3, length=4), POSITION)}
         assertNoOutput(capfd)
 
-    def testObjectObjectMethodCall(self, capfd):
+    def testMethodCall(self, capfd):
         """
         let cube = new Cuboid(width=2, height=3, length=4)
         let volume = cube.getVolume()
@@ -92,4 +93,44 @@ class TestObjects:
             "cube": (cube, POSITION),
             "volume": (cube.getVolume(), POSITION),
         }
+        assertNoOutput(capfd)
+
+    def testProperty(self, capfd):
+        """
+        let cube = new Cuboid(width=2, height=3, length=4)
+        cube.width = 5
+        """
+        interpreter = getInterpreter(
+            [
+                VariableDeclaration(
+                    POSITION,
+                    Assignment(
+                        POSITION,
+                        "cube",
+                        ObjectConstructor(
+                            POSITION,
+                            ObjectType.CUBOID,
+                            [
+                                Argument(POSITION, "width", LiteralInt(POSITION, 2)),
+                                Argument(POSITION, "height", LiteralInt(POSITION, 3)),
+                                Argument(POSITION, "length", LiteralInt(POSITION, 4)),
+                            ],
+                        ),
+                    ),
+                ),
+                Assignment(
+                    POSITION,
+                    ObjectProperty(
+                        POSITION,
+                        "cube",
+                        "width",
+                    ),
+                    LiteralInt(POSITION, 5),
+                ),
+            ]
+        )
+
+        cube = Cuboid(width=5, height=3, length=4)
+
+        assert interpreter.context == {"cube": (cube, POSITION)}
         assertNoOutput(capfd)

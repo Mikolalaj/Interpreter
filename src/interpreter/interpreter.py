@@ -26,6 +26,7 @@ from src.parser.nodes import (
     Node,
     ObjectConstructor,
     ObjectMethodCall,
+    ObjectProperty,
     ObjectType,
     PrimaryExpression,
     ReturnStatement,
@@ -76,6 +77,10 @@ class Interpreter(NodeVisitor):
         value = node.value
         if type(variableName) == str:
             self.context.set(variableName, self.visit(value), node.position)
+        elif isinstance(variableName, ObjectProperty):
+            self.context.setObjectProperty(
+                variableName.identifier, variableName.property, self.visit(value), node.position
+            )
         else:
             raise InterpreterError("Assignment's name has to be an identifier, not object property", node)
 
