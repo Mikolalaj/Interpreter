@@ -3,7 +3,7 @@ from enum import Enum
 from typing import List, Optional
 from typing import Literal as LiteralType
 
-from src.tokens import Position
+from lexer.tokens import Position
 
 
 class Node(ABC):

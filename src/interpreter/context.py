@@ -1,9 +1,9 @@
 from dataclasses import dataclass, field
 from typing import Optional
-from src.errors import CriticalInterpreterError
-from src.interpreter.objects import Object
-from src.interpreter.types import VariableWithPosition, Values
-from src.tokens import Position
+from common.errors import CriticalInterpreterError
+from interpreter.objects import Object
+from interpreter.types import VariableWithPosition, Values
+from lexer.tokens import Position
 
 
 @dataclass

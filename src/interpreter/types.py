@@ -1,6 +1,6 @@
-from src.interpreter.objects import Object
-from src.parser.nodes import FunctionDefinition
-from src.tokens import Position
+from interpreter.objects import Object
+from parser.nodes import FunctionDefinition
+from lexer.tokens import Position
 
 Literals = int | float | bool | str | list
 Objects = Object

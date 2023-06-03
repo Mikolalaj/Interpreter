@@ -1,7 +1,7 @@
 from typing import List, Optional, cast
-from src.errors import ParserError
-from src.lexer import Lexer
-from src.parser.nodes import (
+from common.errors import ParserError
+from lexer.lexer import Lexer
+from parser.nodes import (
     AdditiveExpression,
     Argument,
     Assignment,
@@ -40,8 +40,8 @@ from src.parser.nodes import (
     WhileLoop,
     WhileOperation,
 )
-from src.token_type import TokenType
-from src.tokens import Position, Token
+from lexer.token_type import TokenType
+from lexer.tokens import Position, Token
 
 
 class Parser:

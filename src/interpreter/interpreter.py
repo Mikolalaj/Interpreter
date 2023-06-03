@@ -1,11 +1,11 @@
 from enum import Enum
 from typing import List, Optional, cast
 from typing import Literal as LiteralType
-from src.errors import CriticalInterpreterError, InterpreterError
-from src.interpreter.context import Context
-from src.interpreter.objects import Cuboid, Object, Pyramid, Cone, Cylinder, Tetrahedron, Sphere
-from src.interpreter.types import Values
-from src.parser.nodes import (
+from common.errors import CriticalInterpreterError, InterpreterError
+from interpreter.context import Context
+from interpreter.objects import Cuboid, Object, Pyramid, Cone, Cylinder, Tetrahedron, Sphere
+from interpreter.types import Values
+from parser.nodes import (
     AdditiveExpression,
     Argument,
     Assignment,
@@ -38,7 +38,7 @@ from src.parser.nodes import (
     Break,
     Continue,
 )
-from src.parser.parser import Parser
+from parser.parser import Parser
 
 
 class LoopOperation(Enum):
