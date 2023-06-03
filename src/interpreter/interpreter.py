@@ -25,6 +25,7 @@ from src.parser.nodes import (
     MultiplicativeExpression,
     Node,
     ObjectConstructor,
+    ObjectMethodCall,
     ObjectType,
     PrimaryExpression,
     ReturnStatement,
@@ -323,6 +324,20 @@ class Interpreter(NodeVisitor):
         if type(expressionValue) != int and type(expressionValue) != float:
             raise InterpreterError(f"{node.objectType} constructor requires {name} argument to be a number", node)
         return expressionValue
+
+    def visitObjectMethodCall(self, node: ObjectMethodCall) -> Optional[Values]:
+        objectName = node.identifier
+        object = self.context.get(objectName, node.startPosition)
+        if not isinstance(object, Object):
+            raise InterpreterError(f"{objectName} is not an object", node)
+        object = cast(Object, object)
+        methodName = node.functionCall.name
+        method = getattr(object, methodName, None)
+        if method is None:
+            raise InterpreterError(f"{objectName} object has no method {methodName}", node)
+        if len(node.functionCall.arguments) != 0:
+            raise InterpreterError(f"{methodName} method takes no arguments", node)
+        return method()
 
     # Context
 

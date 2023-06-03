@@ -21,3 +21,9 @@ def getInterpreter(nodes: List[Node]) -> Interpreter:
     interpreter = Interpreter(parser)
     interpreter.interpret()
     return interpreter
+
+
+def assertNoOutput(capfd):
+    out, err = capfd.readouterr()
+    assert out == ""
+    assert err == ""
