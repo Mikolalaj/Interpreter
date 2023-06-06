@@ -12,6 +12,46 @@ Z pliku:
 
 Oprócz pliku z kodem możliwe jest też podanie kodu w postaci stringa.
 
+## Przykładowy kod
+```swift
+function add(a, b) {
+    return a + b
+}
+
+let cube = Cuboid(width=2, height=3, length=4)
+
+if (2 > 3) {
+    cube.width = add(a=2, b=3)
+}
+else {
+    cube.width = add(a=3, b=4)
+}
+
+let cylinder = Cylinder(radius=2, height=3)
+
+let volume = cube.getVolume() + cylinder.getVolume()
+let volumeString = string(value=volume)
+print(out="Volume: " + volumeString)
+
+let objects = [cube, cylinder]
+
+foreach (object in objects) {
+    object.display()
+}
+
+let string = "2"
+let number = int(value=string) + 3
+print(out=number)
+```
+
+Powyższy kod wyświetli na ekranie:
+```
+Volume: 121.69911184307752
+Cuboid: width=7 length=4 height=3
+Cylinder: radius=2 height=3
+5
+```
+
 ## Przykładowe wyrażenia
 
 #### Podstawowe
@@ -174,7 +214,13 @@ Nazwy zmiennych, funkcji:
 ## Wbudowane funkcje
 
 ```typescript
-print(value) # wypisuje wartość na ekran
+print(out=value) # wypisuje wartość na ekran
+```
+
+Castowanie typów
+```typescript
+let a = int(value="5")
+a = a + 1
 ```
 
 ## Wbudowane typy
@@ -444,6 +490,64 @@ def testForeach(self):
         assert tokens[19] == IdentifierValueToken(value="i", length=1, startPosition=Position(line=3, column=11))
         assert tokens[20] == Token(type=TokenType.T_RPARENT, startPosition=Position(line=3, column=12))
         assert tokens[21] == Token(type=TokenType.T_RBRACKET, startPosition=Position(line=4, column=1))
+```
+
+Przykładowy test jednostkowy interpretera:
+    
+```python
+def testWhileBreak(self, capfd):
+"""
+let a = 1
+while (a < 5) {
+    a = a + 1
+    if (a == 3) {
+        break
+    }
+}
+"""
+interpreter = getInterpreter(
+    [
+        VariableDeclaration(POSITION, Assignment(POSITION, "a", LiteralInt(POSITION, 1))),
+        WhileLoop(
+            POSITION,
+            ComparisonExpression(
+                LiteralIdentifier(POSITION, "a"),
+                LiteralInt(POSITION, 5),
+                "<",
+            ),
+            WhileBlock(
+                POSITION,
+                [
+                    Assignment(
+                        POSITION,
+                        "a",
+                        AdditiveExpression(
+                            LiteralIdentifier(POSITION, "a"),
+                            LiteralInt(POSITION, 1),
+                            "+",
+                        ),
+                    ),
+                    IfStatement(
+                        POSITION,
+                        ConditionWithBlock(
+                            ComparisonExpression(
+                                LiteralIdentifier(POSITION, "a"),
+                                LiteralInt(POSITION, 3),
+                                "==",
+                            ),
+                            BlockWithoutFunciton(POSITION, [Break()]),
+                        ),
+                        None,
+                        None,
+                    ),
+                ],
+            ),
+        ),
+    ]
+)
+
+assert interpreter.context == {"a": (3, POSITION)}
+assertNoOutput(capfd)
 ```
 
 Oprócz testów jednostkowych używam też mypy do sprawdzania poprawności typów. Aby sprawdzić poprawność typów, należy wykonać polecenie:

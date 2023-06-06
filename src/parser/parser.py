@@ -1,7 +1,9 @@
 from typing import List, Optional, cast
-from src.lexer import Lexer
-from src.parser.nodes import (
+from common.errors import ParserError
+from lexer.lexer import Lexer
+from parser.nodes import (
     AdditiveExpression,
+    Argument,
     Assignment,
     BlockWithoutFunciton,
     Break,
@@ -13,11 +15,10 @@ from src.parser.nodes import (
     FunctionCall,
     IfStatement,
     LemonList,
-    LemonListValue,
     Literal,
     LiteralBool,
     LiteralFloat,
-    LiteralIndentifier,
+    LiteralIdentifier,
     LiteralInt,
     LiteralString,
     LiteralSubscriptable,
@@ -28,7 +29,6 @@ from src.parser.nodes import (
     ObjectMethodCall,
     ObjectProperty,
     ObjectType,
-    Parameter,
     FunctionDefinition,
     PrimaryExpression,
     Expression,
@@ -40,8 +40,8 @@ from src.parser.nodes import (
     WhileLoop,
     WhileOperation,
 )
-from src.token_type import TokenType
-from src.tokens import Position, Token
+from lexer.token_type import TokenType
+from lexer.tokens import Position, Token
 
 
 class Parser:
@@ -50,15 +50,8 @@ class Parser:
         self.token = tokens[0] if tokens else lexer.getNextToken()
         self.nextToken: Optional[Token] = None
         self.tokens = tokens
-        self.assignableTokens = [
-            TokenType.VT_ID,
-            TokenType.VT_INT,
-            TokenType.VT_FLOAT,
-            TokenType.VT_STRING,
-            TokenType.VT_BOOLEAN,
-        ]
-
-        self.nextLexerToken()
+        if tokens is not None:
+            self.nextLexerToken()
 
     def nextLexerToken(self) -> None:
         if self.nextToken is not None:
@@ -100,59 +93,64 @@ class Parser:
     def parseStatementWithoutFunction(self) -> Optional[StatementWithoutFunction]:
         return (
             self.parseStartingWithIdentifier()
+            or self.parseForEachLoop()
             or self.parseExpression()
             or self.parseIfStatement()
             or self.parseVariableDeclaration()
             or self.parseReturnStatement()
             or self.parseWhileLoop()
-            or self.parseForEachLoop()
         )
 
-    def parseParameters(self) -> Optional[List[Parameter]]:
+    def parseParameters(self) -> Optional[List[str]]:
         parameters = []
         if self.token.type != TokenType.T_LPARENT:
             return None
         self.nextLexerToken()
         if self.token.type == TokenType.VT_ID:
-            parameters.append(Parameter(self.token.getValue()))
+            parameters.append(self.token.getValue())
             self.nextLexerToken()
             while self.token.type == TokenType.T_COMMA:
                 self.nextLexerToken()
                 if self.token.type == TokenType.VT_ID:
-                    parameters.append(Parameter(self.token.getValue()))
+                    parameters.append(self.token.getValue())
                     self.nextLexerToken()
                 else:
-                    raise Exception(f"Expected variable type, got {self.token}")
+                    raise ParserError("variable type", self.token)
         if self.token.type == TokenType.T_RPARENT:
             self.nextLexerToken()
             return parameters
         else:
-            raise Exception(f"Expected ')', got {self.token}")
+            raise ParserError(")", self.token)
 
     def parseFunctionDefinition(self) -> Optional[FunctionDefinition]:
         if self.token.type != TokenType.T_FUNCTION:
             return None
+        position = self.token.startPosition
         self.nextLexerToken()
         if self.token.type != TokenType.VT_ID:
-            raise Exception(f"Expected function name, got {self.token}")
+            raise ParserError("function name", self.token)
         name = self.token.getValue()
         self.nextLexerToken()
         parameters = self.parseParameters()
         if parameters is None:
-            raise Exception(f"Expected parameters, got {self.token}")
+            raise ParserError("parameters", self.token)
         body = self.parseBlockWithoutFunction()
         if body is None:
-            raise Exception(f"Expected block, got {self.token}")
-        self.nextLexerToken()
-        return FunctionDefinition(name, parameters, body)
+            raise ParserError("block", self.token)
+        return FunctionDefinition(position, name, parameters, body)
 
     # Assignment = Identifier = ( Expression | String | List | FunctionCall | ObjectMethodCall | ObjectProperty | ListGetValue ) ;
-    def parseAssignment(self, name: Optional[str | ObjectProperty] = None) -> Optional[Assignment]:
-        if not name:
+    def parseAssignment(
+        self, name: Optional[str | ObjectProperty] = None, position: Optional[Position] = None
+    ) -> Optional[Assignment]:
+        if name is None:
             if self.token.type != TokenType.VT_ID:
                 return None
             name = self.token.getValue()
+            position = self.token.startPosition
             self.nextLexerToken()
+        if position is None:
+            raise Exception("Position is None")
 
         if self.token.type != TokenType.T_ASSIGN:
             return None
@@ -160,46 +158,62 @@ class Parser:
 
         objectConstructor = self.parseObjectConstructor()
         if objectConstructor is not None:
-            return Assignment(name, objectConstructor)
+            return Assignment(position, name, objectConstructor)
 
         expression = self.parseExpression()
         if expression is not None:
-            return Assignment(name, expression)
+            return Assignment(position, name, expression)
+
+        list = self.parseList()
+        if list is not None:
+            return Assignment(position, name, list)
+        return None
+
+    def parseArgument(self) -> Optional[Argument]:
+        if self.token.type != TokenType.VT_ID:
+            return None
+        name = self.token.getValue()
+        position = self.token.startPosition
+        self.nextLexerToken()
+
+        if self.token.type != TokenType.T_ASSIGN:
+            return None
+        self.nextLexerToken()
+
+        objectConstructor = self.parseObjectConstructor()
+        if objectConstructor is not None:
+            return Argument(position, name, objectConstructor)
+
+        expression = self.parseExpression()
+        if expression is not None:
+            return Argument(position, name, expression)
 
         list = self.parseList()
         if list is not None:
             self.nextLexerToken()
-            return Assignment(name, list)
+            return Argument(position, name, list)
+        return None
 
-        if self.token.type == TokenType.VT_STRING:
-            value = self.token.getValue()
-            self.nextLexerToken()
-            return Assignment(name, value)
-
-        value = self.token.getValue()
-        self.nextLexerToken()
-        return Assignment(name, value)
-
-    def parseArguments(self) -> Optional[List[Assignment]]:
+    def parseArguments(self) -> Optional[List[Argument]]:
         arguments = []
         if self.token.type != TokenType.T_LPARENT:
             return None
         self.nextLexerToken()
-        argument = self.parseAssignment()
+        argument = self.parseArgument()
         if argument:
             arguments.append(argument)
             while self.token.type == TokenType.T_COMMA:
                 self.nextLexerToken()
-                argument = self.parseAssignment()
+                argument = self.parseArgument()
                 if argument:
                     arguments.append(argument)
                 else:
-                    raise Exception(f"Expected variable type, got {self.token}")
+                    raise ParserError("argument", self.token)
         if self.token.type == TokenType.T_RPARENT:
             self.nextLexerToken()
             return arguments
         else:
-            raise Exception(f"Expected ')', got {self.token}")
+            raise ParserError(")", self.token)
 
     def parseObjectMethodCallOrProperty(
         self, name: str, startPosition: Position
@@ -208,7 +222,7 @@ class Parser:
             return None
         self.nextLexerToken()
         if self.token.type != TokenType.VT_ID:
-            raise Exception(f"Expected method name, got {self.token}")
+            raise ParserError("method name", self.token)
         methodName = self.token.getValue()
         fucntionCallPosition = self.token.startPosition
         self.nextLexerToken()
@@ -219,7 +233,7 @@ class Parser:
 
     def parseStartingWithIdentifier(
         self,
-    ) -> Optional[FunctionCall | Assignment | LiteralIndentifier | ObjectMethodCall]:
+    ) -> Optional[FunctionCall | Assignment | LiteralIdentifier | ObjectMethodCall]:
         if self.token.type != TokenType.VT_ID:
             return None
         objectProperty = None
@@ -238,11 +252,11 @@ class Parser:
             else:
                 objectProperty = objectMethodCallOrProperty
 
-        assignment = self.parseAssignment(objectProperty if objectProperty else name)
+        assignment = self.parseAssignment(objectProperty if objectProperty else name, startPosition)
         if assignment is not None:
             return assignment
 
-        return LiteralIndentifier(startPosition, name)
+        return LiteralIdentifier(startPosition, name)
 
     # List = LeftBracket ListValue (Comma ListValue)* RightBracket ;
     def parseList(self) -> Optional[LemonList]:
@@ -251,37 +265,25 @@ class Parser:
         self.nextLexerToken()
         values = self.parseListValues()
         if self.token.type != TokenType.T_RSQBRACKET:
-            raise Exception(f"Expected ']', got {self.token}")
+            raise ParserError("]", self.token)
         self.nextLexerToken()
-        return LemonList(values)
+        return LemonList(values or [])
 
-    # ListValue = Number | String | Boolean | Identifier ;
-    def parseListValues(self) -> Optional[List[LemonListValue]]:
+    # ListValue = Expression ;
+    def parseListValues(self) -> Optional[List[Expression]]:
         values = []
-        while self.isType(
-            TokenType.VT_INT, TokenType.VT_FLOAT, TokenType.VT_STRING, TokenType.VT_BOOLEAN, TokenType.VT_ID
-        ):
-            if self.token.type == TokenType.VT_INT:
-                values.append(LemonListValue(LiteralInt(self.token.startPosition, self.token.getValue())))
-            elif self.token.type == TokenType.VT_FLOAT:
-                values.append(LemonListValue(LiteralFloat(self.token.startPosition, self.token.getValue())))
-            elif self.token.type == TokenType.VT_STRING:
-                values.append(LemonListValue(LiteralString(self.token.startPosition, self.token.getValue())))
-            elif self.token.type == TokenType.VT_BOOLEAN:
-                values.append(LemonListValue(LiteralBool(self.token.startPosition, self.token.getValue())))
-            elif self.token.type == TokenType.VT_ID:
-                values.append(LemonListValue(LiteralIndentifier(self.token.startPosition, self.token.getValue())))
-            else:
-                if len(values) == 0:
-                    return None
-                raise Exception(f"Expected int, float, string, bool or identifier, got {self.token}")
-            self.nextLexerToken()
+        expression = self.parseExpression()
+        while expression is not None:
+            values.append(expression)
             if self.token.type == TokenType.T_COMMA:
                 self.nextLexerToken()
+                expression = self.parseExpression()
             elif self.token.type == TokenType.T_RSQBRACKET:
                 break
             else:
-                raise Exception(f"Expected ',', got {self.token}")
+                raise ParserError(",", self.token)
+        if len(values) == 0:
+            return None
         return values
 
     # ListIndex = LeftBracket Integer RightBracket ;
@@ -291,9 +293,9 @@ class Parser:
         self.nextLexerToken()
         expression = self.parseExpression()
         if expression is None:
-            raise Exception(f"Expected expression, got {self.token}")
+            raise ParserError("expression", self.token)
         if not self.isType(TokenType.T_RSQBRACKET):
-            raise Exception(f"Expected ']', got {self.token}")
+            raise ParserError("]", self.token)
         self.nextLexerToken()
         return LiteralSubscriptable(token.startPosition, token.getValue(), expression)
 
@@ -309,6 +311,9 @@ class Parser:
         if self.token.type == TokenType.VT_FLOAT:
             self.nextLexerToken()
             return LiteralFloat(token.startPosition, token.getValue())
+        if self.token.type == TokenType.VT_STRING:
+            self.nextLexerToken()
+            return LiteralString(token.startPosition, token.getValue())
         if self.token.type == TokenType.VT_ID:
             self.nextLexerToken()
             subscriptable = self.parseSubscriptable(token)
@@ -320,7 +325,7 @@ class Parser:
             objectMethodCallOrProperty = self.parseObjectMethodCallOrProperty(token.getValue(), token.startPosition)
             if objectMethodCallOrProperty is not None:
                 return objectMethodCallOrProperty
-            return LiteralIndentifier(token.startPosition, token.getValue())
+            return LiteralIdentifier(token.startPosition, token.getValue())
         return None
 
     # PrimaryExpression = NotOperator? Literal | ( LeftParenthesis Expression RightParenthesis ) ;
@@ -337,7 +342,7 @@ class Parser:
             self.nextLexerToken()
             expression = self.parseExpression()
             if expression is None:
-                raise Exception(f"Expected expression, got {self.token}")
+                raise ParserError("expression", self.token)
             if self.isType(TokenType.T_RPARENT):
                 self.nextLexerToken()
                 if startPosition:
@@ -345,7 +350,7 @@ class Parser:
                 else:
                     raise Exception("Start Position is not set")
             else:
-                raise Exception(f"Expected ')', got {self.token}")
+                raise ParserError(")", self.token)
         else:
             literal = self.parseLiteral()
             if literal is None:
@@ -367,8 +372,8 @@ class Parser:
             self.nextLexerToken()
             right = self.parseMultiplicativeExpression()
             if right is None:
-                raise Exception(f"Expected expression, got {self.token}")
-            return MultiplicativeExpression(left, right, operator)
+                raise ParserError("expression", self.token)
+            return MultiplicativeExpression(left, right, operator)  # type: ignore
         return left
 
     # AdditiveExpression = MultiplicativeExpression ( ( "+" | "-" ) MultiplicativeExpression )* ;
@@ -381,8 +386,8 @@ class Parser:
             self.nextLexerToken()
             right = self.parseAdditiveExpression()
             if right is None:
-                raise Exception(f"Expected expression, got {self.token}")
-            return AdditiveExpression(left, right, operator)
+                raise ParserError("expression", self.token)
+            return AdditiveExpression(left, right, operator)  # type: ignore
         return left
 
     # ComparisonExpression = AdditiveExpression ( ( "<" | ">" | "<=" | ">=" | "==" | "!=" ) AdditiveExpression )? ;
@@ -402,7 +407,7 @@ class Parser:
             self.nextLexerToken()
             right = self.parseComparisonExpression()
             if right is None:
-                raise Exception(f"Expected expression, got {self.token}")
+                raise ParserError("expression", self.token)
             return ComparisonExpression(left, right, operator)
         return left
 
@@ -415,7 +420,7 @@ class Parser:
             self.nextLexerToken()
             right = self.parseLogicalAndExpression()
             if right is None:
-                raise Exception(f"Expected expression, got {self.token}")
+                raise ParserError("expression", self.token)
             return LogicalAndExpression(left, right)
         return left
 
@@ -428,7 +433,7 @@ class Parser:
             self.nextLexerToken()
             right = self.parseLogicalOrExpression()
             if right is None:
-                raise Exception(f"Expected expression, got {self.token}")
+                raise ParserError("expression", self.token)
             return LogicalOrExpression(left, right)
         return left
 
@@ -457,10 +462,10 @@ class Parser:
     def parseConditionWithBlock(self) -> ConditionWithBlock:
         condition = self.parseCondition()
         if condition is None:
-            raise Exception(f"Expected condition, got {self.token}")
+            raise ParserError("condition", self.token)
         block = self.parseBlockWithoutFunction()
         if block is None:
-            raise Exception(f"Expected block, got {self.token}")
+            raise ParserError("block", self.token)
         return ConditionWithBlock(condition, block)
 
     def parseCondition(self) -> Optional[Expression]:
@@ -469,12 +474,12 @@ class Parser:
         self.nextLexerToken()
         expression = self.parseExpression()
         if expression is None:
-            raise Exception(f"Expected expression, got {self.token}")
+            raise ParserError("expression", self.token)
         if self.isType(TokenType.T_RPARENT):
             self.nextLexerToken()
             return expression
         else:
-            raise Exception(f"Expected ')', got {self.token}")
+            raise ParserError(")", self.token)
 
     def parseBlockWithoutFunction(self) -> Optional[BlockWithoutFunciton]:
         if not self.isType(TokenType.T_LBRACKET):
@@ -485,7 +490,7 @@ class Parser:
         while not self.isType(TokenType.T_RBRACKET):
             statement = self.parseStatementWithoutFunction()
             if statement is None:
-                raise Exception(f"Expected statement, got {self.token}")
+                raise ParserError("statement", self.token)
             statements.append(statement)
         self.nextLexerToken()
         return BlockWithoutFunciton(startPosition, statements)
@@ -498,7 +503,7 @@ class Parser:
         self.nextLexerToken()
         variableAssignment = self.parseAssignment()
         if variableAssignment is None:
-            raise Exception(f"Expected variable assignment, got {self.token}")
+            raise ParserError("variable assignment", self.token)
         return VariableDeclaration(startPosition, variableAssignment)
 
     def parseReturnStatement(self) -> Optional[ReturnStatement]:
@@ -508,7 +513,7 @@ class Parser:
         self.nextLexerToken()
         expression = self.parseExpression()
         if expression is None:
-            raise Exception(f"Expected expression, got {self.token}")
+            raise ParserError("expression", self.token)
         return ReturnStatement(startPosition, expression)
 
     def parseWhileOperation(self) -> Optional[WhileOperation]:
@@ -532,7 +537,7 @@ class Parser:
         while not self.isType(TokenType.T_RBRACKET):
             statement = self.parseStatementForWhileLoop()
             if statement is None:
-                raise Exception(f"Expected statement, got {self.token}")
+                raise ParserError("statement", self.token)
             statements.append(statement)
         self.nextLexerToken()
         return WhileBlock(startPosition, statements)
@@ -544,10 +549,10 @@ class Parser:
         self.nextLexerToken()
         condition = self.parseCondition()
         if condition is None:
-            raise Exception(f"Expected condition, got {self.token}")
+            raise ParserError("condition", self.token)
         block = self.parseWhileBlock()
         if block is None:
-            raise Exception(f"Expected block, got {self.token}")
+            raise ParserError("block", self.token)
         return WhileLoop(startPosition, condition, block)
 
     # ForEachLoop = "foreach" Identifier "in" Identifier WhileBlock ;
@@ -557,44 +562,47 @@ class Parser:
         startPosition = self.token.startPosition
         self.nextLexerToken()
         if not self.isType(TokenType.T_LPARENT):
-            raise Exception(f"Expected '(', got {self.token}")
+            raise ParserError("(", self.token)
         self.nextLexerToken()
         if not self.isType(TokenType.VT_ID):
-            raise Exception(f"Expected identifier, got {self.token}")
+            raise ParserError("identifier", self.token)
         identifier = self.token.getValue()
         self.nextLexerToken()
         if not self.isType(TokenType.T_IN):
-            raise Exception(f"Expected 'in', got {self.token}")
+            raise ParserError("in", self.token)
         self.nextLexerToken()
-        if not self.isType(TokenType.VT_ID):
-            raise Exception(f"Expected identifier, got {self.token}")
-        iterable = self.token.getValue()
-        self.nextLexerToken()
+        iterable = self.parseExpression()
+        if iterable is None:
+            raise ParserError("expression", self.token)
         if not self.isType(TokenType.T_RPARENT):
-            raise Exception(f"Expected ')', got {self.token}")
+            raise ParserError(")", self.token)
         self.nextLexerToken()
         block = self.parseWhileBlock()
         if block is None:
-            raise Exception(f"Expected block, got {self.token}")
+            raise ParserError("block", self.token)
         return ForEachLoop(startPosition, identifier, iterable, block)
 
     # ObjectConstructor = ObjectType LeftParenthesis Arguments RightParenthesis ;
     def parseObjectConstructor(self) -> Optional[ObjectConstructor]:
-        if not self.isType(
-            TokenType.T_CUBOID,
-            TokenType.T_PYRAMID,
-            TokenType.T_CONE,
-            TokenType.T_CYLINDER,
-            TokenType.T_SPHERE,
-            TokenType.T_TETRAHEDRON,
-        ):
+        if self.isType(TokenType.T_CUBOID):
+            objectType = ObjectType.CUBOID
+        elif self.isType(TokenType.T_PYRAMID):
+            objectType = ObjectType.PYRAMID
+        elif self.isType(TokenType.T_CONE):
+            objectType = ObjectType.CONE
+        elif self.isType(TokenType.T_CYLINDER):
+            objectType = ObjectType.CYLINDER
+        elif self.isType(TokenType.T_SPHERE):
+            objectType = ObjectType.SPHERE
+        elif self.isType(TokenType.T_TETRAHEDRON):
+            objectType = ObjectType.TETRAHEDRON
+        else:
             return None
         startPosition = self.token.startPosition
-        objectType = cast(ObjectType, self.token.type)
         self.nextLexerToken()
         arguments = self.parseArguments()
         if arguments is None:
-            raise Exception(f"Expected arguments, got {self.token}")
+            raise ParserError("arguments", self.token)
         return ObjectConstructor(startPosition, objectType, arguments)
 
     def isType(self, *type: TokenType) -> bool:
